@@ -1,6 +1,17 @@
 using GeometricMedicalPhantoms
 using Test
+using Statistics
+import Aqua
+
+include("utils.jl")
 
 @testset "GeometricMedicalPhantoms.jl" begin
-    # Write your tests here.
+    include("test_generate_respiratory_signal.jl")
+    include("test_generate_cardiac_signals.jl")
+    include("test_create_torso_phantom.jl")
+
+    @testset "Aqua" begin
+        Aqua.test_all(GeometricMedicalPhantoms)
+    end
 end
+
