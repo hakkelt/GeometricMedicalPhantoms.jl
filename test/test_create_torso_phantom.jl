@@ -39,6 +39,22 @@ using Statistics
         @test phantom_small[:, :, :, 1] ≈ phantom_large_center
     end
     
+    @testset "TissueMask" begin
+        # Test that TissueMask can be created
+        lung_mask = TissueMask(lung=true)
+        @test lung_mask.lung == true
+        @test lung_mask.heart == false
+        
+        # Test that phantoms created with TissueMask are BitArrays
+        phantom_mask = create_torso_phantom(64, 64, 64; ti=lung_mask)
+        @test phantom_mask isa BitArray
+        @test size(phantom_mask) == (64, 64, 64, 1)
+        
+        # Test that mask contains only true/false
+        @test all(x -> x in (true, false), phantom_mask)
+        @test any(phantom_mask)  # Should have some true values
+    end
+    
     @testset "3D phantom with custom tissue intensities" begin
         # Test custom intensities with masking
         ti_custom = TissueIntensities(lung=0.10, heart=0.70, body=0.30, lv_blood=0.95)
@@ -326,22 +342,6 @@ using Statistics
         @test any(x -> abs(x - ti.ra_blood) < 1e-6, unique_vals)    # RA blood
         @test any(x -> abs(x - ti.liver) < 1e-6, unique_vals)       # Liver
         @test any(x -> abs(x - ti.stomach) < 1e-6, unique_vals)     # Stomach
-    end
-    
-    @testset "TissueMask" begin
-        # Test that TissueMask can be created
-        lung_mask = TissueMask(lung=true)
-        @test lung_mask.lung == true
-        @test lung_mask.heart == false
-        
-        # Test that phantoms created with TissueMask are BitArrays
-        phantom_mask = create_torso_phantom(64, 64, 64; ti=lung_mask)
-        @test phantom_mask isa BitArray
-        @test size(phantom_mask) == (64, 64, 64, 1)
-        
-        # Test that mask contains only true/false
-        @test all(x -> x in (true, false), phantom_mask)
-        @test any(phantom_mask)  # Should have some true values
     end
     
     @testset "eltype parameter - Float32 (default)" begin
