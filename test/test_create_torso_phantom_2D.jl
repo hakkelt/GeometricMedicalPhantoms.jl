@@ -384,7 +384,9 @@ using Statistics
             # Test calculate_volume with single intensity (2D slice, so using 2D fov with depth 1)
             # Note: For 2D, we need to treat it as a 3D array with nz=1
             nx, ny = size(frame)
-            fov_2d = (30.0, 30.0, 30.0/nx)  # Single-slice FOV with depth based on resolution
+            fov_x = fov_y = 30.0  # FOV used when creating phantom (default)
+            fov_z = 0.5  # Small depth for single slice
+            fov_2d = (fov_x, fov_y, fov_z)
             frame_as_3d = reshape(frame, size(frame)..., 1)
             lung_vol = calculate_volume(frame_as_3d, ti.lung, fov_2d)
             @test lung_vol >= 0.0
