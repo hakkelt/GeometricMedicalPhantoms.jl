@@ -383,19 +383,20 @@ using Statistics
 
             # Test calculate_volume with single intensity (2D slice, so using 2D fov with depth 1)
             # Note: For 2D, we need to treat it as a 3D array with nz=1
-            fov_2d = (30.0, 30.0, 30.0/96)  # Approximate single-slice FOV
-            frame_3d = reshape(frame, size(frame)..., 1)
-            lung_vol = calculate_volume(frame_3d, ti.lung, fov_2d)
+            nx, ny = size(frame)
+            fov_2d = (30.0, 30.0, 30.0/nx)  # Single-slice FOV with depth based on resolution
+            frame_as_3d = reshape(frame, size(frame)..., 1)
+            lung_vol = calculate_volume(frame_as_3d, ti.lung, fov_2d)
             @test lung_vol >= 0.0
             @test lung_vol isa Float64
 
             # Test calculate_volume with intensity range
-            lung_vol_range = calculate_volume(frame_3d, (ti.lung - 0.01, ti.lung + 0.01), fov_2d)
+            lung_vol_range = calculate_volume(frame_as_3d, (ti.lung - 0.01, ti.lung + 0.01), fov_2d)
             @test lung_vol_range >= lung_vol
             @test lung_vol_range isa Float64
 
             # Test with custom tolerance
-            lung_vol_tol = calculate_volume(frame_3d, ti.lung, fov_2d; tolerance=1e-3)
+            lung_vol_tol = calculate_volume(frame_as_3d, ti.lung, fov_2d; tolerance=1e-3)
             @test lung_vol_tol >= 0.0
         end
     end  # Integration Tests
