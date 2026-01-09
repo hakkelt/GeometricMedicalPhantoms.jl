@@ -28,8 +28,8 @@ end
 # === Core drawing primitive ===
 # Draw a superellipsoid defined by a SuperEllipsoid object
 # onto phantom using normalized axes ax_x, ax_y, ax_z. Avoids creating 3D grids.
-function draw_superellipsoid!(phantom::Array{ComplexF32,3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
-                              se::SuperEllipsoid)
+function draw_superellipsoid!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
+                              se::SuperEllipsoid) where T
     # Extract parameters from SuperEllipsoid struct
     cx, cy, cz = se.cx, se.cy, se.cz
     rx, ry, rz = se.rx, se.ry, se.rz
@@ -56,7 +56,7 @@ function draw_superellipsoid!(phantom::Array{ComplexF32,3}, ax_x::AbstractVector
     inv_ry = 1.0 / ry
     inv_rz = 1.0 / rz
     exx, exy, exz = ex
-    val_int = Float32(intensity)
+    val_int = T(intensity)
 
     @inbounds for i in ix_min:ix_max
         dx = abs(ax_x[i] - cx) * inv_rx

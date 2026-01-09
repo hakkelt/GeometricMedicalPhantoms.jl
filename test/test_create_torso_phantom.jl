@@ -7,7 +7,7 @@ using Statistics
         # Test default parameters (static 3D phantom)
         phantom = create_torso_phantom()
         @test size(phantom) == (128, 128, 128, 1)
-        @test eltype(phantom) == ComplexF32
+        @test eltype(phantom) == Float32
         
         # Test custom dimensions
         phantom = create_torso_phantom(64, 64, 64)
@@ -15,7 +15,7 @@ using Statistics
         
         # Test that phantom contains expected intensity values
         phantom = create_torso_phantom(64, 64, 64)
-        unique_vals = unique(real(phantom[:]))
+        unique_vals = unique(phantom[:])
         @test 0.0f0 in unique_vals  # Background
         @test any(x -> 0.07f0 < x < 0.12f0, unique_vals)  # Lung tissue
     end
@@ -39,9 +39,25 @@ using Statistics
         @test phantom_small[:, :, :, 1] ≈ phantom_large_center
     end
     
+    @testset "TissueMask" begin
+        # Test that TissueMask can be created
+        lung_mask = TissueMask(lung=true)
+        @test lung_mask.lung == true
+        @test lung_mask.heart == false
+        
+        # Test that phantoms created with TissueMask are BitArrays
+        phantom_mask = create_torso_phantom(64, 64, 64; ti=lung_mask)
+        @test phantom_mask isa BitArray
+        @test size(phantom_mask) == (64, 64, 64, 1)
+        
+        # Test that mask contains only true/false
+        @test all(x -> x in (true, false), phantom_mask)
+        @test any(phantom_mask)  # Should have some true values
+    end
+    
     @testset "3D phantom with custom tissue intensities" begin
         # Test custom intensities with masking
-        ti_custom = TissueIntensities(lung=0.10f0, heart=0.70f0, body=0.30f0, lv_blood=0.95f0)
+        ti_custom = TissueIntensities(lung=0.10, heart=0.70, body=0.30, lv_blood=0.95)
         phantom_custom = create_torso_phantom(64, 64, 64; ti=ti_custom)
         @test size(phantom_custom) == (64, 64, 64, 1)
         
@@ -49,18 +65,22 @@ using Statistics
         tissue_types = [:lung, :heart, :body, :lv_blood]
         
         for tissue in tissue_types
-            # Create binary mask for this tissue type
-            ti_mask = tissue_mask(ti_custom, tissue)
+            # Create binary mask for this tissue type using TissueMask
+            mask_kwargs = Dict{Symbol, Bool}()
+            for f in fieldnames(TissueMask)
+                mask_kwargs[f] = (f == tissue)
+            end
+            ti_mask = TissueMask(; mask_kwargs...)
             phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
             
-            # Get the mask (where this tissue exists)
-            mask = real(phantom_mask[:, :, :, 1]) .> 0.5f0
+            # Get the mask (where this tissue exists) - phantom_mask is now BitArray
+            mask = phantom_mask[:, :, :, 1]
             
             # Get the custom intensity value for this tissue
             custom_intensity = getfield(ti_custom, tissue)
             
             # Check that the custom intensity appears only where the mask indicates
-            frame_custom = real(phantom_custom[:, :, :, 1])
+            frame_custom = phantom_custom[:, :, :, 1]
             
             # All voxels with the mask should have the custom intensity (with tolerance)
             if any(mask)
@@ -85,7 +105,7 @@ using Statistics
         phantom = create_torso_phantom(64, 64, 64; respiratory_signal=resp)
         @test size(phantom, 4) == length(resp)
         @test size(phantom)[1:3] == (64, 64, 64)
-        @test eltype(phantom) == ComplexF32
+        @test eltype(phantom) == Float32
         
         # Test that different frames have different content (due to breathing)
         frame1 = phantom[:, :, :, 1]
@@ -102,7 +122,7 @@ using Statistics
         phantom = create_torso_phantom(64, 64, 64; cardiac_volumes=vols)
         @test size(phantom, 4) == length(vols.lv)
         @test size(phantom)[1:3] == (64, 64, 64)
-        @test eltype(phantom) == ComplexF32
+        @test eltype(phantom) == Float32
         
         # Test that different frames have different content (due to cardiac motion)
         frame1 = phantom[:, :, :, 1]
@@ -123,7 +143,7 @@ using Statistics
         phantom = create_torso_phantom(64, 64, 64; respiratory_signal=resp, cardiac_volumes=vols)
         @test size(phantom, 4) == length(resp)
         @test size(phantom)[1:3] == (64, 64, 64)
-        @test eltype(phantom) == ComplexF32
+        @test eltype(phantom) == Float32
     end
     
     @testset "Lung volume validation - realistic signal" begin
@@ -322,5 +342,121 @@ using Statistics
         @test any(x -> abs(x - ti.ra_blood) < 1e-6, unique_vals)    # RA blood
         @test any(x -> abs(x - ti.liver) < 1e-6, unique_vals)       # Liver
         @test any(x -> abs(x - ti.stomach) < 1e-6, unique_vals)     # Stomach
+    end
+    
+    @testset "eltype parameter - Float32 (default)" begin
+        # Test default eltype is Float32
+        phantom = create_torso_phantom(64, 64, 64)
+        @test eltype(phantom) == Float32
+        @test size(phantom) == (64, 64, 64, 1)
+        
+        # Test explicit Float32
+        phantom_f32 = create_torso_phantom(64, 64, 64; eltype=Float32)
+        @test eltype(phantom_f32) == Float32
+        @test size(phantom_f32) == (64, 64, 64, 1)
+        
+        # Results should be identical
+        @test phantom ≈ phantom_f32
+    end
+    
+    @testset "eltype parameter - Float64" begin
+        # Test Float64 eltype
+        phantom_f64 = create_torso_phantom(64, 64, 64; eltype=Float64)
+        @test eltype(phantom_f64) == Float64
+        @test size(phantom_f64) == (64, 64, 64, 1)
+        
+        # Test that phantom contains expected intensity values (Float64 precision)
+        unique_vals = unique(phantom_f64[:])
+        @test 0.0 in unique_vals  # Background
+        @test any(x -> 0.07 < x < 0.12, unique_vals)  # Lung tissue
+        
+        # Test that Float64 and Float32 phantoms have similar (but not identical) values
+        phantom_f32 = create_torso_phantom(64, 64, 64; eltype=Float32)
+        @test phantom_f32 ≈ phantom_f64
+        
+        # Verify they are different types
+        @test eltype(phantom_f32) != eltype(phantom_f64)
+    end
+    
+    @testset "eltype parameter - ComplexF32" begin
+        # Test ComplexF32 eltype
+        phantom_complex = create_torso_phantom(64, 64, 64; eltype=ComplexF32)
+        @test eltype(phantom_complex) == ComplexF32
+        @test size(phantom_complex) == (64, 64, 64, 1)
+        
+        # Test that phantom contains expected intensity values
+        unique_vals = unique(real(phantom_complex[:]))
+        @test 0.0f0 in unique_vals  # Background
+        @test any(x -> 0.07f0 < x < 0.12f0, unique_vals)  # Lung tissue
+    end
+    
+    @testset "eltype parameter - ComplexF64" begin
+        # Test ComplexF64 eltype
+        phantom_complex_f64 = create_torso_phantom(64, 64, 64; eltype=ComplexF64)
+        @test eltype(phantom_complex_f64) == ComplexF64
+        @test size(phantom_complex_f64) == (64, 64, 64, 1)
+        
+        # Test that phantom contains expected intensity values
+        unique_vals = unique(real(phantom_complex_f64[:]))
+        @test 0.0 in unique_vals  # Background
+        @test any(x -> 0.07 < x < 0.12, unique_vals)  # Lung tissue
+    end
+    
+    @testset "eltype parameter - 4D phantom with Float64" begin
+        duration = 2.0
+        fs = 12.0
+        rr = 15.0
+        t, resp = generate_respiratory_signal(duration, fs, rr)
+        
+        phantom_f64 = create_torso_phantom(64, 64, 64; respiratory_signal=resp, eltype=Float64)
+        @test eltype(phantom_f64) == Float64
+        @test size(phantom_f64, 4) == length(resp)
+        @test size(phantom_f64)[1:3] == (64, 64, 64)
+        
+        # Test that different frames have different content (due to breathing)
+        frame1 = phantom_f64[:, :, :, 1]
+        frame_mid = phantom_f64[:, :, :, div(length(resp), 2)]
+        @test !all(frame1 .== frame_mid)
+    end
+    
+    @testset "eltype parameter - custom tissue intensities with Float64" begin
+        # Test that Float64 custom intensities work with Float64 eltype
+        ti_custom = TissueIntensities(lung=0.10, heart=0.70, body=0.30, lv_blood=0.95)
+        phantom_f64 = create_torso_phantom(64, 64, 64; ti=ti_custom, eltype=Float64)
+        @test eltype(phantom_f64) == Float64
+        
+        # Test each tissue type with binary mask
+        tissue_types = [:lung, :heart, :body, :lv_blood]
+        
+        for tissue in tissue_types
+            # Create binary mask for this tissue type using TissueMask
+            mask_kwargs = Dict{Symbol, Bool}()
+            for f in fieldnames(TissueMask)
+                mask_kwargs[f] = (f == tissue)
+            end
+            ti_mask = TissueMask(; mask_kwargs...)
+            phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
+            
+            # Get the mask (where this tissue exists) - phantom_mask is now BitArray
+            mask = phantom_mask[:, :, :, 1]
+            
+            # Get the custom intensity value for this tissue
+            custom_intensity = getfield(ti_custom, tissue)
+            
+            # Check that the custom intensity appears only where the mask indicates
+            frame_custom = phantom_f64[:, :, :, 1]
+            
+            # All voxels with the mask should have the custom intensity (with tolerance)
+            if any(mask)
+                masked_values = frame_custom[mask]
+                @test all(x -> abs(x - custom_intensity) < 1e-5, masked_values)
+            end
+            
+            # All voxels with the custom intensity should be in the mask
+            intensity_positions = abs.(frame_custom .- custom_intensity) .< 1e-5
+            if any(intensity_positions)
+                @test all(intensity_positions .== mask)
+            end
+        end
     end
 end
