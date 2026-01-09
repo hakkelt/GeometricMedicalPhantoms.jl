@@ -1,5 +1,12 @@
 """
-    TissueIntensities
+    AbstractTissueParameters
+
+Abstract supertype for tissue parameters used in phantom generation.
+"""
+abstract type AbstractTissueParameters end
+
+"""
+    TissueIntensities <: AbstractTissueParameters
 
 Struct to hold tissue intensity values for different anatomical structures in the torso phantom.
 
@@ -16,7 +23,7 @@ Fields:
 - `la_blood::Float64`: Intensity value for left atrium blood
 - `ra_blood::Float64`: Intensity value for right atrium blood
 """
-Base.@kwdef struct TissueIntensities
+Base.@kwdef struct TissueIntensities <: AbstractTissueParameters
     lung::Float64 = 0.08
     heart::Float64 = 0.65
     vessels_blood::Float64 = 1.00
@@ -31,33 +38,43 @@ Base.@kwdef struct TissueIntensities
 end
 
 """
-    tissue_mask(ti::TissueIntensities, field::Symbol) -> TissueIntensities
+    TissueMask <: AbstractTissueParameters
 
-Create a binary mask TissueIntensities object where all fields are set to 0.0 
-except the specified field, which is set to 1.0.
+Struct to hold tissue mask specification for binary phantom generation.
+Only one tissue type should be selected (set to true), all others should be false.
 
-# Arguments
-- `ti::TissueIntensities`: The source TissueIntensities object (values ignored)
-- `field::Symbol`: The field name to set to 1.0 (e.g., :lung, :heart, :lv_blood)
-
-# Returns
-- `TissueIntensities`: A new TissueIntensities with all fields zero except the specified one
+Fields:
+- `lung::Bool`: Whether to include lung tissue
+- `heart::Bool`: Whether to include heart muscle
+- `vessels_blood::Bool`: Whether to include blood in vessels
+- `bones::Bool`: Whether to include bone tissue
+- `liver::Bool`: Whether to include liver tissue
+- `stomach::Bool`: Whether to include stomach tissue
+- `body::Bool`: Whether to include general body tissue
+- `lv_blood::Bool`: Whether to include left ventricle blood
+- `rv_blood::Bool`: Whether to include right ventricle blood
+- `la_blood::Bool`: Whether to include left atrium blood
+- `ra_blood::Bool`: Whether to include right atrium blood
 
 # Example
 ```julia
-ti = TissueIntensities()
-lung_mask = tissue_mask(ti, :lung)  # Creates mask with lung=1.0, all others=0.0
+# Create a mask for lung tissue only
+lung_mask = TissueMask(lung=true)
+
+# Create a mask for heart muscle only
+heart_mask = TissueMask(heart=true)
 ```
 """
-function tissue_mask(ti::TissueIntensities, field::Symbol)
-    # Get all field names from TissueIntensities
-    fields = fieldnames(TissueIntensities)
-    
-    # Create keyword arguments with all zeros except the specified field
-    kwargs = Dict{Symbol, Float64}()
-    for f in fields
-        kwargs[f] = (f == field) ? 1.0 : 0.0
-    end
-    
-    return TissueIntensities(; kwargs...)
+Base.@kwdef struct TissueMask <: AbstractTissueParameters
+    lung::Bool = false
+    heart::Bool = false
+    vessels_blood::Bool = false
+    bones::Bool = false
+    liver::Bool = false
+    stomach::Bool = false
+    body::Bool = false
+    lv_blood::Bool = false
+    rv_blood::Bool = false
+    la_blood::Bool = false
+    ra_blood::Bool = false
 end

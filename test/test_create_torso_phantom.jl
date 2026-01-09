@@ -49,12 +49,16 @@ using Statistics
         tissue_types = [:lung, :heart, :body, :lv_blood]
         
         for tissue in tissue_types
-            # Create binary mask for this tissue type
-            ti_mask = tissue_mask(ti_custom, tissue)
+            # Create binary mask for this tissue type using TissueMask
+            mask_kwargs = Dict{Symbol, Bool}()
+            for f in fieldnames(TissueMask)
+                mask_kwargs[f] = (f == tissue)
+            end
+            ti_mask = TissueMask(; mask_kwargs...)
             phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
             
-            # Get the mask (where this tissue exists)
-            mask = phantom_mask[:, :, :, 1] .> 0.5
+            # Get the mask (where this tissue exists) - phantom_mask is now BitArray
+            mask = phantom_mask[:, :, :, 1]
             
             # Get the custom intensity value for this tissue
             custom_intensity = getfield(ti_custom, tissue)
@@ -324,26 +328,20 @@ using Statistics
         @test any(x -> abs(x - ti.stomach) < 1e-6, unique_vals)     # Stomach
     end
     
-    @testset "TissueIntensities type" begin
-        # Test that TissueIntensities fields are Float64
-        ti = TissueIntensities()
-        @test typeof(ti.lung) == Float64
-        @test typeof(ti.heart) == Float64
-        @test typeof(ti.vessels_blood) == Float64
-        @test typeof(ti.bones) == Float64
-        @test typeof(ti.liver) == Float64
-        @test typeof(ti.stomach) == Float64
-        @test typeof(ti.body) == Float64
-        @test typeof(ti.lv_blood) == Float64
-        @test typeof(ti.rv_blood) == Float64
-        @test typeof(ti.la_blood) == Float64
-        @test typeof(ti.ra_blood) == Float64
+    @testset "TissueMask" begin
+        # Test that TissueMask can be created
+        lung_mask = TissueMask(lung=true)
+        @test lung_mask.lung == true
+        @test lung_mask.heart == false
         
-        # Test that tissue_mask returns Float64 values
-        ti_mask = tissue_mask(ti, :lung)
-        @test typeof(ti_mask.lung) == Float64
-        @test ti_mask.lung == 1.0
-        @test ti_mask.heart == 0.0
+        # Test that phantoms created with TissueMask are BitArrays
+        phantom_mask = create_torso_phantom(64, 64, 64; ti=lung_mask)
+        @test phantom_mask isa BitArray
+        @test size(phantom_mask) == (64, 64, 64, 1)
+        
+        # Test that mask contains only true/false
+        @test all(x -> x in (true, false), phantom_mask)
+        @test any(phantom_mask)  # Should have some true values
     end
     
     @testset "eltype parameter - Float32 (default)" begin
@@ -431,12 +429,16 @@ using Statistics
         tissue_types = [:lung, :heart, :body, :lv_blood]
         
         for tissue in tissue_types
-            # Create binary mask for this tissue type
-            ti_mask = tissue_mask(ti_custom, tissue)
-            phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask, eltype=Float64)
+            # Create binary mask for this tissue type using TissueMask
+            mask_kwargs = Dict{Symbol, Bool}()
+            for f in fieldnames(TissueMask)
+                mask_kwargs[f] = (f == tissue)
+            end
+            ti_mask = TissueMask(; mask_kwargs...)
+            phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
             
-            # Get the mask (where this tissue exists)
-            mask = phantom_mask[:, :, :, 1] .> 0.5
+            # Get the mask (where this tissue exists) - phantom_mask is now BitArray
+            mask = phantom_mask[:, :, :, 1]
             
             # Get the custom intensity value for this tissue
             custom_intensity = getfield(ti_custom, tissue)
