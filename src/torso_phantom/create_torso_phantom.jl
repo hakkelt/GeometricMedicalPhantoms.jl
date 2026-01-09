@@ -1,5 +1,5 @@
 """
-    create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 24, 30), eltype=Float32) -> Array{Complex{eltype}, 3}
+    create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 30, 30), eltype=Float32) -> Array{Complex{eltype}, 4}
 
 Generate a 3D torso phantom with anatomical structures including torso outline, lungs, heart, and vessels.
 
@@ -16,7 +16,7 @@ Generate a 3D torso phantom with anatomical structures including torso outline, 
 - `eltype::Type{<:AbstractFloat}=Float32`: Element type for the generated phantom array (Float32 or Float64)
 
 # Returns
-- Array{Complex{eltype}}: 4D phantom array with size (nx, ny, nz, nt) if respiratory_signal and cardiac_volumes are provided; otherwise 3D array (nx, ny, nz)
+- Array{Complex{eltype}, 4}: 4D phantom array with size (nx, ny, nz, nt) where nt is the number of time frames
 
 # Description
 Creates a simplified anatomical torso phantom with the following structures:
