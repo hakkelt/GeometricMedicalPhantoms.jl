@@ -1,5 +1,5 @@
 """
-    create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 24, 30)) -> Array{ComplexF32, 3}
+    create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 24, 30), eltype=Float32) -> Array{Complex{eltype}, 3}
 
 Generate a 3D torso phantom with anatomical structures including torso outline, lungs, heart, and vessels.
 
@@ -13,9 +13,10 @@ Generate a 3D torso phantom with anatomical structures including torso outline, 
 - `respiratory_signal::Union{Nothing,AbstractVector}=nothing`: Respiratory signal in liters for 4D phantom generation
 - `cardiac_volumes::Union{Nothing,NamedTuple}=nothing`: Cardiac volumes in mL for 4D phantom generation; must have fields :lv, :rv, :la, :ra
 - `ti::TissueIntensities=TissueIntensities()`: Tissue intensity values for different structures
+- `eltype::Type{<:AbstractFloat}=Float32`: Element type for the generated phantom array (Float32 or Float64)
 
 # Returns
-- Array{ComplexF32}: 4D phantom array with size (nx, ny, nz, nt) if respiratory_signal and cardiac_volumes are provided; otherwise 3D array (nx, ny, nz)
+- Array{Complex{eltype}}: 4D phantom array with size (nx, ny, nz, nt) if respiratory_signal and cardiac_volumes are provided; otherwise 3D array (nx, ny, nz)
 
 # Description
 Creates a simplified anatomical torso phantom with the following structures:
@@ -30,9 +31,10 @@ Creates a simplified anatomical torso phantom with the following structures:
 # Example
 ```julia
 phantom = create_torso_phantom(128, 128, 128)
+phantom_f64 = create_torso_phantom(128, 128, 128; eltype=Float64)
 ```
 """
-function create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::TissueIntensities=TissueIntensities())
+function create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::TissueIntensities=TissueIntensities(), eltype::Type{<:AbstractFloat}=Float32)
     # Coordinate axes
     Δx, Δy, Δz = fovs[1]/nx, fovs[2]/ny, fovs[3]/nz
     ax_x = range(-(nx-1)/2, (nx-1)/2, length=nx) .* Δx
@@ -84,11 +86,11 @@ function create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 3
     resp_normal_range = normal_resp_max - normal_resp_min
     y_offset_base = -0.40  # Base y-offset for torso position
 
-    phantom4d = zeros(ComplexF32, nx, ny, nz, nt)
+    phantom4d = zeros(Complex{eltype}, nx, ny, nz, nt)
     torso_static = get_torso_static_parts(ti)
     arm = get_arm_bones(ti)
     spine = get_spine(ti)
-    static_image = zeros(ComplexF32, nx, ny, nz)
+    static_image = zeros(Complex{eltype}, nx, ny, nz)
 
     for se in torso_static
         draw_superellipsoid!(static_image, ax_xn, ax_yn, ax_zn, se)
