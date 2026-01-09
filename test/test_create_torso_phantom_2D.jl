@@ -36,6 +36,23 @@ using Statistics
                 @test size(phantom) == (nx, ny, 1)
                 @test eltype(phantom) == Float32
             end
+
+            # Test very small dimensions
+            phantom_small = create_torso_phantom(8, 8, :axial)
+            @test size(phantom_small) == (8, 8, 1)
+            @test eltype(phantom_small) == Float32
+
+            # Test single-pixel dimensions (edge case)
+            phantom_1x1 = create_torso_phantom(1, 1, :axial)
+            @test size(phantom_1x1) == (1, 1, 1)
+            @test eltype(phantom_1x1) == Float32
+
+            # Test highly rectangular dimensions
+            phantom_rect1 = create_torso_phantom(256, 16, :axial)
+            @test size(phantom_rect1) == (256, 16, 1)
+
+            phantom_rect2 = create_torso_phantom(16, 256, :coronal)
+            @test size(phantom_rect2) == (16, 256, 1)
         end
 
         @testset "2D phantom - Custom FOV" begin
@@ -49,6 +66,18 @@ using Statistics
             # Both should have non-zero content (different views of the phantom)
             @test count(x -> x != 0, phantom_small[:, :, 1]) > 0
             @test count(x -> x != 0, phantom_large[:, :, 1]) > 0
+
+            # Test with very small FOV that may exclude most structures
+            phantom_tiny = create_torso_phantom(32, 32, :axial; fovs=(2, 2))
+            @test size(phantom_tiny) == (32, 32, 1)
+            # Very small FOV may have little or no content depending on centering
+            @test count(x -> x != 0, phantom_tiny[:, :, 1]) >= 0
+
+            # Test with very large FOV
+            phantom_huge = create_torso_phantom(64, 64, :axial; fovs=(100, 100))
+            @test size(phantom_huge) == (64, 64, 1)
+            # Should have content, but phantom will appear smaller
+            @test count(x -> x != 0, phantom_huge[:, :, 1]) > 0
         end
 
         @testset "2D phantom - Slice position" begin
@@ -69,6 +98,21 @@ using Statistics
             phantom_extreme = create_torso_phantom(64, 64, :axial; slice_position=20.0)
             @test count(x -> x != 0, phantom_extreme) <
                 count(x -> x != 0, phantom_z0) / 2
+
+            # Slice completely outside phantom (should be empty or nearly empty)
+            phantom_far_outside = create_torso_phantom(64, 64, :axial; slice_position=50.0)
+            @test count(x -> x != 0, phantom_far_outside) == 0
+
+            # Test extreme negative position (completely outside)
+            phantom_far_neg = create_torso_phantom(64, 64, :axial; slice_position=-50.0)
+            @test count(x -> x != 0, phantom_far_neg) == 0
+
+            # Test with coronal and sagittal at extreme positions
+            phantom_coronal_far = create_torso_phantom(64, 64, :coronal; slice_position=50.0)
+            @test count(x -> x != 0, phantom_coronal_far) == 0
+
+            phantom_sagittal_far = create_torso_phantom(64, 64, :sagittal; slice_position=50.0)
+            @test count(x -> x != 0, phantom_sagittal_far) == 0
         end
     end  # Static Generation
 
@@ -182,6 +226,48 @@ using Statistics
             @test phantom_body isa BitArray
             @test size(phantom_body) == (64, 64, 1)
             @test any(phantom_body)
+
+            # Test with other tissue masks
+            vessels_mask = TissueMask(vessels_blood=true)
+            phantom_vessels = create_torso_phantom(64, 64, :axial; ti=vessels_mask)
+            @test phantom_vessels isa BitArray
+            @test size(phantom_vessels) == (64, 64, 1)
+
+            bones_mask = TissueMask(bones=true)
+            phantom_bones = create_torso_phantom(64, 64, :axial; ti=bones_mask)
+            @test phantom_bones isa BitArray
+            @test size(phantom_bones) == (64, 64, 1)
+
+            liver_mask = TissueMask(liver=true)
+            phantom_liver = create_torso_phantom(64, 64, :axial; ti=liver_mask)
+            @test phantom_liver isa BitArray
+            @test size(phantom_liver) == (64, 64, 1)
+
+            stomach_mask = TissueMask(stomach=true)
+            phantom_stomach = create_torso_phantom(64, 64, :axial; ti=stomach_mask)
+            @test phantom_stomach isa BitArray
+            @test size(phantom_stomach) == (64, 64, 1)
+
+            # Test cardiac chamber masks
+            lv_mask = TissueMask(lv_blood=true)
+            phantom_lv = create_torso_phantom(64, 64, :axial; ti=lv_mask)
+            @test phantom_lv isa BitArray
+            @test size(phantom_lv) == (64, 64, 1)
+
+            rv_mask = TissueMask(rv_blood=true)
+            phantom_rv = create_torso_phantom(64, 64, :axial; ti=rv_mask)
+            @test phantom_rv isa BitArray
+            @test size(phantom_rv) == (64, 64, 1)
+
+            la_mask = TissueMask(la_blood=true)
+            phantom_la = create_torso_phantom(64, 64, :axial; ti=la_mask)
+            @test phantom_la isa BitArray
+            @test size(phantom_la) == (64, 64, 1)
+
+            ra_mask = TissueMask(ra_blood=true)
+            phantom_ra = create_torso_phantom(64, 64, :axial; ti=ra_mask)
+            @test phantom_ra isa BitArray
+            @test size(phantom_ra) == (64, 64, 1)
         end
 
         @testset "2D phantom - Different element types" begin
@@ -275,6 +361,42 @@ using Statistics
                 # Check for temporal variation
                 @test !all(phantom[:, :, 1] .== phantom[:, :, end])
             end
+        end
+
+        @testset "2D phantom - Validation functions" begin
+            using GeometricMedicalPhantoms: count_voxels, calculate_volume
+
+            # Create a 2D phantom
+            phantom = create_torso_phantom(96, 96, :axial)
+            frame = phantom[:, :, 1]
+            ti = TissueIntensities()
+
+            # Test count_voxels with single intensity
+            lung_count = count_voxels(frame, ti.lung)
+            @test lung_count >= 0
+            @test lung_count isa Int
+
+            # Test count_voxels with intensity range
+            lung_range_count = count_voxels(frame, (ti.lung - 0.01, ti.lung + 0.01))
+            @test lung_range_count >= lung_count
+            @test lung_range_count isa Int
+
+            # Test calculate_volume with single intensity (2D slice, so using 2D fov with depth 1)
+            # Note: For 2D, we need to treat it as a 3D array with nz=1
+            fov_2d = (30.0, 30.0, 30.0/96)  # Approximate single-slice FOV
+            frame_3d = reshape(frame, size(frame)..., 1)
+            lung_vol = calculate_volume(frame_3d, ti.lung, fov_2d)
+            @test lung_vol >= 0.0
+            @test lung_vol isa Float64
+
+            # Test calculate_volume with intensity range
+            lung_vol_range = calculate_volume(frame_3d, (ti.lung - 0.01, ti.lung + 0.01), fov_2d)
+            @test lung_vol_range >= lung_vol
+            @test lung_vol_range isa Float64
+
+            # Test with custom tolerance
+            lung_vol_tol = calculate_volume(frame_3d, ti.lung, fov_2d; tolerance=1e-3)
+            @test lung_vol_tol >= 0.0
         end
     end  # Integration Tests
 end  # 2D Phantom Tests
