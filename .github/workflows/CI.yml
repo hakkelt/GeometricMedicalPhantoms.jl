@@ -23,6 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - '1'
           - '1.10'
           - '1.12'
           - 'pre'
@@ -42,9 +43,9 @@ jobs:
         with:
           coverage: true
       - uses: julia-actions/julia-processcoverage@v1
-        if: matrix.version == '1.10' && matrix.os == 'ubuntu-latest'
+        if: matrix.version == '1' && matrix.os == 'ubuntu-latest'
       - uses: codecov/codecov-action@v5
-        if: matrix.version == '1.10' && matrix.os == 'ubuntu-latest'
+        if: matrix.version == '1' && matrix.os == 'ubuntu-latest'
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
