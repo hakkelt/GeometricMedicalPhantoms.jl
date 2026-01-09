@@ -8,7 +8,8 @@ include("utils.jl")
 @testset "GeometricMedicalPhantoms.jl" begin
     include("test_generate_respiratory_signal.jl")
     include("test_generate_cardiac_signals.jl")
-    include("test_create_torso_phantom.jl")
+    include("test_create_torso_phantom_2D.jl")
+    include("test_create_torso_phantom_3D.jl")
 
     @testset "Aqua" begin
         Aqua.test_all(GeometricMedicalPhantoms)
