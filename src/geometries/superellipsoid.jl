@@ -32,12 +32,18 @@ end
 # Restrict computation to the enclosing axis-aligned box to avoid full-volume work
 @inline function idx_bounds(ax::AbstractVector, c::Real, r::Real)
     n = length(ax)
-    # Handle both ascending and descending axes
     step = n > 1 ? (ax[2] - ax[1]) : 1.0
-    i1 = 1 + ((c - r) - ax[1]) / step
-    i2 = 1 + ((c + r) - ax[1]) / step
-    i_min = clamp(Int(floor(min(i1, i2))), 1, n)
-    i_max = clamp(Int(ceil(max(i1, i2))), 1, n)
+    i_min = floor(Int, 1 + ((c - r) - ax[1]) / step)
+    i_max = ceil(Int, 1 + ((c + r) - ax[1]) / step)
+    if n < i_min || i_max < 1
+        return -1, -1
+    end
+    if i_min < 1
+        i_min = 1
+    end
+    if n < i_max
+        i_max = n
+    end
     return i_min, i_max
 end
 
@@ -56,7 +62,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     iz_min, iz_max = idx_bounds(ax_z, cz, rz)
     
     # Check if superellipsoid is fully outside the canvas
-    if ix_min > ix_max || iy_min > iy_max || iz_min > iz_max
+    if ix_min == -1 || iy_min == -1 || iz_min == -1
         return
     end
 
@@ -102,7 +108,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     iy_min, iy_max = idx_bounds(ax_y, cy, ry)
     
     # Check if superellipsoid is fully outside the canvas
-    if ix_min > ix_max || iy_min > iy_max
+    if ix_min == -1 || iy_min == -1
         return
     end
 
