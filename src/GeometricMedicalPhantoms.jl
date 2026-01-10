@@ -12,7 +12,7 @@ export create_torso_phantom, TissueIntensities, TissueMask, AbstractTissueParame
 # Export utility functions
 export count_voxels, calculate_volume
 
-include("utils.jl")
+include("geometries/superellipsoid.jl")
 include("torso_phantom/physiological_signals.jl")
 include("torso_phantom/tissue_intensities.jl")
 include("torso_phantom/create_torso_phantom.jl")
