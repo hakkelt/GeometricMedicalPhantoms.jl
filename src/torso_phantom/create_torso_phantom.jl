@@ -156,7 +156,7 @@ Returns normalized axes in the range [-1, 1].
 function define_phantom_axes(nx::Int, ny::Int, nz::Int, fovs::Tuple)
     Δx, Δy, Δz = fovs[1]/nx, fovs[2]/ny, fovs[3]/nz
     ax_x = range(-(nx-1)/2, (nx-1)/2, length=nx) .* Δx
-    ax_y = range((ny-1)/2, -(ny-1)/2, length=ny) .* Δy
+    ax_y = range(-(ny-1)/2, (ny-1)/2, length=ny) .* Δy
     ax_z = range(-(nz-1)/2, (nz-1)/2, length=nz) .* Δz
     
     # Normalize to [-1, 1] range for easier ellipsoid definitions
@@ -317,7 +317,7 @@ function define_phantom_axes_2d(nx::Int, ny::Int, fovs::Tuple, axis::Symbol, sli
     # Create axes for the two in-plane dimensions
     Δ1, Δ2 = fovs[1]/nx, fovs[2]/ny
     ax_1 = range(-(nx-1)/2, (nx-1)/2, length=nx) .* Δ1
-    ax_2 = range((ny-1)/2, -(ny-1)/2, length=ny) .* Δ2
+    ax_2 = range(-(ny-1)/2, (ny-1)/2, length=ny) .* Δ2
     
     # Normalize to [-1, 1] range
     ax_1n = @. 2 * ax_1 / 30
@@ -390,40 +390,40 @@ function get_torso_static_parts(ti::AbstractTissueParameters)
     body_val = get_intensity(ti, :body)
     return (
         # Neck
-        SuperEllipsoid(0.0, -0.165, 0.85, 0.312, 0.336, 0.264, (2.5,2.5,2.5), body_val),
-        SuperEllipsoid(0.0, -0.165, 1.00, 0.312, 0.312, 0.18, (2.5,2.5,2.5), body_val),
+        SuperEllipsoid(0.0, 0.165, 0.85, 0.312, 0.336, 0.264, (2.5,2.5,2.5), body_val),
+        SuperEllipsoid(0.0, 0.165, 1.00, 0.312, 0.312, 0.18, (2.5,2.5,2.5), body_val),
         
         # Shoulders
-        SuperEllipsoid(0.0, -0.165, 0.70, 0.8, 0.28, 0.25, (2.5,2.5,2.5), body_val),
+        SuperEllipsoid(0.0, 0.165, 0.70, 0.8, 0.28, 0.25, (2.5,2.5,2.5), body_val),
         
         # Arms
         # Left arm - upper
-        SuperEllipsoid(-0.68, -0.165, 0.62, 0.18, 0.18, 0.28, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(-0.68, 0.165, 0.62, 0.18, 0.18, 0.28, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Left arm - mid
-        SuperEllipsoid(-0.88, -0.165, 0.50, 0.17, 0.17, 0.26, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(-0.88, 0.165, 0.50, 0.17, 0.17, 0.26, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Left arm - lower
-        SuperEllipsoid(-1.05, -0.165, 0.38, 0.16, 0.16, 0.24, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(-1.05, 0.165, 0.38, 0.16, 0.16, 0.24, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Right arm - upper
-        SuperEllipsoid(0.68, -0.165, 0.62, 0.18, 0.18, 0.28, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.68, 0.165, 0.62, 0.18, 0.18, 0.28, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Right arm - mid
-        SuperEllipsoid(0.88, -0.165, 0.50, 0.17, 0.17, 0.26, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.88, 0.165, 0.50, 0.17, 0.17, 0.26, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Right arm - lower
-        SuperEllipsoid(1.05, -0.165, 0.38, 0.16, 0.16, 0.24, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(1.05, 0.165, 0.38, 0.16, 0.16, 0.24, (2.5,2.5,2.5), get_intensity(ti, :body)),
 
         # Posterior extensions for spine/back coverage (does not move with breathing)
         # Upper back (cervical/upper thoracic region)
-        SuperEllipsoid(0.0, -0.28, 0.35, 0.70, 0.43, 0.50, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.28, 0.35, 0.70, 0.43, 0.50, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Mid back (mid thoracic region)
-        SuperEllipsoid(0.0, -0.28, -0.10, 0.75, 0.47, 0.55, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.28, -0.10, 0.75, 0.47, 0.55, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Lower back (lumbar region)
-        SuperEllipsoid(0.0, -0.15, -0.60, 0.78, 0.48, 0.55, (2.5,2.5,2.5), get_intensity(ti, :body))
+        SuperEllipsoid(0.0, 0.15, -0.60, 0.78, 0.48, 0.55, (2.5,2.5,2.5), get_intensity(ti, :body))
     )
 end
 
@@ -435,20 +435,20 @@ function get_torso_dynamic_parts(body_scale::Real, y_offset::Real, ti::AbstractT
     return (
         # Chest
         # Ribs 1-4 level (upper chest)
-        SuperEllipsoid(0.0, 0.0 + y_offset, 0.45, 0.86*s, 0.69*s, 0.35, (2.5,2.5,2.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.0 - y_offset, 0.45, 0.86*s, 0.69*s, 0.35, (2.5,2.5,2.5), get_intensity(ti, :body)),
         
         # Ribs 5-8 level (mid chest - widest)
-        SuperEllipsoid(0.0, 0.0 + y_offset, 0.17, 0.93*s, 0.72*s, 0.32, (2.5,2.5,3.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.0 - y_offset, 0.17, 0.93*s, 0.72*s, 0.32, (2.5,2.5,3.5), get_intensity(ti, :body)),
         
         # Ribs 9-12 level (lower chest)
-        SuperEllipsoid(0.0, 0.0 + y_offset, -0.11, 0.91*s, 0.71*s, 0.32, (2.5,2.5,3.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.0 - y_offset, -0.11, 0.91*s, 0.71*s, 0.32, (2.5,2.5,3.5), get_intensity(ti, :body)),
         
         # Abdomen (smaller changes in radii than chest)
         # Upper abdomen
-        SuperEllipsoid(0.0, 0.0 + y_offset, -0.45, 0.87*s, 0.67*s, 0.40, (2.5,2.5,3.5), get_intensity(ti, :body)),
+        SuperEllipsoid(0.0, 0.0 - y_offset, -0.45, 0.87*s, 0.67*s, 0.40, (2.5,2.5,3.5), get_intensity(ti, :body)),
         
         # Lower abdomen
-        SuperEllipsoid(0.0, 0.0 + y_offset, -0.85, 0.83*(s^(1/2)), 0.62*(s^(1/2)), 0.45, (2.5,2.5,3.5), get_intensity(ti, :body))
+        SuperEllipsoid(0.0, 0.0 - y_offset, -0.85, 0.83*(s^(1/2)), 0.62*(s^(1/2)), 0.45, (2.5,2.5,3.5), get_intensity(ti, :body))
     )
 end
 
@@ -467,22 +467,22 @@ function get_lungs(scale::Real, diaphragm_upshift::Real, diaphragm_radius_scale:
     return (
         # Left Lung
         # Upper lobe
-        SuperEllipsoid(-lung_l_top_x, 0.0 + y_offset, -0.1 - diaphragm_upshift * 0.5, lung_l_top_radius, lung_l_lower_radius, 0.70, (2.0,2.0,1.2), get_intensity(ti, :lung)),
+        SuperEllipsoid(-lung_l_top_x, 0.0 - y_offset, -0.1 - diaphragm_upshift * 0.5, lung_l_top_radius, lung_l_lower_radius, 0.70, (2.0,2.0,1.2), get_intensity(ti, :lung)),
         
         # Lower lobe (rz varies with respiration)
-        SuperEllipsoid(-lung_x_offset, 0.0 + y_offset, -0.17 + diaphragm_upshift * 0.5, lung_l_lower_radius, lung_l_lower_radius, lung_l_lower_rz, (2.0,2.0,2.5), get_intensity(ti, :lung)),
+        SuperEllipsoid(-lung_x_offset, 0.0 - y_offset, -0.17 + diaphragm_upshift * 0.5, lung_l_lower_radius, lung_l_lower_radius, lung_l_lower_rz, (2.0,2.0,2.5), get_intensity(ti, :lung)),
 
         # Right Lung
         # Upper lobe
-        SuperEllipsoid(lung_r_top_x, 0.0 + y_offset, -0.1 - diaphragm_upshift * 0.5, lung_l_top_radius, lung_l_lower_radius, 0.70, (2.0,2.0,1.2), get_intensity(ti, :lung)),
+        SuperEllipsoid(lung_r_top_x, 0.0 - y_offset, -0.1 - diaphragm_upshift * 0.5, lung_l_top_radius, lung_l_lower_radius, 0.70, (2.0,2.0,1.2), get_intensity(ti, :lung)),
         # Lower lobe (rz varies with respiration)
-        SuperEllipsoid(lung_x_offset, 0.0 + y_offset, -0.17 + diaphragm_upshift * 0.5, lung_l_lower_radius, lung_l_lower_radius, lung_l_lower_rz, (2.0,2.0,2.5), get_intensity(ti, :lung)),
+        SuperEllipsoid(lung_x_offset, 0.0 - y_offset, -0.17 + diaphragm_upshift * 0.5, lung_l_lower_radius, lung_l_lower_radius, lung_l_lower_rz, (2.0,2.0,2.5), get_intensity(ti, :lung)),
         
         # Left diaphragm dome
-        SuperEllipsoid(-lung_x_offset, 0.0 + y_offset, -0.50 + diaphragm_upshift, diaphragm_radius, diaphragm_radius, 0.40, (2.5,2.5,1.5), get_intensity(ti, :body)),
+        SuperEllipsoid(-lung_x_offset, 0.0 - y_offset, -0.50 + diaphragm_upshift, diaphragm_radius, diaphragm_radius, 0.40, (2.5,2.5,1.5), get_intensity(ti, :body)),
         
         # Right diaphragm dome
-        SuperEllipsoid(lung_x_offset, 0.0 + y_offset, -0.50 + diaphragm_upshift, diaphragm_radius, diaphragm_radius, 0.40, (2.5,2.5,1.5), get_intensity(ti, :body))
+        SuperEllipsoid(lung_x_offset, 0.0 - y_offset, -0.50 + diaphragm_upshift, diaphragm_radius, diaphragm_radius, 0.40, (2.5,2.5,1.5), get_intensity(ti, :body))
     )
 end
 
@@ -494,7 +494,7 @@ function get_heart_background(lv_scale_max::Real, rv_scale_max::Real, la_scale_m
     ry_bg = 0.8 * rx_bg
     rz_bg = 1.65 * max(0.242*lv_scale_max, 0.178*lv_scale_max, 0.195*rv_scale_max, 0.136*rv_scale_max, 0.188*la_scale_max, 0.188*ra_scale_max)
     x_bg = 0.01
-    y_bg = y_offset_visc #-0.02
+    y_bg = -y_offset_visc
     z_bg = 0.24
     return (SuperEllipsoid(x_bg, y_bg, z_bg, rx_bg, ry_bg, rz_bg, (2.2,2.2,2.2), get_intensity(ti, :body)),)
 end
@@ -546,41 +546,41 @@ function get_heart_chambers(heart_scale, y_offset::Real, ti::AbstractTissueParam
         # Heart main body
         # Upper heart (base)
         # Outer myocardium (base)
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, -0.10 + z_offset, 0.1595*s_lv, 0.2145*s_lv, 0.242*s_lv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
-        SuperEllipsoid(0.14 + dx_rv, 0.00 + y_offset, -0.10 + z_offset, 0.1595*s_rv, 0.2145*s_rv, 0.242*s_rv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, -0.10 + z_offset, 0.1595*s_lv, 0.2145*s_lv, 0.242*s_lv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(0.14 + dx_rv, 0.00 - y_offset, -0.10 + z_offset, 0.1595*s_rv, 0.2145*s_rv, 0.242*s_rv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
 
         # Mid heart
         # Outer myocardium (mid)
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, 0.00 + z_offset, 0.1485*s_lv, 0.2035*s_lv, 0.1782*s_lv, (2.5,2.5,2.5), get_intensity(ti, :heart)),
-        SuperEllipsoid(0.14 + dx_rv, 0.00 + y_offset, 0.00 + z_offset, 0.1485*s_rv, 0.2035*s_rv, 0.1782*s_rv, (2.5,2.5,2.5), get_intensity(ti, :heart)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, 0.00 + z_offset, 0.1485*s_lv, 0.2035*s_lv, 0.1782*s_lv, (2.5,2.5,2.5), get_intensity(ti, :heart)),
+        SuperEllipsoid(0.14 + dx_rv, 0.00 - y_offset, 0.00 + z_offset, 0.1485*s_rv, 0.2035*s_rv, 0.1782*s_rv, (2.5,2.5,2.5), get_intensity(ti, :heart)),
 
         # Left ventricle myocardium
-        SuperEllipsoid(-0.063 - dx_lv, -0.02 + y_offset, (0.00 + z_offset) - z_sep_L, 0.251*s_lv, 0.251*s_lv, (0.209*s_lv)*myocardium_bottom_z_scale, (2.0,2.0,2.0), get_intensity(ti, :heart)),
-        SuperEllipsoid(-0.063 - dx_lv, -0.02 + y_offset, (0.08 + z_offset) - z_sep_L, 0.195*s_lv, 0.195*s_lv, 0.157*s_lv, (3.0,3.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(-0.063 - dx_lv, 0.02 - y_offset, (0.00 + z_offset) - z_sep_L, 0.251*s_lv, 0.251*s_lv, (0.209*s_lv)*myocardium_bottom_z_scale, (2.0,2.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(-0.063 - dx_lv, 0.02 - y_offset, (0.08 + z_offset) - z_sep_L, 0.195*s_lv, 0.195*s_lv, 0.157*s_lv, (3.0,3.0,2.0), get_intensity(ti, :heart)),
 
         # Left ventricle cavities (including base/mid)
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, (-0.10 + z_offset) - z_sep_L, (0.112125*s_lv_c + lv_rad_offset)*lv_c_base_factor, (0.160875*s_lv_c + lv_rad_offset)*lv_c_base_factor, (0.156*s_lv_c)*lv_c_base_factor, (2.0,2.0,2.0), get_intensity(ti, :lv_blood)),
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, (0.00 + z_offset) - z_sep_L, (0.102375*s_lv_c + lv_rad_offset), (0.151125*s_lv_c + lv_rad_offset), 0.1404*s_lv_c, (2.5,2.5,2.5), get_intensity(ti, :lv_blood)),
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, (0.0 + z_offset) - z_sep_L, 0.193288*s_lv_c, 0.193288*s_lv_c, 0.14366*s_lv_c, (2.0,2.0,2.0), get_intensity(ti, :lv_blood)),
-        SuperEllipsoid(-0.06 - dx_lv, -0.02 + y_offset, (0.04 + z_offset) - z_sep_L, 0.151496*s_lv_c, 0.151496*s_lv_c, 0.094032*s_lv_c, (3.0,3.0,2.0), get_intensity(ti, :lv_blood)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, (-0.10 + z_offset) - z_sep_L, (0.112125*s_lv_c + lv_rad_offset)*lv_c_base_factor, (0.160875*s_lv_c + lv_rad_offset)*lv_c_base_factor, (0.156*s_lv_c)*lv_c_base_factor, (2.0,2.0,2.0), get_intensity(ti, :lv_blood)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, (0.00 + z_offset) - z_sep_L, (0.102375*s_lv_c + lv_rad_offset), (0.151125*s_lv_c + lv_rad_offset), 0.1404*s_lv_c, (2.5,2.5,2.5), get_intensity(ti, :lv_blood)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, (0.0 + z_offset) - z_sep_L, 0.193288*s_lv_c, 0.193288*s_lv_c, 0.14366*s_lv_c, (2.0,2.0,2.0), get_intensity(ti, :lv_blood)),
+        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, (0.04 + z_offset) - z_sep_L, 0.151496*s_lv_c, 0.151496*s_lv_c, 0.094032*s_lv_c, (3.0,3.0,2.0), get_intensity(ti, :lv_blood)),
 
         # Right ventricle myocardium
-        SuperEllipsoid(0.143 + dx_rv, 0.0 + y_offset, (0.00 + z_offset) - z_sep_R, 0.209*s_rv, 0.209*s_rv, (0.195*s_rv)*myocardium_bottom_z_scale, (2.0,2.0,2.0), get_intensity(ti, :heart)),
-        SuperEllipsoid(0.143 + dx_rv, 0.0 + y_offset, (0.08 + z_offset) - z_sep_R, 0.167*s_rv, 0.167*s_rv, 0.136*s_rv, (3.0,3.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(0.143 + dx_rv, 0.0 - y_offset, (0.00 + z_offset) - z_sep_R, 0.209*s_rv, 0.209*s_rv, (0.195*s_rv)*myocardium_bottom_z_scale, (2.0,2.0,2.0), get_intensity(ti, :heart)),
+        SuperEllipsoid(0.143 + dx_rv, 0.0 - y_offset, (0.08 + z_offset) - z_sep_R, 0.167*s_rv, 0.167*s_rv, 0.136*s_rv, (3.0,3.0,2.0), get_intensity(ti, :heart)),
 
         # Right ventricle cavities (including base/mid)
-        SuperEllipsoid(0.14 + dx_rv, 0.00 + y_offset, (-0.10 + z_offset) - z_sep_R, (0.11822*s_rv_c + rv_rad_offset)*rv_c_base_factor, (0.16962*s_rv_c + rv_rad_offset)*rv_c_base_factor, (0.16448*s_rv_c)*rv_c_base_factor, (2.0,2.0,2.0), get_intensity(ti, :rv_blood)),
-        SuperEllipsoid(0.14 + dx_rv, 0.00 + y_offset, (0.00 + z_offset) - z_sep_R, (0.10794*s_rv_c + rv_rad_offset), (0.15934*s_rv_c + rv_rad_offset), 0.148032*s_rv_c, (2.5,2.5,2.5), get_intensity(ti, :rv_blood)),
-        SuperEllipsoid(0.14 + dx_rv, 0.0 + y_offset, (0.0 + z_offset) - z_sep_R, 0.172112*s_rv_c, 0.172112*s_rv_c, 0.133248*s_rv_c, (2.0,2.0,2.0), get_intensity(ti, :rv_blood)),
-        SuperEllipsoid(0.14 + dx_rv, 0.0 + y_offset, (0.04 + z_offset) - z_sep_R, 0.1388*s_rv_c, 0.1388*s_rv_c, 0.094384*s_rv_c, (3.0,3.0,2.0), get_intensity(ti, :rv_blood)),
+        SuperEllipsoid(0.14 + dx_rv, 0.0 - y_offset, (-0.10 + z_offset) - z_sep_R, (0.11822*s_rv_c + rv_rad_offset)*rv_c_base_factor, (0.16962*s_rv_c + rv_rad_offset)*rv_c_base_factor, (0.16448*s_rv_c)*rv_c_base_factor, (2.0,2.0,2.0), get_intensity(ti, :rv_blood)),
+        SuperEllipsoid(0.14 + dx_rv, 0.0 - y_offset, (0.00 + z_offset) - z_sep_R, (0.10794*s_rv_c + rv_rad_offset), (0.15934*s_rv_c + rv_rad_offset), 0.148032*s_rv_c, (2.5,2.5,2.5), get_intensity(ti, :rv_blood)),
+        SuperEllipsoid(0.14 + dx_rv, 0.0 - y_offset, (0.0 + z_offset) - z_sep_R, 0.172112*s_rv_c, 0.172112*s_rv_c, 0.133248*s_rv_c, (2.0,2.0,2.0), get_intensity(ti, :rv_blood)),
+        SuperEllipsoid(0.14 + dx_rv, 0.0 - y_offset, (0.04 + z_offset) - z_sep_R, 0.1388*s_rv_c, 0.1388*s_rv_c, 0.094384*s_rv_c, (3.0,3.0,2.0), get_intensity(ti, :rv_blood)),
 
         # Left atrium myocardium and cavity
-        SuperEllipsoid(-0.101 - dx_la, 0.05 + y_offset, (0.25 + z_offset) + z_sep_L, 0.150*s_la, 0.150*s_la, 0.188*s_la, (2.2,2.2,2.2), get_intensity(ti, :heart)),
-        SuperEllipsoid(-0.101, 0.05 + y_offset, (0.25 + z_offset) + z_sep_L, (0.134352*s_la_c + la_rad_offset), (0.134352*s_la_c + la_rad_offset), 0.16794*s_la_c, (2.2,2.2,2.2), get_intensity(ti, :la_blood)),
+        SuperEllipsoid(-0.101 - dx_la, -0.05 - y_offset, (0.25 + z_offset) + z_sep_L, 0.150*s_la, 0.150*s_la, 0.188*s_la, (2.2,2.2,2.2), get_intensity(ti, :heart)),
+        SuperEllipsoid(-0.101, -0.05 - y_offset, (0.25 + z_offset) + z_sep_L, (0.134352*s_la_c + la_rad_offset), (0.134352*s_la_c + la_rad_offset), 0.16794*s_la_c, (2.2,2.2,2.2), get_intensity(ti, :la_blood)),
 
         # Right atrium myocardium and cavity
-        SuperEllipsoid(0.161 + dx_ra, 0.07 + y_offset, (0.25 + z_offset) + z_sep_R, 0.150*s_ra, 0.150*s_ra, 0.188*s_ra, (2.2,2.2,2.2), get_intensity(ti, :heart)),
-        SuperEllipsoid(0.161, 0.07 + y_offset, (0.25 + z_offset) + z_sep_R, (0.126468*s_ra_c + ra_rad_offset), (0.126468*s_ra_c + ra_rad_offset), 0.158085*s_ra_c, (2.2,2.2,2.2), get_intensity(ti, :ra_blood))
+        SuperEllipsoid(0.161 + dx_ra, -0.07 - y_offset, (0.25 + z_offset) + z_sep_R, 0.150*s_ra, 0.150*s_ra, 0.188*s_ra, (2.2,2.2,2.2), get_intensity(ti, :heart)),
+        SuperEllipsoid(0.161, -0.07 - y_offset, (0.25 + z_offset) + z_sep_R, (0.126468*s_ra_c + ra_rad_offset), (0.126468*s_ra_c + ra_rad_offset), 0.158085*s_ra_c, (2.2,2.2,2.2), get_intensity(ti, :ra_blood))
     )
 end
 
@@ -598,7 +598,7 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
     function add_vessel(xyf, z_center, radius_xy, height_z, n)
         zc = z_center + z_offset
         x_center, y_center = xyf(zc)
-        return (vessel_parts..., SuperEllipsoid(x_center, y_center + y_offset, zc, radius_xy, radius_xy, height_z, (n,n,n), get_intensity(ti, :vessels_blood)))
+        return (vessel_parts..., SuperEllipsoid(x_center, -y_center - y_offset, zc, radius_xy, radius_xy, height_z, (n,n,n), get_intensity(ti, :vessels_blood)))
     end
 
     # Segment lists; lowest segments start at ~0.20 to just touch heart base
@@ -633,9 +633,9 @@ function spine_curve(z)
     A = A_neck + p * (A_lumbar - A_neck)
     T = T_neck + p * (T_lumbar - T_neck)
     ω = 2π / T
-    base_y = -0.4 - 0.25 * p  # slight linear slope downward toward lumbar
+    base_y = 0.4 + 0.25 * p  # slight linear slope downward toward lumbar
     phase_shift = -0.7  # slight shift to align with torso
-    return base_y + A * sin(ω * (z + phase_shift))
+    return base_y - A * sin(ω * (z + phase_shift))
 end
 
 """
@@ -671,11 +671,11 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
     function create_rib_curve(z_pos, num_segments, torso_width, torso_depth, arc_coverage)
         function spine_curve_local(z)
             if z > 0.5
-                return -0.45 + 0.18 * (z - 0.5)^2.2
+                return 0.45 - 0.18 * (z - 0.5)^2.2
             elseif z > -0.3
-                return -0.50 - 0.06 * sin((z + 0.3) / 0.8 * π)
+                return 0.50 + 0.06 * sin((z + 0.3) / 0.8 * π)
             else
-                return -0.48 + 0.04 * ((z + 0.3) / 0.5)^2
+                return 0.48 - 0.04 * ((z + 0.3) / 0.5)^2
             end
         end
         spine_y = spine_curve(z_pos)
@@ -694,7 +694,7 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
         for angle in angles
             # Ribs extend from spine (posterior) wrapping to anterior
             x_pos = torso_width * cos(angle)
-            y_pos = spine_y + torso_depth + torso_depth * sin(angle) + y_offset
+            y_pos = spine_y - torso_depth - torso_depth * sin(angle) - y_offset
             
             # Ribs slope downward anteriorly (higher at posterior/spine, lower anteriorly)
             z_adjustment = (π - abs(π/2 + angle)) / (2π) * 0.06
@@ -730,12 +730,12 @@ function get_arm_bones(ti::AbstractTissueParameters)
     
     # Left arm bones
     arm_bone_positions_l = [
-        (-0.50, -0.28, 0.58, 0.150, 0.075, 0.150),
-        (-0.55, -0.25, 0.56, 0.160, 0.080, 0.200),
-        (-0.60, -0.23, 0.54, 0.165, 0.083, 0.260),
-        (-0.65, -0.20, 0.52, 0.170, 0.100, 0.350),
-        (-0.70, -0.15, 0.51, 0.175, 0.120, 0.220),
-        (-0.75, -0.05, 0.50, 0.175, 0.150, 0.175),
+        (-0.50, 0.28, 0.58, 0.150, 0.075, 0.150),
+        (-0.55, 0.25, 0.56, 0.160, 0.080, 0.200),
+        (-0.60, 0.23, 0.54, 0.165, 0.083, 0.260),
+        (-0.65, 0.20, 0.52, 0.170, 0.100, 0.350),
+        (-0.70, 0.15, 0.51, 0.175, 0.120, 0.220),
+        (-0.75, 0.05, 0.50, 0.175, 0.150, 0.175),
         (-0.80, 0.00, 0.50, 0.170, 0.170, 0.170),
         (-0.85, 0.00, 0.50, 0.165, 0.165, 0.165),
         (-0.90, 0.00, 0.48, 0.160, 0.160, 0.160),
@@ -748,17 +748,17 @@ function get_arm_bones(ti::AbstractTissueParameters)
     ]
     
     for (x_pos, y_pos, z_pos, radius_x, radius_y, radius_z) in arm_bone_positions_l
-        parts = (parts..., SuperEllipsoid(x_pos, y_pos - 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., SuperEllipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
     end
     
     # Right arm bones
     arm_bone_positions_r = [
-        (0.50, -0.28, 0.58, 0.150, 0.075, 0.150),
-        (0.55, -0.25, 0.56, 0.160, 0.080, 0.200),
-        (0.60, -0.23, 0.54, 0.165, 0.083, 0.260),
-        (0.65, -0.20, 0.52, 0.170, 0.100, 0.350),
-        (0.70, -0.15, 0.51, 0.175, 0.120, 0.220),
-        (0.75, -0.05, 0.50, 0.175, 0.150, 0.175),
+        (0.50, 0.28, 0.58, 0.150, 0.075, 0.150),
+        (0.55, 0.25, 0.56, 0.160, 0.080, 0.200),
+        (0.60, 0.23, 0.54, 0.165, 0.083, 0.260),
+        (0.65, 0.20, 0.52, 0.170, 0.100, 0.350),
+        (0.70, 0.15, 0.51, 0.175, 0.120, 0.220),
+        (0.75, 0.05, 0.50, 0.175, 0.150, 0.175),
         (0.80, 0.00, 0.50, 0.170, 0.170, 0.170),
         (0.85, 0.00, 0.50, 0.165, 0.165, 0.165),
         (0.90, 0.00, 0.48, 0.160, 0.160, 0.160),
@@ -771,7 +771,7 @@ function get_arm_bones(ti::AbstractTissueParameters)
     ]
     
     for (x_pos, y_pos, z_pos, radius_x, radius_y, radius_z) in arm_bone_positions_r
-        parts = (parts..., SuperEllipsoid(x_pos, y_pos - 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., SuperEllipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
     end
 
     return parts
@@ -783,10 +783,10 @@ Helper function to get liver parts.
 function get_liver(diaphragm_upshift::Real, y_offset::Real, xy_scale::Real, ti::AbstractTissueParameters)
     return (
         # Liver (right upper abdomen) moves with diaphragm
-        SuperEllipsoid(0.30, 0.15 + y_offset, -0.55 + diaphragm_upshift, 0.385*xy_scale, 0.33*xy_scale, 0.30, (2.5,2.5,2.5), get_intensity(ti, :liver)),
+        SuperEllipsoid(0.30, -0.15 - y_offset, -0.55 + diaphragm_upshift, 0.385*xy_scale, 0.33*xy_scale, 0.30, (2.5,2.5,2.5), get_intensity(ti, :liver)),
         
         # Left lobe
-        SuperEllipsoid(0.00, 0.12 + y_offset, -0.50 + diaphragm_upshift, 0.22*xy_scale, 0.275*xy_scale, 0.25, (2.5,2.5,2.5), get_intensity(ti, :liver))
+        SuperEllipsoid(0.00, -0.12 - y_offset, -0.50 + diaphragm_upshift, 0.22*xy_scale, 0.275*xy_scale, 0.25, (2.5,2.5,2.5), get_intensity(ti, :liver))
     )
 end
 
@@ -797,9 +797,9 @@ function get_stomach(diaphragm_upshift::Real, y_offset::Real, xy_scale::Real, ti
     return (
         # Stomach (left upper abdomen) moves with diaphragm
         # Fundus
-        SuperEllipsoid(-0.30, 0.05 + y_offset, -0.45 + diaphragm_upshift, 0.33*xy_scale, 0.198*xy_scale, 0.20, (2.5,2.5,2.5), get_intensity(ti, :stomach)),
+        SuperEllipsoid(-0.30, -0.05 - y_offset, -0.45 + diaphragm_upshift, 0.33*xy_scale, 0.198*xy_scale, 0.20, (2.5,2.5,2.5), get_intensity(ti, :stomach)),
         
         # Body
-        SuperEllipsoid(-0.20, 0.08 + y_offset, -0.55 + diaphragm_upshift, 0.176*xy_scale, 0.176*xy_scale, 0.22, (2.5,2.5,2.5), get_intensity(ti, :stomach))
+        SuperEllipsoid(-0.20, -0.08 - y_offset, -0.55 + diaphragm_upshift, 0.176*xy_scale, 0.176*xy_scale, 0.22, (2.5,2.5,2.5), get_intensity(ti, :stomach))
     )
 end
