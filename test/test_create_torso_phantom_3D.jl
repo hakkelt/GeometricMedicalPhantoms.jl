@@ -487,5 +487,29 @@ using Statistics
                 end
             end
         end
+
+        @testset "3D phantom - Invalid dimensions" begin
+            # Test invalid nx (zero)
+            @test_throws ArgumentError create_torso_phantom(0, 64, 64)
+            
+            # Test invalid ny (zero)
+            @test_throws ArgumentError create_torso_phantom(64, 0, 64)
+            
+            # Test invalid nz (zero)
+            @test_throws ArgumentError create_torso_phantom(64, 64, 0)
+            
+            # Test invalid nx (negative)
+            @test_throws ArgumentError create_torso_phantom(-10, 64, 64)
+            
+            # Test invalid ny (negative)
+            @test_throws ArgumentError create_torso_phantom(64, -10, 64)
+            
+            # Test invalid nz (negative)
+            @test_throws ArgumentError create_torso_phantom(64, 64, -10)
+            
+            # Test invalid fovs (wrong size)
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs=(30, 30))
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs=(30, 30, 30, 30))
+        end
     end  # Parameter Tests
 end  # 3D Phantom Tests
