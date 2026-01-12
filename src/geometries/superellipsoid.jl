@@ -72,16 +72,13 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     exx, exy, exz = ex
     val_int = T(intensity)
 
+    dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
+    dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
+    dz = @. (abs(ax_z[iz_min:iz_max] - cz) * inv_rz)^exz
     @inbounds for i in ix_min:ix_max
-        dx = abs(ax_x[i] - cx) * inv_rx
-        dxp = dx^exx
         for j in iy_min:iy_max
-            dy = abs(ax_y[j] - cy) * inv_ry
-            dyp = dy^exy
             for k in iz_min:iz_max
-                dz = abs(ax_z[k] - cz) * inv_rz
-                dzp = dz^exz
-                if dxp + dyp + dzp <= 1.0
+                if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz[k - iz_min + 1] <= 1.0
                     phantom[i, j, k] = val_int
                 end
             end
@@ -118,17 +115,13 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     exx, exy, exz = ex
     val_int = T(intensity)
     
-    # Precompute the z-component contribution
-    dz = abs(ax_z - cz) * inv_rz
-    dzp = dz^exz
-
+    # Precompute directions
+    dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
+    dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
+    dz = abs(ax_z - cz) * inv_rz^exz
     @inbounds for i in ix_min:ix_max
-        dx = abs(ax_x[i] - cx) * inv_rx
-        dxp = dx^exx
         for j in iy_min:iy_max
-            dy = abs(ax_y[j] - cy) * inv_ry
-            dyp = dy^exy
-            if dxp + dyp + dzp <= 1.0
+            if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz <= 1.0
                 phantom[i, j] = val_int
             end
         end
