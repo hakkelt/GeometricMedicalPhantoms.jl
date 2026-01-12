@@ -78,3 +78,16 @@ Base.@kwdef struct TissueMask <: AbstractTissueParameters
     la_blood::Bool = false
     ra_blood::Bool = false
 end
+
+"""
+Helper function to get the intensity value from tissue parameters.
+For TissueIntensities, returns the Float64 value.
+For TissueMask, returns 1.0 if the field is true, 0.0 otherwise.
+"""
+@inline function get_intensity(ti::TissueIntensities, field::Symbol)
+    return Float64(getfield(ti, field))
+end
+
+@inline function get_intensity(ti::TissueMask, field::Symbol)
+    return getfield(ti, field) ? 1.0 : 0.0
+end

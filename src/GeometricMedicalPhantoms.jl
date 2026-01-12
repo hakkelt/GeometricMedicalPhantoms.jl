@@ -13,9 +13,13 @@ export create_torso_phantom, TissueIntensities, TissueMask, AbstractTissueParame
 export count_voxels, calculate_volume
 
 include("geometries/superellipsoid.jl")
-include("torso_phantom/physiological_signals.jl")
+include("physiological_signals/respiratory_signals.jl")
+include("physiological_signals/cardiac_signals.jl")
 include("torso_phantom/tissue_intensities.jl")
-include("torso_phantom/create_torso_phantom.jl")
+include("torso_phantom/geometry_definitions.jl")
+include("torso_phantom/motion_calculations.jl")
+include("torso_phantom/create_2D_torso_phantom.jl")
+include("torso_phantom/create_3D_torso_phantom.jl")
 include("torso_phantom/validation.jl")
 
 end
