@@ -184,7 +184,7 @@ using Statistics
             )
 
             # Extract center slices from 3D
-            center_idx = 33
+            center_idx = 32
             slice_3d_axial = phantom_3d[:, :, center_idx, 1]
             slice_3d_coronal = phantom_3d[:, center_idx, :, 1]
             slice_3d_sagittal = phantom_3d[center_idx, :, :, 1]

@@ -126,23 +126,3 @@ function draw_single_frame_2d!(frame, static_image, ax_1n, ax_2n, ax_3_val, axis
     end
     return frame
 end
-
-"""
-Helper function to draw a superellipsoid onto a 2D slice.
-Dispatches to the appropriate draw! call based on axis orientation.
-"""
-function draw_2d!(image::AbstractArray{T,2}, ax_1n, ax_2n, ax_3_val::Real, axis::Symbol, se::SuperEllipsoid) where T
-    if axis == :axial
-        # Axial: x-y plane, z is fixed
-        draw!(image, ax_1n, ax_2n, ax_3_val, se)
-    elseif axis == :coronal
-        # Coronal: x-z plane, y is fixed (swap y and z)
-        se_rotated = SuperEllipsoid(se.cx, se.cz, se.cy, se.rx, se.rz, se.ry, (se.ex[1], se.ex[3], se.ex[2]), se.intensity)
-        draw!(image, ax_1n, ax_2n, ax_3_val, se_rotated)
-    elseif axis == :sagittal
-        # Sagittal: y-z plane, x is fixed (swap x with z, then y with x)
-        se_rotated = SuperEllipsoid(se.cy, se.cz, se.cx, se.ry, se.rz, se.rx, (se.ex[2], se.ex[3], se.ex[1]), se.intensity)
-        draw!(image, ax_1n, ax_2n, ax_3_val, se_rotated)
-    end
-    return image
-end
