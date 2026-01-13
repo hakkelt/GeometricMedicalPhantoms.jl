@@ -210,10 +210,10 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
     pulm_xy(z)  = (-0.05 + 0.05 * sin(π * (z - 0.22) + 0.2), -0.05 + 0.030 * sin(0.9π * (z - 0.22) - 0.3))
     svc_xy(z)   = ( 0.10 + 0.05 * sin(0.8π * (z - 0.30)), -0.05 + 0.030 * sin(0.6π * (z - 0.30) + 0.2))
 
-    function add_vessel(xyf, z_center, radius_xy, height_z, n)
+    function add_vessel(current_parts, xyf, z_center, radius_xy, height_z, n)
         zc = z_center + z_offset
         x_center, y_center = xyf(zc)
-        return (vessel_parts..., SuperEllipsoid(x_center, -y_center - y_offset, zc, radius_xy, radius_xy, height_z, (n,n,n), get_intensity(ti, :vessels_blood)))
+        return (current_parts..., SuperEllipsoid(x_center, -y_center - y_offset, zc, radius_xy, radius_xy, height_z, (n,n,n), get_intensity(ti, :vessels_blood)))
     end
 
     # Segment lists; lowest segments start at ~0.20 to just touch heart base
@@ -223,17 +223,17 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
 
     # Aorta (ascending)
     for (z_center, half_height) in aorta_segments
-        vessel_parts = add_vessel(aorta_xy, z_center, 0.06, half_height, 2.5)
+        vessel_parts = add_vessel(vessel_parts, aorta_xy, z_center, 0.06, half_height, 2.5)
     end
 
     # Pulmonary artery
     for (z_center, half_height) in pulmonary_segments
-        vessel_parts = add_vessel(pulm_xy, z_center, 0.05, half_height, 2.5)
+        vessel_parts = add_vessel(vessel_parts, pulm_xy, z_center, 0.05, half_height, 2.5)
     end
 
     # Superior vena cava
     for (z_center, half_height) in svc_segments
-        vessel_parts = add_vessel(svc_xy, z_center, 0.04, half_height, 2.5)
+        vessel_parts = add_vessel(vessel_parts, svc_xy, z_center, 0.04, half_height, 2.5)
     end
     return vessel_parts
 end
@@ -283,7 +283,7 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
     parts = ()
     
     # Helper function to create curved rib with variable arc coverage
-    function create_rib_curve(z_pos, num_segments, torso_width, torso_depth, arc_coverage)
+    function create_rib_curve(current_parts, z_pos, num_segments, torso_width, torso_depth, arc_coverage)
         function spine_curve_local(z)
             if z > 0.5
                 return 0.45 - 0.18 * (z - 0.5)^2.2
@@ -306,6 +306,7 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
             angles = range(angle_start, angle_end, length=Int(round(num_segments * arc_coverage)))
         end
         
+        local_parts = current_parts
         for angle in angles
             # Ribs extend from spine (posterior) wrapping to anterior
             x_pos = torso_width * cos(angle)
@@ -314,25 +315,26 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
             # Ribs slope downward anteriorly (higher at posterior/spine, lower anteriorly)
             z_adjustment = (π - abs(π/2 + angle)) / (2π) * 0.06
             
-            parts = (parts..., Ellipsoid(x_pos, y_pos, z_pos + z_adjustment, 0.04, 0.04, 0.055, get_intensity(ti, :bones)))
+            local_parts = (local_parts..., Ellipsoid(x_pos, y_pos, z_pos + z_adjustment, 0.04, 0.04, 0.055, get_intensity(ti, :bones)))
         end
+        return local_parts
     end
     
     num_segments = 80
     # Upper ribs with full coverage
-    create_rib_curve(0.6, num_segments, 0.64 * rib_width_scale, 0.53 * rib_depth_scale, 1.0)
-    create_rib_curve(0.45, num_segments, 0.68 * rib_width_scale, 0.58 * rib_depth_scale, 1.0)
-    create_rib_curve(0.3, num_segments, 0.72 * rib_width_scale, 0.61 * rib_depth_scale, 1.0)
-    create_rib_curve(0.15, num_segments, 0.76 * rib_width_scale, 0.62 * rib_depth_scale, 1.0)
+    parts = create_rib_curve(parts, 0.6, num_segments, 0.64 * rib_width_scale, 0.53 * rib_depth_scale, 1.0)
+    parts = create_rib_curve(parts, 0.45, num_segments, 0.68 * rib_width_scale, 0.58 * rib_depth_scale, 1.0)
+    parts = create_rib_curve(parts, 0.3, num_segments, 0.72 * rib_width_scale, 0.61 * rib_depth_scale, 1.0)
+    parts = create_rib_curve(parts, 0.15, num_segments, 0.76 * rib_width_scale, 0.62 * rib_depth_scale, 1.0)
     
     # Ribs around mid-chest with slight reduction in coverage
-    create_rib_curve(0.0, num_segments, 0.80 * rib_width_scale, 0.62 * rib_depth_scale, 1.0)
-    create_rib_curve(-0.15, num_segments, 0.80 * rib_width_scale, 0.62 * rib_depth_scale, 0.9)
+    parts = create_rib_curve(parts, 0.0, num_segments, 0.80 * rib_width_scale, 0.62 * rib_depth_scale, 1.0)
+    parts = create_rib_curve(parts, -0.15, num_segments, 0.80 * rib_width_scale, 0.62 * rib_depth_scale, 0.9)
     
     # Lower ribs with further reduction in coverage
-    create_rib_curve(-0.3, num_segments, 0.78 * rib_width_scale, 0.58 * rib_depth_scale, 0.75)
-    create_rib_curve(-0.45, num_segments, 0.78 * rib_width_scale, 0.59 * rib_depth_scale, 0.6)
-    create_rib_curve(-0.6, num_segments, 0.80 * rib_width_scale, 0.60 * rib_depth_scale, 0.5)
+    parts = create_rib_curve(parts, -0.3, num_segments, 0.78 * rib_width_scale, 0.58 * rib_depth_scale, 0.75)
+    parts = create_rib_curve(parts, -0.45, num_segments, 0.78 * rib_width_scale, 0.59 * rib_depth_scale, 0.6)
+    parts = create_rib_curve(parts, -0.6, num_segments, 0.80 * rib_width_scale, 0.60 * rib_depth_scale, 0.5)
 
     return parts
 end

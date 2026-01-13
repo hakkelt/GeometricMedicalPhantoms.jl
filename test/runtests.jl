@@ -15,5 +15,7 @@ include("utils.jl")
     @testset "Aqua" begin
         Aqua.test_all(GeometricMedicalPhantoms)
     end
+
+    include("test_jet.jl")
 end
 
