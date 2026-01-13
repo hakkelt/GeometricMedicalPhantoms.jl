@@ -52,12 +52,10 @@ function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs=(30, 30), sli
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
     # 3) Allocate output phantom array
-    if is_mask
-        phantom3d = falses(nx, ny, nt)
-        static_image = falses(nx, ny)
+    phantom3d, static_image = if is_mask
+        falses(nx, ny, nt), falses(nx, ny)
     else
-        phantom3d = zeros(eltype, nx, ny, nt)
-        static_image = zeros(eltype, nx, ny)
+        zeros(eltype, nx, ny, nt), zeros(eltype, nx, ny)
     end
     
     # 4) Draw static structures once
