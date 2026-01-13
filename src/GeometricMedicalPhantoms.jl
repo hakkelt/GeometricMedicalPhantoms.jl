@@ -21,5 +21,6 @@ include("torso_phantom/motion_calculations.jl")
 include("torso_phantom/create_2D_torso_phantom.jl")
 include("torso_phantom/create_3D_torso_phantom.jl")
 include("torso_phantom/validation.jl")
+include("precompile.jl")
 
 end
