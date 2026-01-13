@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: ['lts', '1', 'pre']
+        julia-version: ['lts', '1']
         julia-arch: [x64]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
