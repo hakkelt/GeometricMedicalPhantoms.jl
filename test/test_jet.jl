@@ -1,5 +1,6 @@
 using JET
 using Test
+using GeometricMedicalPhantoms
 
 @testset "JET static analysis" begin
     # Run JET.jl static analysis on the package
