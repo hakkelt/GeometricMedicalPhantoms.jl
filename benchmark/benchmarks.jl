@@ -10,11 +10,19 @@ SUITE["generate_respiratory_signal"] = @benchmarkable generate_respiratory_signa
 # Benchmark generate_cardiac_signals with default parameters
 SUITE["generate_cardiac_signals"] = @benchmarkable generate_cardiac_signals(10.0, 500.0, 70.0)
 
+# 3D Phantom Benchmarks
+SUITE["3D Phantoms"] = BenchmarkGroup()
+
 # Benchmark create_torso_phantom with default parameters (128x128x128)
-SUITE["generate_torso_phantom"] = @benchmarkable create_torso_phantom(128, 128, 128)
+SUITE["3D Phantoms"]["generate_torso_phantom"] = @benchmarkable create_torso_phantom(128, 128, 128)
 
 # Benchmark create_torso_phantom with smaller size (64x64x64)
-SUITE["generate_torso_phantom_small"] = @benchmarkable create_torso_phantom(64, 64, 64)
+SUITE["3D Phantoms"]["generate_torso_phantom_small"] = @benchmarkable create_torso_phantom(64, 64, 64)
+
+# Benchmark with time-varying respiratory and cardiac signals
+resp_signal = generate_respiratory_signal(2.0, 12.0, 15.0)[2]
+cardiac_vols = generate_cardiac_signals(2.0, 12.0, 70.0)[2]
+SUITE["3D Phantoms"]["generate_torso_phantom_time_varying"] = @benchmarkable create_torso_phantom(128, 128, 128; respiratory_signal=resp_signal, cardiac_volumes=cardiac_vols)
 
 # 2D Phantom Benchmarks
 SUITE["2D Phantoms"] = BenchmarkGroup()
@@ -39,9 +47,3 @@ SUITE["2D Phantoms"]["axial_slice_position"] = @benchmarkable create_torso_phant
 resp_signal = generate_respiratory_signal(2.0, 12.0, 15.0)[2]
 cardiac_vols = generate_cardiac_signals(2.0, 12.0, 70.0)[2]
 SUITE["2D Phantoms"]["axial_time_varying"] = @benchmarkable create_torso_phantom(64, 64, :axial; respiratory_signal=$resp_signal, cardiac_volumes=$cardiac_vols)
-
-# Benchmark 2D vs 3D comparison (same resolution, single slice)
-SUITE["2D vs 3D"] = BenchmarkGroup()
-SUITE["2D vs 3D"]["2D_slice_128x128"] = @benchmarkable create_torso_phantom(128, 128, :axial)
-SUITE["2D vs 3D"]["3D_volume_128x128x128"] = @benchmarkable create_torso_phantom(128, 128, 128)
-

@@ -161,8 +161,8 @@ function get_heart_chambers(heart_scale, y_offset::Real, ti::AbstractTissueParam
         # Heart main body
         # Upper heart (base)
         # Outer myocardium (base)
-        SuperEllipsoid(-0.06 - dx_lv, 0.02 - y_offset, -0.10 + z_offset, 0.1595*s_lv, 0.2145*s_lv, 0.242*s_lv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
-        SuperEllipsoid(0.14 + dx_rv, 0.00 - y_offset, -0.10 + z_offset, 0.1595*s_rv, 0.2145*s_rv, 0.242*s_rv, (2.0,2.0,2.0), get_intensity(ti, :heart)),
+        Ellipsoid(-0.06 - dx_lv, 0.02 - y_offset, -0.10 + z_offset, 0.1595*s_lv, 0.2145*s_lv, 0.242*s_lv, get_intensity(ti, :heart)),
+        Ellipsoid(0.14 + dx_rv, 0.00 - y_offset, -0.10 + z_offset, 0.1595*s_rv, 0.2145*s_rv, 0.242*s_rv, get_intensity(ti, :heart)),
 
         # Mid heart
         # Outer myocardium (mid)
@@ -261,17 +261,17 @@ function get_spine(ti::AbstractTissueParameters)
     # Upper thoracic vertebrae
     for z_pos in [1.05, 0.95, 0.85, 0.7, 0.55, 0.4]
         y_curve = spine_curve(z_pos)
-        parts = (parts..., SuperEllipsoid(0.0, y_curve, z_pos, 0.084, 0.084, 0.084, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., Ellipsoid(0.0, y_curve, z_pos, 0.084, 0.084, 0.084, get_intensity(ti, :bones)))
     end
     # Mid thoracic vertebrae
     for z_pos in [0.25, 0.1, -0.05, -0.2]
         y_curve = spine_curve(z_pos)
-        parts = (parts..., SuperEllipsoid(0.0, y_curve, z_pos, 0.084, 0.084, 0.084, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., Ellipsoid(0.0, y_curve, z_pos, 0.084, 0.084, 0.084, get_intensity(ti, :bones)))
     end
     # Lower thoracic to lumbar vertebrae
     for z_pos in [-0.4, -0.6, -0.8, -1.0]
         y_curve = spine_curve(z_pos)
-        parts = (parts..., SuperEllipsoid(0.0, y_curve, z_pos, 0.095, 0.095, 0.095, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., Ellipsoid(0.0, y_curve, z_pos, 0.095, 0.095, 0.095, get_intensity(ti, :bones)))
     end
     return parts
 end
@@ -315,7 +315,7 @@ function get_ribs(rib_width_scale::Real, rib_depth_scale::Real, y_offset::Real, 
             # Ribs slope downward anteriorly (higher at posterior/spine, lower anteriorly)
             z_adjustment = (π - abs(π/2 + angle)) / (2π) * 0.06
             
-            local_parts = (local_parts..., SuperEllipsoid(x_pos, y_pos, z_pos + z_adjustment, 0.04, 0.04, 0.055, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+            local_parts = (local_parts..., Ellipsoid(x_pos, y_pos, z_pos + z_adjustment, 0.04, 0.04, 0.055, get_intensity(ti, :bones)))
         end
         return local_parts
     end
@@ -365,7 +365,7 @@ function get_arm_bones(ti::AbstractTissueParameters)
     ]
     
     for (x_pos, y_pos, z_pos, radius_x, radius_y, radius_z) in arm_bone_positions_l
-        parts = (parts..., SuperEllipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., Ellipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, get_intensity(ti, :bones)))
     end
     
     # Right arm bones
@@ -388,7 +388,7 @@ function get_arm_bones(ti::AbstractTissueParameters)
     ]
     
     for (x_pos, y_pos, z_pos, radius_x, radius_y, radius_z) in arm_bone_positions_r
-        parts = (parts..., SuperEllipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, (2.0,2.0,2.0), get_intensity(ti, :bones)))
+        parts = (parts..., Ellipsoid(x_pos, y_pos + 0.165, z_pos, radius_x/2, radius_y/2, radius_z/2, get_intensity(ti, :bones)))
     end
 
     return parts
