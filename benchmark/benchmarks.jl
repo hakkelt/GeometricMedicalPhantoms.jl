@@ -52,9 +52,29 @@ SUITE["2D Phantoms"]["axial_time_varying"] = @benchmarkable create_torso_phantom
 SUITE["Shepp-Logan Phantom"] = BenchmarkGroup()
 
 SUITE["Shepp-Logan Phantom"]["3D volume 128³"] = @benchmarkable create_shepp_logan_phantom(128, 128, 128)
+SUITE["Shepp-Logan Phantom"]["3D MRI intensities"] = @benchmarkable create_shepp_logan_phantom(128, 128, 128; ti=MRISheppLoganIntensities())
 SUITE["Shepp-Logan Phantom"]["3D mask (skull)"] = @benchmarkable create_shepp_logan_phantom(128, 128, 128; ti=SheppLoganMask(skull=true))
 
 SUITE["Shepp-Logan Phantom"]["2D axial 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :axial)
 SUITE["Shepp-Logan Phantom"]["2D coronal 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :coronal)
 SUITE["Shepp-Logan Phantom"]["2D sagittal 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :sagittal)
+SUITE["Shepp-Logan Phantom"]["2D axial MRI intensities"] = @benchmarkable create_shepp_logan_phantom(256, 256, :axial; ti=MRISheppLoganIntensities())
 SUITE["Shepp-Logan Phantom"]["2D axial mask (skull)"] = @benchmarkable create_shepp_logan_phantom(256, 256, :axial; ti=SheppLoganMask(skull=true))
+
+# Tubes Phantom Benchmarks
+SUITE["Tubes Phantom"] = BenchmarkGroup()
+
+const TUBES_LARGE_GEO = TubesGeometry(outer_radius=0.6, outer_height=1.2)
+const TUBES_SINGLE_TUBE = TubesIntensities(outer_cylinder=0.25, tube_wall=0.0, tube_fillings=[0.5])
+const TUBES_MASK = TubesMask(outer_cylinder=true, tube_wall=false, tube_fillings=fill(true, 6))
+
+SUITE["Tubes Phantom"]["3D default (64³)"] = @benchmarkable create_tubes_phantom(64, 64, 64)
+SUITE["Tubes Phantom"]["3D larger geometry"] = @benchmarkable create_tubes_phantom(64, 64, 64; tg=TUBES_LARGE_GEO)
+SUITE["Tubes Phantom"]["3D custom intensities"] = @benchmarkable create_tubes_phantom(64, 64, 64; ti=TUBES_SINGLE_TUBE)
+SUITE["Tubes Phantom"]["3D boolean mask"] = @benchmarkable create_tubes_phantom(64, 64, 64; ti=TUBES_MASK)
+
+SUITE["Tubes Phantom"]["2D axial 256x256"] = @benchmarkable create_tubes_phantom(256, 256, :axial)
+SUITE["Tubes Phantom"]["2D coronal 256x256"] = @benchmarkable create_tubes_phantom(256, 256, :coronal)
+SUITE["Tubes Phantom"]["2D sagittal 256x256"] = @benchmarkable create_tubes_phantom(256, 256, :sagittal)
+SUITE["Tubes Phantom"]["2D axial slice position 5cm"] = @benchmarkable create_tubes_phantom(256, 256, :axial; slice_position=5.0)
+SUITE["Tubes Phantom"]["2D mask slice (axial)"] = @benchmarkable create_tubes_phantom(256, 256, :axial; ti=TUBES_MASK)
