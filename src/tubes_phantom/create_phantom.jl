@@ -84,6 +84,7 @@ function _render_tubes_slice(nx, ny; fovs, slice_position, tg, ti, eltype, force
     slice_pos_norm = slice_position / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny)
+    phantom = convert(Array{output_eltype,2}, phantom)
     shapes = get_tubes_shapes(tg, ti, output_eltype)
     for shape in shapes
         draw_2d!(phantom, ax_1, ax_2, slice_pos_norm, axis, shape)
