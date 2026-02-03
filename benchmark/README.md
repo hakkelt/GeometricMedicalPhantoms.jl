@@ -16,8 +16,8 @@ include("benchmark/benchmarks.jl")
 using BenchmarkTools
 
 # Run all 2D phantom benchmarks
-tune!(SUITE["2D Phantoms"])
-results = run(SUITE["2D Phantoms"])
+tune!(SUITE["2D Torso"])
+results = run(SUITE["2D Torso"])
 ```
 
 ### Quick individual benchmarks
@@ -39,17 +39,18 @@ using GeometricMedicalPhantoms
 - `generate_cardiac_signals`: Cardiac signal generation (10s, 500Hz, 70 bpm)
 
 ### 3D Phantom Generation
-- `generate_torso_phantom`: 128³ phantom (default size)
-- `generate_torso_phantom_small`: 64³ phantom (smaller, faster)
+- `3D Torso/generate_torso_phantom`: Full 3D volume (128³)
+- `3D Torso/generate_torso_phantom_small`: Smaller 64³ volume
+- `3D Torso/generate_torso_phantom_time_varying`: Time-varying 3D phantom with motion
 
 ### 2D Phantom Generation
-- `2D Phantoms/axial_128x128`: Axial slice at default position
-- `2D Phantoms/coronal_128x128`: Coronal slice at default position
-- `2D Phantoms/sagittal_128x128`: Sagittal slice at default position
-- `2D Phantoms/axial_64x64`: Smaller 64×64 axial slice
-- `2D Phantoms/axial_256x256`: Larger 256×256 axial slice
-- `2D Phantoms/axial_slice_position`: Axial slice at custom position (z=5cm)
-- `2D Phantoms/axial_time_varying`: Time-varying 2D phantom with motion
+- `2D Torso/axial_128x128`: Axial slice at default position
+- `2D Torso/coronal_128x128`: Coronal slice at default position
+- `2D Torso/sagittal_128x128`: Sagittal slice at default position
+- `2D Torso/axial_64x64`: Smaller 64×64 axial slice
+- `2D Torso/axial_256x256`: Larger 256×256 axial slice
+- `2D Torso/axial_slice_position`: Axial slice at custom position (z=5cm)
+- `2D Torso/axial_time_varying`: Time-varying 2D phantom with motion
 
 ### Performance Comparison
 - `2D vs 3D/2D_slice_128x128`: Single 2D slice (128×128)
@@ -91,5 +92,7 @@ Use `tune!(SUITE["Shepp-Logan Phantom"])` before `run` to calibrate the new grou
 - `Tubes Phantom/2D sagittal 256x256`: Sagittal slice showcasing left-right rendering cost
 - `Tubes Phantom/2D axial slice position 5cm`: Slices away from center to cover off-center axial draws
 - `Tubes Phantom/2D mask slice (axial)`: Axial mask slice that exercises boolean intensity paths
+- `Tubes Phantom/3D multi-intensity stack`: Render multiple 3D volumes with different intensity presets at once
+- `Tubes Phantom/2D multi-intensity stack`: Stack several axial slices rendered with distinct intensity parameters
 
 Tune and run this group the same way as others: `tune!(SUITE["Tubes Phantom"])` and `run(SUITE["Tubes Phantom"])`, or run just the entries of interest (e.g., `run(SUITE["Tubes Phantom"]["3D custom intensities"])`).
