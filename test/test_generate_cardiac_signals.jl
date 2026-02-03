@@ -1,3 +1,11 @@
+using Test
+using GeometricMedicalPhantoms
+using Statistics
+
+if !isdefined(Main, :utils_included)
+    include("utils.jl")
+end
+
 @testset "generate_cardiac_signals" begin
     # Test basic parameters: duration and fs
     @testset "Time vector length and sampling" begin

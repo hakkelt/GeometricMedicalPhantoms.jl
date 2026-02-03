@@ -1,6 +1,5 @@
 using Test
 using GeometricMedicalPhantoms
-using Statistics
 
 @testset "2D Phantom Tests" begin
     @testset "Static Generation" begin

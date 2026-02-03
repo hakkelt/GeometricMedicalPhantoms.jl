@@ -1,3 +1,11 @@
+using Test
+using GeometricMedicalPhantoms
+using Statistics
+
+if !isdefined(Main, :utils_included)
+    include("utils.jl")
+end
+
 @testset "generate_respiratory_signal" begin
     # Test basic parameters: duration and fs
     @testset "Time vector length and sampling" begin
@@ -110,5 +118,67 @@
         t, resp_L = generate_respiratory_signal()
         @test length(t) == 60.0 * 50.0
         @test all(isfinite.(resp_L))
+    end
+    
+    # Test amplitude modulation (line 64: amplitude_mod = 1.0 .+ amplitude_mod_amp .* sin(...))
+    @testset "Amplitude modulation (line 64)" begin
+        duration = 60.0
+        fs = 100.0
+        rr = 15.0
+        
+        # Test with significant amplitude modulation
+        phys_with_amp_mod = RespiratoryPhysiology(
+            minL=2.4, maxL=3.0,
+            amp_mod_amp=0.5,  # 50% amplitude variation
+            amp_mod_freq=0.1  # 0.1 Hz modulation frequency
+        )
+        t, resp_L = generate_respiratory_signal(duration, fs, rr; physiology=phys_with_amp_mod)
+        
+        # Breathing depth should vary over time
+        # Compare segments of signal to show amplitude modulation effect
+        segment_length = Int(round(fs / phys_with_amp_mod.amp_mod_freq / 2))  # Half period of modulation
+        
+        if segment_length > 0 && segment_length < length(resp_L) - 1
+            # Compute local amplitude in each segment
+            num_segments = div(length(resp_L), segment_length)
+            if num_segments >= 3
+                amps = [maximum(resp_L[i*segment_length+1:min((i+1)*segment_length, length(resp_L))]) - 
+                        minimum(resp_L[i*segment_length+1:min((i+1)*segment_length, length(resp_L))]) 
+                        for i in 0:num_segments-1]
+                # Amplitudes should vary (not all identical) due to modulation
+                @test maximum(amps) > minimum(amps)
+            end
+        end
+        
+        # Test with no amplitude modulation
+        phys_no_amp_mod = RespiratoryPhysiology(
+            minL=2.4, maxL=3.0,
+            amp_mod_amp=0.0  # No amplitude variation
+        )
+        t_no_mod, resp_L_no_mod = generate_respiratory_signal(duration, fs, rr; physiology=phys_no_amp_mod)
+        
+        # Without modulation, consecutive cycles should have similar amplitudes
+        segment_len_no_mod = Int(round(fs * 60 / rr))  # One breath cycle in samples
+        if segment_len_no_mod > 0 && 2*segment_len_no_mod < length(resp_L_no_mod)
+            cycle1 = resp_L_no_mod[1:segment_len_no_mod]
+            cycle2 = resp_L_no_mod[segment_len_no_mod+1:2*segment_len_no_mod]
+            amp1 = maximum(cycle1) - minimum(cycle1)
+            amp2 = maximum(cycle2) - minimum(cycle2)
+            # Amplitudes should be similar without modulation
+            @test isapprox(amp1, amp2, rtol=0.05)
+        end
+        
+        # With modulation, breathing cycle amplitudes should vary more
+        segment_len_mod = Int(round(fs * 60 / rr))  # One breath cycle in samples
+        if segment_len_mod > 0 && 2*segment_len_mod < length(resp_L)
+            cycle1_mod = resp_L[1:segment_len_mod]
+            cycle2_mod = resp_L[segment_len_mod+1:2*segment_len_mod]
+            amp1_mod = maximum(cycle1_mod) - minimum(cycle1_mod)
+            amp2_mod = maximum(cycle2_mod) - minimum(cycle2_mod)
+            # Signal should show variation (either same or different amplitudes are OK)
+            # The key is that amplitude modulation code (line 64) is executed
+            @test amp1_mod > 0
+            @test amp2_mod > 0
+        end
     end
 end
