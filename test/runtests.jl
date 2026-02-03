@@ -9,6 +9,7 @@ include("utils.jl")
     include("test_generate_respiratory_signal.jl")
     include("test_generate_cardiac_signals.jl")
     include("test_superellipsoid.jl")
+    include("test_shepp_logan.jl")
     include("test_create_torso_phantom_2D.jl")
     include("test_create_torso_phantom_3D.jl")
 
