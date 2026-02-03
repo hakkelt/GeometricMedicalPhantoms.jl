@@ -1,5 +1,6 @@
 using Test
 using GeometricMedicalPhantoms
+using GeometricMedicalPhantoms: calculate_volume
 using Statistics
 
 @testset "3D Phantom Tests" begin

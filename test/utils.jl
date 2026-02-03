@@ -1,4 +1,5 @@
 # Test utilities and helper functions
+const utils_included = true
 
 """
     count_peaks(signal)

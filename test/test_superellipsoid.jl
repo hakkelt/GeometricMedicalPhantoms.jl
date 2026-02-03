@@ -1,7 +1,5 @@
 using Test
 using GeometricMedicalPhantoms
-
-# Import internal functions for testing
 using GeometricMedicalPhantoms: SuperEllipsoid, draw!
 
 @testset "SuperEllipsoid Tests" begin
