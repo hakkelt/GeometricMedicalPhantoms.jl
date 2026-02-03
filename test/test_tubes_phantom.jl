@@ -113,6 +113,33 @@ using GeometricMedicalPhantoms
         @test size(phantom_small) == (64, 64, 64)
         @test size(phantom_large) == (64, 64, 64)
     end
+
+    @testset "3D phantom multi-intensities" begin
+        ti_list = [
+            TubesIntensities(outer_cylinder=0.2, tube_fillings=[0.1]),
+            TubesIntensities(outer_cylinder=0.7, tube_fillings=[0.3]),
+            TubesIntensities(outer_cylinder=0.9, tube_fillings=[0.8])
+        ]
+        phantom_stack = create_tubes_phantom(32, 32, 32; ti=ti_list)
+        @test size(phantom_stack) == (32, 32, 32, length(ti_list))
+        for (idx, ti) in enumerate(ti_list)
+            single = create_tubes_phantom(32, 32, 32; ti=ti)
+            @test phantom_stack[:, :, :, idx] ≈ single
+        end
+    end
+
+    @testset "2D phantom multi-intensities" begin
+        ti_list = [
+            TubesIntensities(outer_cylinder=0.3, tube_fillings=[0.2]),
+            TubesIntensities(outer_cylinder=0.6, tube_fillings=[0.4])
+        ]
+        phantom_stack = create_tubes_phantom(64, 64, :axial; ti=ti_list)
+        @test size(phantom_stack) == (64, 64, length(ti_list))
+        for (idx, ti) in enumerate(ti_list)
+            single = create_tubes_phantom(64, 64, :axial; ti=ti)
+            @test phantom_stack[:, :, idx] ≈ single
+        end
+    end
     
     @testset "Data type support - Float64" begin
         # Test generation with Float64 output
