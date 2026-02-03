@@ -47,3 +47,14 @@ SUITE["2D Phantoms"]["axial_slice_position"] = @benchmarkable create_torso_phant
 resp_signal = generate_respiratory_signal(2.0, 12.0, 15.0)[2]
 cardiac_vols = generate_cardiac_signals(2.0, 12.0, 70.0)[2]
 SUITE["2D Phantoms"]["axial_time_varying"] = @benchmarkable create_torso_phantom(64, 64, :axial; respiratory_signal=$resp_signal, cardiac_volumes=$cardiac_vols)
+
+# Shepp-Logan Phantom Benchmarks
+SUITE["Shepp-Logan Phantom"] = BenchmarkGroup()
+
+SUITE["Shepp-Logan Phantom"]["3D volume 128³"] = @benchmarkable create_shepp_logan_phantom(128, 128, 128)
+SUITE["Shepp-Logan Phantom"]["3D mask (skull)"] = @benchmarkable create_shepp_logan_phantom(128, 128, 128; ti=SheppLoganMask(skull=true))
+
+SUITE["Shepp-Logan Phantom"]["2D axial 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :axial)
+SUITE["Shepp-Logan Phantom"]["2D coronal 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :coronal)
+SUITE["Shepp-Logan Phantom"]["2D sagittal 256x256"] = @benchmarkable create_shepp_logan_phantom(256, 256, :sagittal)
+SUITE["Shepp-Logan Phantom"]["2D axial mask (skull)"] = @benchmarkable create_shepp_logan_phantom(256, 256, :axial; ti=SheppLoganMask(skull=true))

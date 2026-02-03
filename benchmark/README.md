@@ -68,3 +68,15 @@ Performance will vary based on:
 - Available memory
 - System load
 - Slice orientation (axial typically slightly slower than coronal/sagittal)
+
+### Shepp-Logan Phantom Generation
+- `Shepp-Logan Phantom/3D volume 128³`: Full 3D volume rendered with the default CT intensities
+- `Shepp-Logan Phantom/3D MRI intensities`: Same volume using MRI-derived intensities
+- `Shepp-Logan Phantom/3D mask (skull)`: Mask-only rendering of the skull ellipsoid to track boolean performance
+- `Shepp-Logan Phantom/2D axial 256x256`: Higher-resolution axial slice at the center plane
+- `Shepp-Logan Phantom/2D coronal 256x256`: Coronal slice rendering for a complementary orientation
+- `Shepp-Logan Phantom/2D sagittal 256x256`: Sagittal slice rendering for the left-right plane
+- `Shepp-Logan Phantom/2D axial MRI intensities`: Axial slice rendered with MRI intensity presets
+- `Shepp-Logan Phantom/2D axial mask (skull)`: Axial mask slice to capture boolean-workload timings
+
+Use `tune!(SUITE["Shepp-Logan Phantom"])` before `run` to calibrate the new group, or run individual entries directly via `run(SUITE["Shepp-Logan Phantom"]["2D axial 256x256"])`.
