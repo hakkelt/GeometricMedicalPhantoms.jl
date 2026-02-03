@@ -1,6 +1,5 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-Coverage = "a2441757-f6aa-5fb2-8edb-039e3f45d037"
 GeometricMedicalPhantoms = "c297bd51-60f5-42e7-80e4-f985777cb71a"
 ImagePhantoms = "71a99df6-f52c-4da1-bd2a-69d6f37f3252"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
