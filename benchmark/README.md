@@ -80,3 +80,16 @@ Performance will vary based on:
 - `Shepp-Logan Phantom/2D axial mask (skull)`: Axial mask slice to capture boolean-workload timings
 
 Use `tune!(SUITE["Shepp-Logan Phantom"])` before `run` to calibrate the new group, or run individual entries directly via `run(SUITE["Shepp-Logan Phantom"]["2D axial 256x256"])`.
+
+### Tubes Phantom Generation
+- `Tubes Phantom/3D default (64³)`: Baseline 3D cube with the default six-tube arrangement
+- `Tubes Phantom/3D larger geometry`: Phantom rendered with an expanded outer cylinder (larger radius/height)
+- `Tubes Phantom/3D custom intensities`: Single-tube intensities to focus on interior fill performance
+- `Tubes Phantom/3D boolean mask`: Boolean mask generation so memory-bound draws can be profiled
+- `Tubes Phantom/2D axial 256x256`: Axial slice at higher resolution to stress 2D draw routines
+- `Tubes Phantom/2D coronal 256x256`: Coronal slice for cross-sectional orientation comparison
+- `Tubes Phantom/2D sagittal 256x256`: Sagittal slice showcasing left-right rendering cost
+- `Tubes Phantom/2D axial slice position 5cm`: Slices away from center to cover off-center axial draws
+- `Tubes Phantom/2D mask slice (axial)`: Axial mask slice that exercises boolean intensity paths
+
+Tune and run this group the same way as others: `tune!(SUITE["Tubes Phantom"])` and `run(SUITE["Tubes Phantom"])`, or run just the entries of interest (e.g., `run(SUITE["Tubes Phantom"]["3D custom intensities"])`).
