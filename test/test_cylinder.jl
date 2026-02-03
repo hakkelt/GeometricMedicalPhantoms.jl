@@ -1,7 +1,5 @@
 using Test
 using GeometricMedicalPhantoms
-
-# Import internal functions for testing
 using GeometricMedicalPhantoms: Cylinder, CylinderZ, CylinderX, CylinderY, draw!
 
 function test_slice_for_circle(slice, ax_x, ax_y, cx, cy, r, intensity)
@@ -131,6 +129,31 @@ end
         @test test_slice_for_rectangle(phantom[11, :, :], ax_y, ax_z, 0.0, 0.0, 2r, height, intensity) == "ok"
     end
 
+    @testset "3D draw! - CylinderY and CylinderX" begin
+        ax = range(-1.0, 1.0, length=11)
+        phantom_y = zeros(Float32, 11, 11, 11)
+        draw!(phantom_y, ax, ax, ax, CylinderY(0.1, -0.1, 0.0, 0.4, 0.6, 0.2))
+        @test maximum(phantom_y) == 0.2f0
+
+        phantom_x = zeros(Float32, 11, 11, 11)
+        draw!(phantom_x, ax, ax, ax, CylinderX(-0.1, 0.1, 0.0, 0.4, 0.6, 0.4))
+        @test maximum(phantom_x) == 0.4f0
+    end
+
+    @testset "3D draw! - CylinderY outside bounds" begin
+        ax = range(-1.0, 1.0, length=11)
+        phantom_outside = zeros(Float32, 11, 11, 11)
+        draw!(phantom_outside, ax, ax, ax, CylinderY(5.0, 0.0, 0.0, 0.3, 1.0, 1.0))
+        @test all(phantom_outside .== 0.0f0)
+    end
+
+    @testset "3D draw! - CylinderX outside bounds" begin
+        ax = range(-1.0, 1.0, length=11)
+        phantom_outside = zeros(Float32, 11, 11, 11)
+        draw!(phantom_outside, ax, ax, ax, CylinderX(0.0, 5.0, 0.0, 0.3, 1.0, 1.0))
+        @test all(phantom_outside .== 0.0f0)
+    end
+
     @testset "2D draw! - cylinder axial slice" begin
         # Create a 2D phantom array
         phantom = zeros(Float32, 21, 21)
@@ -147,6 +170,14 @@ end
         
         # Check if circle drawn correctly
         @test test_slice_for_circle(phantom, ax_x, ax_y, 0.0, 0.0, 0.5, 1.0) == "ok"
+    end
+
+    @testset "2D draw! - cylinder axial slice outside bounds" begin
+        phantom = zeros(Float32, 10, 10)
+        ax_x = range(5.0, 6.0, length=10)
+        ax_y = range(5.0, 6.0, length=10)
+        draw!(phantom, ax_x, ax_y, 0.0, Cylinder(0.0, 0.0, 0.0, 0.3, 1.0, 1.0))
+        @test all(phantom .== 0.0f0)
     end
 
     @testset "2D draw! - cylinder axial slice with different z" begin
@@ -200,6 +231,32 @@ end
         @test test_slice_for_rectangle(phantom, ax_x, ax_z, 0.0, 0.0, 2r, height, intensity) == "ok"
     end
 
+    @testset "2D draw! - CylinderX coronal view" begin
+        phantom = zeros(Float32, 21, 21)
+        ax_x = range(-1.0, 1.0, length=21)
+        ax_z = range(-1.0, 1.0, length=21)
+        cylinder = CylinderX(0.0, 0.0, 0.0, 0.4, 1.8, 1.0)
+        draw!(phantom, ax_x, ax_z, 0.0, GeometricMedicalPhantoms.rotate_coronal(cylinder))
+        @test test_slice_for_rectangle(phantom, ax_x, ax_z, 0.0, 0.0, 1.8, 2 * 0.4, 1.0) == "ok"
+    end
+
+    @testset "2D draw! - CylinderY coronal view" begin
+        phantom = zeros(Float32, 21, 21)
+        ax_x = range(-1.0, 1.0, length=21)
+        ax_z = range(-1.0, 1.0, length=21)
+        cylinder = CylinderY(0.0, 0.0, 0.0, 0.4, 1.8, 1.0)
+        draw!(phantom, ax_x, ax_z, 0.0, GeometricMedicalPhantoms.rotate_coronal(cylinder))
+        @test test_slice_for_circle(phantom, ax_x, ax_z, 0.0, 0.0, 0.4, 1.0) == "ok"
+    end
+
+    @testset "2D draw! - cylinder coronal slice outside bounds" begin
+        phantom = zeros(Float32, 10, 10)
+        ax_x = range(5.0, 6.0, length=10)
+        ax_z = range(-1.0, 1.0, length=10)
+        draw!(phantom, ax_x, ax_z, 0.0, GeometricMedicalPhantoms.rotate_coronal(Cylinder(0.0, 0.0, 0.0, 0.3, 1.0, 1.0)))
+        @test all(phantom .== 0.0f0)
+    end
+
     @testset "2D draw! - cylinder coronal slice with different y" begin
         # Create a 2D phantom array
         phantom = zeros(Float32, 21, 21)
@@ -251,6 +308,34 @@ end
         
         # Check if rectangle drawn correctly
         @test test_slice_for_rectangle(phantom, ax_y, ax_z, 0.0, 0.0, 2r, height, intensity) == "ok"
+    end
+
+    @testset "2D draw! - CylinderX sagittal view" begin
+        phantom = zeros(Float32, 21, 21)
+        ax_y = range(-1.0, 1.0, length=21)
+        ax_z = range(-1.0, 1.0, length=21)
+        cylinder = CylinderX(0.0, 0.0, 0.0, 0.4, 1.8, 1.0)
+        cylinder_x = GeometricMedicalPhantoms.rotate_sagittal(cylinder)
+        draw!(phantom, ax_y, ax_z, 0.0, cylinder_x)
+        @test test_slice_for_rectangle(phantom, ax_y, ax_z, 0.0, 0.0, 2*0.4, 1.8, 1.0) == "ok"
+    end
+
+    @testset "2D draw! - CylinderY sagittal view" begin
+        phantom = zeros(Float32, 21, 21)
+        ax_y = range(-1.0, 1.0, length=21)
+        ax_z = range(-1.0, 1.0, length=21)
+        cylinder = CylinderY(0.0, 0.0, 0.0, 0.4, 1.8, 1.0)
+        cylinder_y = GeometricMedicalPhantoms.rotate_sagittal(cylinder)
+        draw!(phantom, ax_y, ax_z, 0.0, cylinder_y)
+        @test test_slice_for_rectangle(phantom, ax_y, ax_z, 0.0, 0.0, 1.8, 2*0.4, 1.0) == "ok"
+    end
+
+    @testset "2D draw! - cylinder sagittal slice outside bounds" begin
+        phantom = zeros(Float32, 10, 10)
+        ax_y = range(5.0, 6.0, length=10)
+        ax_z = range(-1.0, 1.0, length=10)
+        draw!(phantom, ax_y, ax_z, 0.0, GeometricMedicalPhantoms.rotate_sagittal(Cylinder(0.0, 0.0, 0.0, 0.3, 1.0, 1.0)))
+        @test all(phantom .== 0.0f0)
     end
 
     @testset "2D draw! - cylinder sagittal slice with different x" begin
@@ -368,5 +453,17 @@ end
         @test test_slice_for_rectangle(phantom[:, circle_center_y, :], ax_x, ax_z, 0.0, 0.5, 1.0, 1.0, 1.0) == "ok"
         # Check if rectangle is drawn at the correct offset in the middle sagittal slice
         @test test_slice_for_rectangle(phantom[15, :, :], ax_y, ax_z, -0.75, 0.5, 1.0, 1.0, 1.0) == "ok"
+    end
+
+    @testset "TubesMask helper" begin
+        mask = TubesMask()
+        @test mask.outer_cylinder == true
+        @test mask.tube_wall == true
+        @test mask.tube_fillings == fill(true, 6)
+
+        mask_custom = TubesMask(outer_cylinder=false, tube_wall=false, tube_fillings=fill(false, 6))
+        @test mask_custom.outer_cylinder == false
+        @test mask_custom.tube_wall == false
+        @test count(mask_custom.tube_fillings) == 0
     end
 end
