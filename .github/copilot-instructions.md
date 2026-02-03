@@ -24,8 +24,8 @@ This is a Julia package for creating geometric medical phantoms used in medical 
 
 ### Building and Testing
 - **Install dependencies**: `julia --project=. -e 'using Pkg; Pkg.instantiate()'`
-- **Run tests**: `julia --project=test -e 'using Pkg; Pkg.test()'`
-- **Run specific test file**: `julia --project=test test/runtests.jl` or individual test files
+- **Run tests**: `julia --project=. -e 'using Pkg; Pkg.test()'`
+- **Run specific test file**: `julia --project=. test/runtests.jl` or individual test files
 - **Test with coverage**: Tests automatically generate coverage via CI
 
 ### Package Structure
