@@ -55,7 +55,6 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     inv_ry = 1.0 / ry
     inv_rz = 1.0 / rz
     exx, exy, exz = ex
-    val_int = T(intensity)
 
     dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
     dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
@@ -64,7 +63,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
         for j in iy_min:iy_max
             for k in iz_min:iz_max
                 if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz[k - iz_min + 1] <= 1.0
-                    phantom[i, j, k] = val_int
+                    draw_pixel!(phantom, intensity, i, j, k)
                 end
             end
         end
@@ -98,7 +97,6 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     inv_ry = 1.0 / ry
     inv_rz = 1.0 / rz
     exx, exy, exz = ex
-    val_int = T(intensity)
     
     # Precompute directions
     dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
@@ -107,7 +105,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     @inbounds for i in ix_min:ix_max
         for j in iy_min:iy_max
             if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz <= 1.0
-                phantom[i, j] = val_int
+                draw_pixel!(phantom, intensity, i, j)
             end
         end
     end

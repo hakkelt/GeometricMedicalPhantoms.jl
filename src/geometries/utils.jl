@@ -3,6 +3,30 @@ Abstract type for geometric shapes used in medical phantoms.
 """
 abstract type Shape end
 
+struct AdditiveIntensityValue{T}
+    value::T
+end
+
+struct MaskingIntensityValue{T}
+    value::T
+end
+
+struct MultiplicativeIntensityValue{T}
+    value::T
+end
+
+@inline function draw_pixel!(image, intensity::AdditiveIntensityValue, idx...)
+    image[idx...] += intensity.value
+end
+
+@inline function draw_pixel!(image, intensity::MaskingIntensityValue, idx...)
+    image[idx...] = intensity.value
+end
+
+@inline function draw_pixel!(image, intensity::MultiplicativeIntensityValue, idx...)
+    image[idx...] *= intensity.value
+end
+
 # Restrict computation to the enclosing axis-aligned box to avoid full-volume work
 @inline function idx_bounds(ax::AbstractVector, c::Real, r::Real)
     n = length(ax)
