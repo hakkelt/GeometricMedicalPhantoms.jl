@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Geometry Primitives · GeometricMedicalPhantoms.jl</title><meta name="title" content="Geometry Primitives · GeometricMedicalPhantoms.jl"/><meta property="og:title" content="Geometry Primitives · GeometricMedicalPhantoms.jl"/><meta property="twitter:title" content="Geometry Primitives · GeometricMedicalPhantoms.jl"/><meta name="description" content="Documentation for GeometricMedicalPhantoms.jl."/><meta property="og:description" content="Documentation for GeometricMedicalPhantoms.jl."/><meta property="twitter:description" content="Documentation for GeometricMedicalPhantoms.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.png" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="GeometricMedicalPhantoms.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">GeometricMedicalPhantoms.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Phantoms</span><ul><li><a class="tocitem" href="../../phantoms/shepp_logan/">Shepp-Logan Phantom</a></li><li><a class="tocitem" href="../../phantoms/torso/">Torso Phantom</a></li><li><a class="tocitem" href="../../phantoms/tubes/">Tubes Phantom</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li class="is-active"><a class="tocitem" href>Geometry Primitives</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Ellipsoid"><span>Ellipsoid</span></a></li><li><a class="tocitem" href="#SuperEllipsoid"><span>SuperEllipsoid</span></a></li><li><a class="tocitem" href="#RotatedEllipsoid"><span>RotatedEllipsoid</span></a></li><li><a class="tocitem" href="#Cylinders"><span>Cylinders</span></a></li><li><a class="tocitem" href="#Implementing-New-Shapes"><span>Implementing New Shapes</span></a></li></ul></li><li><a class="tocitem" href="../custom_phantoms/">Custom Phantoms</a></li></ul></li><li><a class="tocitem" href="../../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Advanced</a></li><li class="is-active"><a href>Geometry Primitives</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Geometry Primitives</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/hakkelt/GeometricMedicalPhantoms.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/hakkelt/GeometricMedicalPhantoms.jl/blob/master/docs/src/advanced/primitives.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Geometry-Primitives"><a class="docs-heading-anchor" href="#Geometry-Primitives">Geometry Primitives</a><a id="Geometry-Primitives-1"></a><a class="docs-heading-anchor-permalink" href="#Geometry-Primitives" title="Permalink"></a></h1><p>GeometricMedicalPhantoms is built on a foundation of geometric primitives: simple mathematical shapes that can be combined to create complex phantoms. Understanding these primitives is essential for building custom phantoms.</p><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>All phantoms are ultimately composed of collections of geometric primitives that are rendered at each voxel. The available primitives are:</p><ul><li><strong>Ellipsoid</strong>: General 3D elliptical shape (axis-aligned)</li><li><strong>SuperEllipsoid</strong>: Generalized ellipsoid with adjustable curvature</li><li><strong>RotatedEllipsoid</strong>: Ellipsoid with arbitrary 3D rotation</li><li><strong>CylinderX, CylinderY, CylinderZ</strong>: Cylinders aligned with coordinate axes</li></ul><p>Each primitive is defined by a set of parameters (center, size, intensity) and a mathematical function that determines whether a point in space belongs to the shape.</p><h2 id="Ellipsoid"><a class="docs-heading-anchor" href="#Ellipsoid">Ellipsoid</a><a id="Ellipsoid-1"></a><a class="docs-heading-anchor-permalink" href="#Ellipsoid" title="Permalink"></a></h2><p>An ellipsoid is a generalization of a sphere to three dimensions with potentially different radii in each direction.</p><h3 id="Mathematical-Definition"><a class="docs-heading-anchor" href="#Mathematical-Definition">Mathematical Definition</a><a id="Mathematical-Definition-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-Definition" title="Permalink"></a></h3><p>An ellipsoid centered at <span>$(c_x, c_y, c_z)$</span> with radii <span>$(r_x, r_y, r_z)$</span> is defined by:</p><p class="math-container">\[\left(\frac{x - c_x}{r_x}\right)^2 + \left(\frac{y - c_y}{r_y}\right)^2 + \left(\frac{z - c_z}{r_z}\right)^2 \leq 1\]</p><p>A point is inside the ellipsoid if the left side is ≤ 1, and outside otherwise.</p><h3 id="Parameters"><a class="docs-heading-anchor" href="#Parameters">Parameters</a><a id="Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Parameters" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Create a simple ellipsoid
+# Ellipsoid(cx, cy, cz, rx, ry, rz, intensity)
+ell = Ellipsoid(0.0, 0.0, 0.0, 1.0, 0.5, 0.8, 1.0)
+
+println(&quot;Ellipsoid: $ell&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Ellipsoid: Ellipsoid{Float64, Float64}(0.0, 0.0, 0.0, 1.0, 0.5, 0.8, 1.0)</code></pre><h3 id="Visual-Example"><a class="docs-heading-anchor" href="#Visual-Example">Visual Example</a><a id="Visual-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Visual-Example" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Draw a phantom containing a single ellipsoid
+primitives = [
+    Ellipsoid(0.0, 0.0, 0.0, 0.8, 0.6, 0.5, 1.0)
+]
+
+# Create simple 2D drawing function for visualization
+phantom_2d = zeros(Float32, 128, 128)
+for i in 1:128
+    for j in 1:128
+        x = (i - 64) / 64  # Map to [-1, 1]
+        y = (j - 64) / 64
+        z = 0.0  # Center z-slice
+
+        for prim in primitives
+            # Simple point-in-ellipsoid test
+            dx, dy, dz = x - prim.cx, y - prim.cy, z - prim.cz
+            if (dx/prim.rx)^2 + (dy/prim.ry)^2 + (dz/prim.rz)^2 &lt;= 1.0
+                phantom_2d[i, j] = prim.intensity
+            end
+        end
+    end
+end
+
+jim(phantom_2d; title=&quot;Single Ellipsoid&quot;)</code></pre><p><img src="../ellipsoid_example.png" alt="ellipsoid_example.png"/></p><h3 id="Use-Cases"><a class="docs-heading-anchor" href="#Use-Cases">Use Cases</a><a id="Use-Cases-1"></a><a class="docs-heading-anchor-permalink" href="#Use-Cases" title="Permalink"></a></h3><p>Ellipsoids are used throughout the Shepp-Logan phantom (12 ellipses) and are suitable for:</p><ul><li>Anatomical structures with roughly elliptical cross-sections (brain, organs)</li><li>Lesions and tumors</li><li>Cysts and other pathological structures</li></ul><h2 id="SuperEllipsoid"><a class="docs-heading-anchor" href="#SuperEllipsoid">SuperEllipsoid</a><a id="SuperEllipsoid-1"></a><a class="docs-heading-anchor-permalink" href="#SuperEllipsoid" title="Permalink"></a></h2><p>A SuperEllipsoid generalizes the ellipsoid by introducing adjustable exponents. This allows creating shapes ranging from perfect spheres to rounded boxes.</p><h3 id="Mathematical-Definition-2"><a class="docs-heading-anchor" href="#Mathematical-Definition-2">Mathematical Definition</a><a class="docs-heading-anchor-permalink" href="#Mathematical-Definition-2" title="Permalink"></a></h3><p>A SuperEllipsoid centered at <span>$(c_x, c_y, c_z)$</span> with radii <span>$(r_x, r_y, r_z)$</span> and exponents <span>$(e_x, e_y, e_z)$</span> is defined by:</p><p class="math-container">\[\left|\frac{x - c_x}{r_x}\right|^{e_x} + \left|\frac{y - c_y}{r_y}\right|^{e_y} + \left|\frac{z - c_z}{r_z}\right|^{e_z} \leq 1\]</p><p>When all exponents equal 2, this reduces to the standard ellipsoid. As exponents increase, the shape becomes more &quot;boxy&quot;; as they decrease toward 1, it becomes more &quot;pointy.&quot;</p><h3 id="Parameters-2"><a class="docs-heading-anchor" href="#Parameters-2">Parameters</a><a class="docs-heading-anchor-permalink" href="#Parameters-2" title="Permalink"></a></h3><pre><code class="language-julia hljs"># SuperEllipsoid with adjustable curvature
+# SuperEllipsoid(cx, cy, cz, rx, ry, rz, (ex, ey, ez), intensity)
+super_ell = SuperEllipsoid(0.0, 0.0, 0.0, 1.0, 0.8, 0.6, (2.0, 2.0, 2.0), 0.8)
+
+println(&quot;SuperEllipsoid: $super_ell&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SuperEllipsoid: SuperEllipsoid{Float64, Float64}(0.0, 0.0, 0.0, 1.0, 0.8, 0.6, (2.0, 2.0, 2.0), 0.8)</code></pre><h3 id="Effect-of-Exponents"><a class="docs-heading-anchor" href="#Effect-of-Exponents">Effect of Exponents</a><a id="Effect-of-Exponents-1"></a><a class="docs-heading-anchor-permalink" href="#Effect-of-Exponents" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Create phantoms with different exponents to show shape variation
+fig_superell = plot(layout=(2,2), size=(800,800))
+
+exponents_list = [(2.0, 2.0, 2.0), (1.5, 1.5, 1.5), (2.5, 2.5, 2.5), (3.0, 3.0, 3.0)]
+exponent_labels = [&quot;Standard (2,2,2)&quot;, &quot;Pointy (1.5,1.5,1.5)&quot;, &quot;Rounded (2.5,2.5,2.5)&quot;, &quot;Boxy (3,3,3)&quot;]
+
+for (idx, (exp, label)) in enumerate(zip(exponents_list, exponent_labels))
+    phantom_super = zeros(Float32, 128, 128)
+    for i in 1:128
+        for j in 1:128
+            x = (i - 64) / 64
+            y = (j - 64) / 64
+            z = 0.0
+
+            # SuperEllipsoid point test
+            dx, dy, dz = x, y, z
+            if abs(dx/1.0)^exp[1] + abs(dy/0.8)^exp[2] + abs(dz/0.6)^exp[3] &lt;= 1.0
+                phantom_super[i, j] = 1.0
+            end
+        end
+    end
+
+    # Plot in subplot
+    heatmap!(fig_superell[idx], phantom_super&#39;, title=label, aspect_ratio=:equal, color=:grays)
+end</code></pre><p><img src="../superellipsoid_exponents.png" alt="superellipsoid_exponents.png"/></p><h3 id="Use-Cases-2"><a class="docs-heading-anchor" href="#Use-Cases-2">Use Cases</a><a class="docs-heading-anchor-permalink" href="#Use-Cases-2" title="Permalink"></a></h3><p>SuperEllipsoids are useful for:</p><ul><li>Anatomical structures with non-standard curvature</li><li>Rounded rectangles (boxes with rounded corners)</li><li>Organic shapes that are smoother or more angular than pure ellipsoids</li><li>Creating variety in phantom designs while maintaining mathematical clarity</li></ul><h2 id="RotatedEllipsoid"><a class="docs-heading-anchor" href="#RotatedEllipsoid">RotatedEllipsoid</a><a id="RotatedEllipsoid-1"></a><a class="docs-heading-anchor-permalink" href="#RotatedEllipsoid" title="Permalink"></a></h2><p>A RotatedEllipsoid allows arbitrary 3D rotation of an ellipsoid using Euler angles.</p><h3 id="Mathematical-Definition-3"><a class="docs-heading-anchor" href="#Mathematical-Definition-3">Mathematical Definition</a><a class="docs-heading-anchor-permalink" href="#Mathematical-Definition-3" title="Permalink"></a></h3><p>A RotatedEllipsoid is defined by:</p><ol><li>Standard ellipsoid equation after coordinate transformation</li><li>Rotation matrix <span>$R$</span> applied using Z-Y-X Euler angles (in radians)</li></ol><p>The condition becomes: <span>$(R^{-1}(P - C))^T D (R^{-1}(P - C)) \leq 1$</span></p><p>where <span>$C$</span> is the center, <span>$D$</span> is the diagonal matrix of <span>$(1/r_x^2, 1/r_y^2, 1/r_z^2)$</span>, and <span>$R$</span> is the Z-Y-X rotation.</p><h3 id="Parameters-3"><a class="docs-heading-anchor" href="#Parameters-3">Parameters</a><a class="docs-heading-anchor-permalink" href="#Parameters-3" title="Permalink"></a></h3><pre><code class="language-julia hljs"># RotatedEllipsoid with 3D orientation
+# RotatedEllipsoid(cx, cy, cz, rx, ry, rz, phi, theta, psi, intensity)
+rot_ell = RotatedEllipsoid(0.0, 0.0, 0.0, 0.8, 0.4, 0.3, 0.3, 0.4, 0.2, 0.7)
+
+println(&quot;RotatedEllipsoid: $rot_ell&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">RotatedEllipsoid: RotatedEllipsoid{Float64, Float64}(0.0, 0.0, 0.0, 0.8, 0.4, 0.3, 0.3, 0.4, 0.2, 0.7, :axial)</code></pre><h3 id="Rotation-Angles"><a class="docs-heading-anchor" href="#Rotation-Angles">Rotation Angles</a><a id="Rotation-Angles-1"></a><a class="docs-heading-anchor-permalink" href="#Rotation-Angles" title="Permalink"></a></h3><p>Rotations are specified using Euler angles in Z-Y-X order (phi, theta, psi).</p><pre><code class="language-julia hljs"># Demonstrate rotation angles
+using GeometricMedicalPhantoms
+
+# Create axes
+nx, ny, nz = 128, 128, 128
+ax = collect(range(-1.0, 1.0, length=nx))
+
+# Helper function to create and draw an ellipsoid
+function draw_ellipsoid(phi, theta, psi, title_str)
+    phantom = zeros(Float32, nx, ny, nz)
+    # Using internal MaskingIntensityValue wrapper
+    ellipsoid = GeometricMedicalPhantoms.RotatedEllipsoid(
+        0.0, 0.0, 0.0,  # center
+        0.3, 0.1, 0.3,  # radii
+        phi, theta, psi,  # rotations
+        GeometricMedicalPhantoms.MaskingIntensityValue(1.0f0)  # intensity
+    )
+    GeometricMedicalPhantoms.draw!(phantom, ax, ax, ax, ellipsoid)
+    slice = phantom[:, :, 64]
+    return heatmap(slice&#39;, title=title_str, aspect_ratio=:equal, color=:grays, legend=false)
+end
+
+# Create visualizations
+p1 = draw_ellipsoid(0.0, 0.0, 0.0, &quot;No Rotation&quot;)
+p2 = draw_ellipsoid(π/4, 0.0, 0.0, &quot;Z-Rotation (π/4)&quot;)
+
+fig_rotations = plot(p1, p2, layout=(1,2), size=(1200,600))</code></pre><p><img src="../rotated_ellipsoid_example.png" alt="rotated_ellipsoid_example.png"/></p><h3 id="Use-Cases-3"><a class="docs-heading-anchor" href="#Use-Cases-3">Use Cases</a><a class="docs-heading-anchor-permalink" href="#Use-Cases-3" title="Permalink"></a></h3><p>RotatedEllipsoids enable:</p><ul><li>Obliquely oriented vessels and tubes</li><li>Anatomically realistic organ orientations (e.g., liver, kidney)</li><li>Lesions aligned with anatomical axes</li><li>Realistic representation of bone structures</li></ul><h2 id="Cylinders"><a class="docs-heading-anchor" href="#Cylinders">Cylinders</a><a id="Cylinders-1"></a><a class="docs-heading-anchor-permalink" href="#Cylinders" title="Permalink"></a></h2><p>Three varieties of cylinders, aligned with the coordinate axes:</p><h3 id="CylinderZ-(Aligned-with-Z-axis)"><a class="docs-heading-anchor" href="#CylinderZ-(Aligned-with-Z-axis)">CylinderZ (Aligned with Z-axis)</a><a id="CylinderZ-(Aligned-with-Z-axis)-1"></a><a class="docs-heading-anchor-permalink" href="#CylinderZ-(Aligned-with-Z-axis)" title="Permalink"></a></h3><p>Extends along the Z-axis:</p><p class="math-container">\[\sqrt{(x - c_x)^2 + (y - c_y)^2} \leq r \text{ and } |z - c_z| \leq \frac{\text{height}}{2}\]</p><pre><code class="language-julia hljs"># CylinderZ(cx, cy, cz, r, height, intensity)
+cyl_z = CylinderZ(0.0, 0.0, 0.0, 0.3, 1.0, 0.9)
+
+println(&quot;CylinderZ: $cyl_z&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">CylinderZ: CylinderZ{Float64, Float64}(0.0, 0.0, 0.0, 0.3, 1.0, 0.9)</code></pre><h3 id="CylinderY-(Aligned-with-Y-axis)"><a class="docs-heading-anchor" href="#CylinderY-(Aligned-with-Y-axis)">CylinderY (Aligned with Y-axis)</a><a id="CylinderY-(Aligned-with-Y-axis)-1"></a><a class="docs-heading-anchor-permalink" href="#CylinderY-(Aligned-with-Y-axis)" title="Permalink"></a></h3><p>Extends along the Y-axis:</p><p class="math-container">\[\sqrt{(x - c_x)^2 + (z - c_z)^2} \leq r \text{ and } |y - c_y| \leq \frac{\text{height}}{2}\]</p><h3 id="CylinderX-(Aligned-with-X-axis)"><a class="docs-heading-anchor" href="#CylinderX-(Aligned-with-X-axis)">CylinderX (Aligned with X-axis)</a><a id="CylinderX-(Aligned-with-X-axis)-1"></a><a class="docs-heading-anchor-permalink" href="#CylinderX-(Aligned-with-X-axis)" title="Permalink"></a></h3><p>Extends along the X-axis:</p><p class="math-container">\[\sqrt{(y - c_y)^2 + (z - c_z)^2} \leq r \text{ and } |x - c_x| \leq \frac{\text{height}}{2}\]</p><h3 id="Visual-Example-2"><a class="docs-heading-anchor" href="#Visual-Example-2">Visual Example</a><a class="docs-heading-anchor-permalink" href="#Visual-Example-2" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Create 3D phantom volumes with each cylinder type
+nx, ny, nz = 64, 64, 64
+fov = 2.0
+ax_x = collect(range(-fov/2, fov/2, length=nx))
+ax_y = collect(range(-fov/2, fov/2, length=ny))
+ax_z = collect(range(-fov/2, fov/2, length=nz))
+
+# CylinderZ (extends along Z-axis)
+cyl_z = CylinderZ(0.0, 0.0, 0.0, 0.3, 1.2, 1.0)
+phantom_z = zeros(Float32, nx, ny, nz)
+draw!(phantom_z, ax_x, ax_y, ax_z, cyl_z)
+
+# CylinderY (extends along Y-axis)
+cyl_y = CylinderY(0.0, 0.0, 0.0, 0.3, 1.2, 1.0)
+phantom_y = zeros(Float32, nx, ny, nz)
+draw!(phantom_y, ax_x, ax_y, ax_z, cyl_y)
+
+# CylinderX (extends along X-axis)
+cyl_x = CylinderX(0.0, 0.0, 0.0, 0.3, 1.2, 1.0)
+phantom_x = zeros(Float32, nx, ny, nz)
+draw!(phantom_x, ax_x, ax_y, ax_z, cyl_x)
+
+# Create 3x3 layout: rows are cylinder types, columns are planes
+fig = plot(layout=(3,3), size=(1200,1200))
+
+# CylinderZ slices
+heatmap!(fig[1,1], phantom_z[:, :, div(nz,2)]&#39;, title=&quot;CylinderZ - Axial&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[1,2], phantom_z[:, div(ny,2), :]&#39;, title=&quot;CylinderZ - Coronal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[1,3], phantom_z[div(nx,2), :, :]&#39;, title=&quot;CylinderZ - Sagittal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+
+# CylinderY slices
+heatmap!(fig[2,1], phantom_y[:, :, div(nz,2)]&#39;, title=&quot;CylinderY - Axial&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[2,2], phantom_y[:, div(ny,2), :]&#39;, title=&quot;CylinderY - Coronal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[2,3], phantom_y[div(nx,2), :, :]&#39;, title=&quot;CylinderY - Sagittal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+
+# CylinderX slices
+heatmap!(fig[3,1], phantom_x[:, :, div(nz,2)]&#39;, title=&quot;CylinderX - Axial&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[3,2], phantom_x[:, div(ny,2), :]&#39;, title=&quot;CylinderX - Coronal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)
+heatmap!(fig[3,3], phantom_x[div(nx,2), :, :]&#39;, title=&quot;CylinderX - Sagittal&quot;, aspect_ratio=:equal, color=:grays, legend=false, axis=false)</code></pre><p><img src="../cylinders_example.png" alt="cylinders_example.png"/></p><h3 id="Use-Cases-4"><a class="docs-heading-anchor" href="#Use-Cases-4">Use Cases</a><a class="docs-heading-anchor-permalink" href="#Use-Cases-4" title="Permalink"></a></h3><p>Cylinders represent:</p><ul><li>Blood vessels</li><li>Anatomical tubes (airways, ducts)</li><li>Symmetric structures</li><li>Validation phantoms (constant cross-section)</li></ul><h2 id="Implementing-New-Shapes"><a class="docs-heading-anchor" href="#Implementing-New-Shapes">Implementing New Shapes</a><a id="Implementing-New-Shapes-1"></a><a class="docs-heading-anchor-permalink" href="#Implementing-New-Shapes" title="Permalink"></a></h2><p>To add a new geometric primitive to GeometricMedicalPhantoms, you need to implement the following:</p><h3 id="1.-Define-the-Shape-Structure"><a class="docs-heading-anchor" href="#1.-Define-the-Shape-Structure">1. Define the Shape Structure</a><a id="1.-Define-the-Shape-Structure-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Define-the-Shape-Structure" title="Permalink"></a></h3><p>Create a struct that inherits from <code>GeometricMedicalPhantoms.Shape</code>:</p><pre><code class="language-julia hljs">struct MyCustomShape{T,T2} &lt;: GeometricMedicalPhantoms.Shape
+    # Position parameters
+    cx::T
+    cy::T
+    cz::T
+    
+    # Shape-specific parameters
+    param1::T
+    param2::T
+    
+    # Intensity
+    intensity::T2
+end</code></pre><h3 id="2.-Implement-Rotation-Functions"><a class="docs-heading-anchor" href="#2.-Implement-Rotation-Functions">2. Implement Rotation Functions</a><a id="2.-Implement-Rotation-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Implement-Rotation-Functions" title="Permalink"></a></h3><p>For 2D slicing support, implement coordinate transformations:</p><pre><code class="language-julia hljs"># Coronal view: swap y and z
+GeometricMedicalPhantoms.rotate_coronal(shape::MyCustomShape) = 
+    MyCustomShape(shape.cx, shape.cz, shape.cy, shape.param1, shape.param2, shape.intensity)
+
+# Sagittal view: swap x with z, then y with x
+GeometricMedicalPhantoms.rotate_sagittal(shape::MyCustomShape) = 
+    MyCustomShape(shape.cy, shape.cz, shape.cx, shape.param1, shape.param2, shape.intensity)</code></pre><h3 id="3.-Implement-the-draw!-Function"><a class="docs-heading-anchor" href="#3.-Implement-the-draw!-Function">3. Implement the draw! Function</a><a id="3.-Implement-the-draw!-Function-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Implement-the-draw!-Function" title="Permalink"></a></h3><p>This is the core rendering function. It should:</p><ul><li>Calculate bounding box for efficiency</li><li>Iterate only over relevant voxels</li><li>Test if each point is inside the shape</li><li>Call <code>draw_pixel!</code> to set the intensity</li></ul><pre><code class="language-julia hljs">function GeometricMedicalPhantoms.draw!(
+    phantom::AbstractArray{T,3}, 
+    ax_x::AbstractVector, 
+    ax_y::AbstractVector, 
+    ax_z::AbstractVector,
+    shape::MyCustomShape
+) where T
+    # Extract parameters
+    cx, cy, cz = shape.cx, shape.cy, shape.cz
+    param1, param2 = shape.param1, shape.param2
+    intensity = shape.intensity
+    
+    # Calculate bounding box to avoid checking all voxels
+    # Use idx_bounds from utils.jl
+    ix_min, ix_max = GeometricMedicalPhantoms.idx_bounds(ax_x, cx, radius_x)
+    iy_min, iy_max = GeometricMedicalPhantoms.idx_bounds(ax_y, cy, radius_y)
+    iz_min, iz_max = GeometricMedicalPhantoms.idx_bounds(ax_z, cz, radius_z)
+    
+    # Early exit if shape is outside phantom
+    if ix_min == -1 || iy_min == -1 || iz_min == -1
+        return
+    end
+    
+    # Iterate over bounding box
+    for iz in iz_min:iz_max, iy in iy_min:iy_max, ix in ix_min:ix_max
+        x, y, z = ax_x[ix], ax_y[iy], ax_z[iz]
+        
+        # Test if point is inside shape
+        # This is shape-specific mathematical condition
+        if inside_shape_test(x, y, z, cx, cy, cz, param1, param2)
+            # Use draw_pixel! which handles Additive vs Masking modes
+            GeometricMedicalPhantoms.draw_pixel!(phantom, intensity, ix, iy, iz)
+        end
+    end
+    
+    return phantom
+end</code></pre><h3 id="4.-Implement-2D-Slicing-Support-(Optional)"><a class="docs-heading-anchor" href="#4.-Implement-2D-Slicing-Support-(Optional)">4. Implement 2D Slicing Support (Optional)</a><a id="4.-Implement-2D-Slicing-Support-(Optional)-1"></a><a class="docs-heading-anchor-permalink" href="#4.-Implement-2D-Slicing-Support-(Optional)" title="Permalink"></a></h3><p>For 2D slice support at arbitrary positions:</p><pre><code class="language-julia hljs">function GeometricMedicalPhantoms.draw!(
+    phantom::AbstractArray{T,2},
+    ax_1::AbstractVector,
+    ax_2::AbstractVector,
+    ax_3_val::Real,  # Fixed coordinate value
+    shape::MyCustomShape
+) where T
+    # Similar to 3D but with fixed coordinate
+    # Iterate over 2D grid and test if points at ax_3_val are inside shape
+end</code></pre><h3 id="5.-Add-Documentation"><a class="docs-heading-anchor" href="#5.-Add-Documentation">5. Add Documentation</a><a id="5.-Add-Documentation-1"></a><a class="docs-heading-anchor-permalink" href="#5.-Add-Documentation" title="Permalink"></a></h3><p>Add docstrings explaining:</p><ul><li>Mathematical definition of the shape</li><li>Parameter meanings</li><li>Typical use cases</li></ul><pre><code class="language-julia hljs">@doc raw\&quot;&quot;&quot;
+    MyCustomShape(cx, cy, cz, param1, param2, intensity)
+
+Custom geometric shape for medical phantoms.
+
+The shape is defined by the equation:
+``f(x, y, z) \\leq 1``
+
+# Fields
+- `cx, cy, cz`: Center position
+- `param1`: Description of parameter 1
+- `param2`: Description of parameter 2
+- `intensity`: Intensity value
+
+# Example
+\```julia
+shape = MyCustomShape(0.0, 0.0, 0.0, 1.0, 0.5, 0.8)
+\```
+&quot;&quot;&quot;</code></pre><h3 id="Example:-Complete-Implementation"><a class="docs-heading-anchor" href="#Example:-Complete-Implementation">Example: Complete Implementation</a><a id="Example:-Complete-Implementation-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Complete-Implementation" title="Permalink"></a></h3><p>See the source code for <code>Ellipsoid</code>, <code>CylinderZ</code>, or <code>SuperEllipsoid</code> in the package for complete examples of shape implementations.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../phantoms/tubes/">« Tubes Phantom</a><a class="docs-footer-nextpage" href="../custom_phantoms/">Custom Phantoms »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 4 February 2026 06:56">Wednesday 4 February 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
