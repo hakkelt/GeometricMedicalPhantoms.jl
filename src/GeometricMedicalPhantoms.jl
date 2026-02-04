@@ -2,7 +2,8 @@ module GeometricMedicalPhantoms
 
 using Base.Threads
 
-# Export cylinder geometry types
+# Export geometric primitives
+export Ellipsoid, SuperEllipsoid, RotatedEllipsoid
 export CylinderZ, CylinderY, CylinderX, Cylinder
 
 # Export drawing functions
