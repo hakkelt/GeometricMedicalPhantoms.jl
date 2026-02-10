@@ -1,11 +1,11 @@
-function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs=(30, 30), slice_position::Real=0.0, respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32)
+function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs = (30, 30), slice_position::Real = 0.0, respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype = Float32)
     # 1) Validate inputs
     if nx <= 0 || ny <= 0
         throw(ArgumentError("nx, ny must be positive integers"))
     end
     length(fovs) == 2 || throw(ArgumentError("fovs must have 2 elements for 2D phantom"))
     axis in (:axial, :coronal, :sagittal) || throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
-    
+
     # 2) Setup motion signals and parameters
     is_mask = ti isa TissueMask
     ax_1n, ax_2n, ax_3_val = define_phantom_axes_2d(nx, ny, fovs, axis, slice_position)
@@ -18,13 +18,13 @@ function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs=(30, 30), sli
     else
         zeros(eltype, nx, ny, nt), zeros(eltype, nx, ny)
     end
-    
+
     # 4) Draw static structures once
     draw_static_torso_parts!(static_image, ax_1n, ax_2n, ax_3_val, axis, ti)
 
     # 5) Draw dynamic structures for each time frame
     @threads for m in 1:nt
-        cardiac_scales = (lv=lv_scales[m], rv=rv_scales[m], la=la_scales[m], ra=ra_scales[m])
+        cardiac_scales = (lv = lv_scales[m], rv = rv_scales[m], la = la_scales[m], ra = ra_scales[m])
         motion_params = calculate_motion_parameters(respiratory_signal[m], cardiac_scales, cardiac_scales_max)
         frame = view(phantom3d, :, :, m)
         draw_single_frame_2d!(frame, static_image, ax_1n, ax_2n, ax_3_val, axis, motion_params, ti)
@@ -39,15 +39,15 @@ Returns (ax_1n, ax_2n, ax_3_val) based on slice orientation.
 """
 function define_phantom_axes_2d(nx::Int, ny::Int, fovs::Tuple, axis::Symbol, slice_position::Real)
     # Create axes for the two in-plane dimensions
-    Δ1, Δ2 = fovs[1]/nx, fovs[2]/ny
-    ax_1 = range(-(nx-1)/2, (nx-1)/2, length=nx) .* Δ1
-    ax_2 = range(-(ny-1)/2, (ny-1)/2, length=ny) .* Δ2
-    
+    Δ1, Δ2 = fovs[1] / nx, fovs[2] / ny
+    ax_1 = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δ1
+    ax_2 = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δ2
+
     # Normalize to [-1, 1] range
     ax_1n = @. 2 * ax_1 / 30
     ax_2n = @. 2 * ax_2 / 30
     ax_3_val = 2 * slice_position / 30  # Normalized slice position
-    
+
     return (ax_1n, ax_2n, ax_3_val)
 end
 

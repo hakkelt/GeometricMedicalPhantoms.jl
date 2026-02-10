@@ -20,6 +20,7 @@ function save_output(path::String, format::String, data)
     else
         error("Unsupported output format: $format")
     end
+    return nothing
 end
 
 function save_png(path::String, data)
@@ -28,6 +29,7 @@ function save_png(path::String, data)
     end
     img = prepare_png(data)
     FileIO.save(path, img)
+    return nothing
 end
 
 function save_tiff(path::String, data)
@@ -47,6 +49,7 @@ function save_tiff(path::String, data)
     else
         error("TIFF output requires a 2D, 3D, or 4D array.")
     end
+    return nothing
 end
 
 function prepare_png(data)
@@ -102,6 +105,7 @@ function save_signal(path::String, format::String, data::Dict)
     else
         error("Unsupported signal output format: $format")
     end
+    return nothing
 end
 
 function save_signal_csv(path::String, data::Dict)
@@ -116,12 +120,14 @@ function save_signal_csv(path::String, data::Dict)
         println(io, header)
         writedlm(io, mat, ',')
     end
+    return nothing
 end
 
 function write_metadata(path::String, data::Dict)
     open(path, "w") do io
         JSON3.write(io, data)
     end
+    return nothing
 end
 
 function read_npz_single(path::String)

@@ -1,4 +1,3 @@
-
 """
     get_shepp_logan_shapes(p::SheppLoganIntensities)
 
@@ -31,28 +30,28 @@ a widely used package for generating analytical phantoms.
 function get_shepp_logan_shapes(p::SheppLoganIntensities)::NTuple{12, Union{Ellipsoid, RotatedEllipsoid}}
     return (
         # 1: skull
-        Ellipsoid(+0.0000, +0.0000, +0.2500, +0.6900, +0.9200, +0.9000, get_intensity(p, :skull)),
+        Ellipsoid(+0.0, +0.0, +0.25, +0.69, +0.92, +0.9, get_intensity(p, :skull)),
         # 2: brain
-        Ellipsoid(+0.0000, -0.0184, +0.2500, +0.6624, +0.8740, +0.8800, get_intensity(p, :brain)),
+        Ellipsoid(+0.0, -0.0184, +0.25, +0.6624, +0.874, +0.88, get_intensity(p, :brain)),
         # 3: right big
-        RotatedEllipsoid(-0.2200, +0.0000, +0.0000, +0.4100, +0.1600, +0.2100, -72*π/180, 0.0, 0.0, get_intensity(p, :right_big)),
+        RotatedEllipsoid(-0.22, +0.0, +0.0, +0.41, +0.16, +0.21, -72 * π / 180, 0.0, 0.0, get_intensity(p, :right_big)),
         # 4: left big
-        RotatedEllipsoid(+0.2200, +0.0000, +0.0000, +0.3100, +0.1100, +0.2200, +72*π/180, 0.0, 0.0, get_intensity(p, :left_big)),
+        RotatedEllipsoid(+0.22, +0.0, +0.0, +0.31, +0.11, +0.22, +72 * π / 180, 0.0, 0.0, get_intensity(p, :left_big)),
         # 5: top
-        Ellipsoid(+0.0000, +0.3500, +0.0000, +0.2100, +0.2500, +0.3500, get_intensity(p, :top)),
+        Ellipsoid(+0.0, +0.35, +0.0, +0.21, +0.25, +0.35, get_intensity(p, :top)),
         # 6: middle high
-        Ellipsoid(+0.0000, +0.1000, +0.0000, +0.0460, +0.0460, +0.0460, get_intensity(p, :middle_high)),
+        Ellipsoid(+0.0, +0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_high)),
         # 7: bottom left
-        Ellipsoid(-0.0800, -0.6050, +0.0000, +0.0460, +0.0230, +0.0200, get_intensity(p, :bottom_left)),
+        Ellipsoid(-0.08, -0.605, +0.0, +0.046, +0.023, +0.02, get_intensity(p, :bottom_left)),
         # 8: middle low
-        Ellipsoid(+0.0000, -0.1000, +0.0000, +0.0460, +0.0460, +0.0460, get_intensity(p, :middle_low)),
+        Ellipsoid(+0.0, -0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_low)),
         # 9: bottom center
-        Ellipsoid(+0.0000, -0.6050, +0.0000, +0.0230, +0.0230, +0.0230, get_intensity(p, :bottom_center)),
+        Ellipsoid(+0.0, -0.605, +0.0, +0.023, +0.023, +0.023, get_intensity(p, :bottom_center)),
         # 10: bottom right
-        RotatedEllipsoid(+0.0600, -0.6050, +0.0000, +0.0460, +0.0230, +0.0200, -90*π/180, 0.0, 0.0, get_intensity(p, :bottom_right)),
+        RotatedEllipsoid(+0.06, -0.605, +0.0, +0.046, +0.023, +0.02, -90 * π / 180, 0.0, 0.0, get_intensity(p, :bottom_right)),
         # 11: extra 1
-        RotatedEllipsoid(+0.0600, -0.1050, +0.3125, +0.0560, +0.0400, +0.1000, -90*π/180, 0.0, 0.0, get_intensity(p, :extra_1)),
+        RotatedEllipsoid(+0.06, -0.105, +0.3125, +0.056, +0.04, +0.1, -90 * π / 180, 0.0, 0.0, get_intensity(p, :extra_1)),
         # 12: extra 2
-        Ellipsoid(+0.0000, +0.1000, +0.8750, +0.0560, +0.0560, +0.1000, get_intensity(p, :extra_2))
+        Ellipsoid(+0.0, +0.1, +0.875, +0.056, +0.056, +0.1, get_intensity(p, :extra_2)),
     )
 end

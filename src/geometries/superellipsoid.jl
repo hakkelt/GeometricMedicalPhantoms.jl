@@ -1,4 +1,3 @@
-
 @doc raw"""
     SuperEllipsoid
 
@@ -18,14 +17,14 @@ Fields:
 - `ex::NTuple{3,Real}`: Exponents for (x, y, z) directions
 - `intensity::Real`: Intensity value for the superellipsoid
 """
-struct SuperEllipsoid{T,T2} <: Shape
+struct SuperEllipsoid{T, T2} <: Shape
     cx::T
     cy::T
     cz::T
     rx::T
     ry::T
     rz::T
-    ex::NTuple{3,T}
+    ex::NTuple{3, T}
     intensity::T2
 end
 
@@ -34,8 +33,10 @@ rotate_sagittal(shape::SuperEllipsoid) = SuperEllipsoid(shape.cy, shape.cz, shap
 
 # Draw a 3D superellipsoid defined by a SuperEllipsoid object
 # onto phantom using normalized axes ax_x, ax_y, ax_z.
-function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
-                              se::SuperEllipsoid) where T
+function draw!(
+        phantom::AbstractArray{T, 3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
+        se::SuperEllipsoid
+    ) where {T}
     # Extract parameters from SuperEllipsoid struct
     cx, cy, cz = se.cx, se.cy, se.cz
     rx, ry, rz = se.rx, se.ry, se.rz
@@ -45,7 +46,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     ix_min, ix_max = idx_bounds(ax_x, cx, rx)
     iy_min, iy_max = idx_bounds(ax_y, cy, ry)
     iz_min, iz_max = idx_bounds(ax_z, cz, rz)
-    
+
     # Check if superellipsoid is fully outside the canvas
     if ix_min == -1 || iy_min == -1 || iz_min == -1
         return
@@ -68,12 +69,15 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
             end
         end
     end
+    return
 end
 
 # Draw a 2D slice of a superellipsoid at a specific z-coordinate
 # onto phantom using normalized axes ax_x, ax_y and a scalar ax_z.
-function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::Real,
-                              se::SuperEllipsoid) where T
+function draw!(
+        phantom::AbstractArray{T, 2}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::Real,
+        se::SuperEllipsoid
+    ) where {T}
     # Extract parameters from SuperEllipsoid struct
     cx, cy, cz = se.cx, se.cy, se.cz
     rx, ry, rz = se.rx, se.ry, se.rz
@@ -87,7 +91,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
 
     ix_min, ix_max = idx_bounds(ax_x, cx, rx)
     iy_min, iy_max = idx_bounds(ax_y, cy, ry)
-    
+
     # Check if superellipsoid is fully outside the canvas
     if ix_min == -1 || iy_min == -1
         return
@@ -97,7 +101,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     inv_ry = 1.0 / ry
     inv_rz = 1.0 / rz
     exx, exy, exz = ex
-    
+
     # Precompute directions
     dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
     dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
@@ -109,4 +113,5 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
             end
         end
     end
+    return
 end

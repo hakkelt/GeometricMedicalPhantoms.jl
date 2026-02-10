@@ -1,4 +1,3 @@
-
 """
     SheppLoganIntensities{T}
 

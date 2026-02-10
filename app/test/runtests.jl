@@ -138,7 +138,7 @@ end
             # Generate a respiratory signal file
             resp_path = joinpath(dir, "resp_input.csv")
             writedlm(resp_path, [0.1 * sin(2π * 0.2 * i) for i in 1:10], ',')
-            
+
             out_path = joinpath(dir, "torso_resp.npy")
             code = run_cli(["phantom", "torso", "--size", "8,8,8", "--resp-signal", resp_path, "--out", out_path])
             @test code == 0
@@ -150,10 +150,12 @@ end
         @testset "torso with cardiac signal" begin
             # Generate a cardiac signal file
             cardiac_path = joinpath(dir, "cardiac_input.json")
-            cardiac_data = Dict("lv" => [80.0, 85.0, 90.0], "rv" => [70.0, 75.0, 80.0], 
-                               "la" => [50.0, 55.0, 60.0], "ra" => [45.0, 50.0, 55.0])
+            cardiac_data = Dict(
+                "lv" => [80.0, 85.0, 90.0], "rv" => [70.0, 75.0, 80.0],
+                "la" => [50.0, 55.0, 60.0], "ra" => [45.0, 50.0, 55.0]
+            )
             write(cardiac_path, JSON3.write(cardiac_data))
-            
+
             out_path = joinpath(dir, "torso_cardiac.npy")
             code = run_cli(["phantom", "torso", "--size", "8,8,8", "--cardiac-signal", cardiac_path, "--out", out_path])
             @test code == 0
@@ -167,7 +169,7 @@ end
             n_samples = 5
             resp_path = joinpath(dir, "resp_both.csv")
             writedlm(resp_path, [0.1 * sin(2π * 0.2 * i) for i in 1:n_samples], ',')
-            
+
             cardiac_path = joinpath(dir, "cardiac_both.csv")
             cardiac_matrix = hcat(
                 [80.0, 85.0, 90.0, 85.0, 80.0],  # lv
@@ -176,11 +178,15 @@ end
                 [45.0, 50.0, 55.0, 50.0, 45.0]   # ra
             )
             writedlm(cardiac_path, cardiac_matrix, ',')
-            
+
             out_path = joinpath(dir, "torso_both.npy")
-            code = run_cli(["phantom", "torso", "--size", "8,8,8", 
-                          "--resp-signal", resp_path, "--cardiac-signal", cardiac_path, 
-                          "--out", out_path])
+            code = run_cli(
+                [
+                    "phantom", "torso", "--size", "8,8,8",
+                    "--resp-signal", resp_path, "--cardiac-signal", cardiac_path,
+                    "--out", out_path,
+                ]
+            )
             @test code == 0
             @test isfile(out_path)
             data = NPZ.npzread(out_path)

@@ -90,11 +90,13 @@ t, vols = generate_cardiac_signals(10.0, 500.0, 70.0)
 # vols.lv, vols.rv, vols.la, vols.ra are in mL
 ```
 """
-function generate_cardiac_signals(duration=10.0, fs=500.0, hr::Real=70.0;
-    physiology::CardiacPhysiology=CardiacPhysiology())
+function generate_cardiac_signals(
+        duration = 10.0, fs = 500.0, hr::Real = 70.0;
+        physiology::CardiacPhysiology = CardiacPhysiology()
+    )
 
     # Time vector
-    t = collect(0:1/fs:duration-1/fs)
+    t = collect(0:(1 / fs):(duration - 1 / fs))
     # Heart rate in Hz and cycle period
     hr_hz = hr / 60.0
     T = 1.0 / hr_hz
@@ -117,13 +119,13 @@ function generate_cardiac_signals(duration=10.0, fs=500.0, hr::Real=70.0;
     lv_range = physiology.lv_edv - physiology.lv_esv
     rv_range = physiology.rv_edv - physiology.rv_esv
 
-    lv_s = physiology.lv_edv .- lv_range .* (1 .- (1 .- x_s).^3)
-    rv_s = physiology.rv_edv .- rv_range .* (1 .- (1 .- x_s).^3)
+    lv_s = physiology.lv_edv .- lv_range .* (1 .- (1 .- x_s) .^ 3)
+    rv_s = physiology.rv_edv .- rv_range .* (1 .- (1 .- x_s) .^ 3)
 
     lv_d_base = physiology.lv_esv .+ lv_range .* (x_d .^ 2.2)
     rv_d_base = physiology.rv_esv .+ rv_range .* (x_d .^ 2.0)
-    lv_kick = physiology.lv_kick_amp_frac .* lv_range .* exp.(-((x_d .- physiology.lv_kick_center) ./ physiology.lv_kick_width).^2)
-    rv_kick = physiology.rv_kick_amp_frac .* rv_range .* exp.(-((x_d .- physiology.rv_kick_center) ./ physiology.rv_kick_width).^2)
+    lv_kick = physiology.lv_kick_amp_frac .* lv_range .* exp.(-((x_d .- physiology.lv_kick_center) ./ physiology.lv_kick_width) .^ 2)
+    rv_kick = physiology.rv_kick_amp_frac .* rv_range .* exp.(-((x_d .- physiology.rv_kick_center) ./ physiology.rv_kick_width) .^ 2)
 
     lv_d = lv_d_base .+ lv_kick
     rv_d = rv_d_base .+ rv_kick
@@ -144,10 +146,10 @@ function generate_cardiac_signals(duration=10.0, fs=500.0, hr::Real=70.0;
     la_s = physiology.la_min .+ la_range .* (x_s .^ 1.5)
     ra_s = physiology.ra_min .+ ra_range .* (x_s .^ 1.5)
 
-    la_d_base = physiology.la_max .- la_range .* (1 .- (1 .- x_d).^3)
-    ra_d_base = physiology.ra_max .- ra_range .* (1 .- (1 .- x_d).^3)
-    la_contr = physiology.la_contr_amp_frac .* la_range .* exp.(-((x_d .- physiology.la_contr_center) ./ physiology.la_contr_width).^2)
-    ra_contr = physiology.ra_contr_amp_frac .* ra_range .* exp.(-((x_d .- physiology.ra_contr_center) ./ physiology.ra_contr_width).^2)
+    la_d_base = physiology.la_max .- la_range .* (1 .- (1 .- x_d) .^ 3)
+    ra_d_base = physiology.ra_max .- ra_range .* (1 .- (1 .- x_d) .^ 3)
+    la_contr = physiology.la_contr_amp_frac .* la_range .* exp.(-((x_d .- physiology.la_contr_center) ./ physiology.la_contr_width) .^ 2)
+    ra_contr = physiology.ra_contr_amp_frac .* ra_range .* exp.(-((x_d .- physiology.ra_contr_center) ./ physiology.ra_contr_width) .^ 2)
 
     la_d = la_d_base .- la_contr
     ra_d = ra_d_base .- ra_contr
@@ -167,5 +169,5 @@ function generate_cardiac_signals(duration=10.0, fs=500.0, hr::Real=70.0;
     la .= la .* a_amp .+ 0.8 .* bw
     ra .= ra .* a_amp .+ 0.8 .* bw
 
-    return t, (lv=lv, rv=rv, la=la, ra=ra)
+    return t, (lv = lv, rv = rv, la = la, ra = ra)
 end

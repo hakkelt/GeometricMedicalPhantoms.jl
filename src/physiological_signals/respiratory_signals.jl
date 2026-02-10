@@ -48,10 +48,10 @@ t, resp_L = generate_respiratory_signal(60.0, 50.0, 15.0)
 # resp_L is in liters
 ```
 """
-function generate_respiratory_signal(duration=60.0, fs=50.0, rr=15.0; physiology::RespiratoryPhysiology=RespiratoryPhysiology())
+function generate_respiratory_signal(duration = 60.0, fs = 50.0, rr = 15.0; physiology::RespiratoryPhysiology = RespiratoryPhysiology())
     # Time vector
-    t = 0:1/fs:duration-1/fs
-    
+    t = 0:(1 / fs):(duration - 1 / fs)
+
     # Respiratory rate in Hz
     rr_hz = rr / 60.0
 

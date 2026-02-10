@@ -6,6 +6,6 @@ using Test
     Aqua.test_all(
         GeometricMedicalPhantomsApp;
         # Exclude ambiguities since this is an application module with limited exports
-        ambiguities=false
+        ambiguities = false
     )
 end

@@ -25,8 +25,8 @@ using Statistics
         @testset "3D phantom with custom FOV" begin
             # 64^3 with FOV (20, 20, 20) should equal center of 128^3 with FOV (40, 40, 40)
             # Both have same voxel size: 20/64 = 40/128 = 0.3125 cm/voxel
-            phantom_small = create_torso_phantom(64, 64, 64; fovs=(20, 20, 20))
-            phantom_large = create_torso_phantom(128, 128, 128; fovs=(40, 40, 40))
+            phantom_small = create_torso_phantom(64, 64, 64; fovs = (20, 20, 20))
+            phantom_large = create_torso_phantom(128, 128, 128; fovs = (40, 40, 40))
 
             @test size(phantom_small) == (64, 64, 64, 1)
             @test size(phantom_large) == (128, 128, 128, 1)
@@ -48,12 +48,12 @@ using Statistics
 
         @testset "TissueMask" begin
             # Test that TissueMask can be created
-            lung_mask = TissueMask(lung=true)
+            lung_mask = TissueMask(lung = true)
             @test lung_mask.lung == true
             @test lung_mask.heart == false
 
             # Test that phantoms created with TissueMask are BitArrays
-            phantom_mask = create_torso_phantom(64, 64, 64; ti=lung_mask)
+            phantom_mask = create_torso_phantom(64, 64, 64; ti = lung_mask)
             @test phantom_mask isa BitArray
             @test size(phantom_mask) == (64, 64, 64, 1)
 
@@ -65,9 +65,9 @@ using Statistics
         @testset "3D phantom with custom tissue intensities" begin
             # Test custom intensities with masking
             ti_custom = TissueIntensities(
-                lung=0.10, heart=0.70, body=0.30, lv_blood=0.95
+                lung = 0.1, heart = 0.7, body = 0.3, lv_blood = 0.95
             )
-            phantom_custom = create_torso_phantom(64, 64, 64; ti=ti_custom)
+            phantom_custom = create_torso_phantom(64, 64, 64; ti = ti_custom)
             @test size(phantom_custom) == (64, 64, 64, 1)
 
             # Test each tissue type with binary mask
@@ -75,12 +75,12 @@ using Statistics
 
             for tissue in tissue_types
                 # Create binary mask for this tissue type using TissueMask
-                mask_kwargs = Dict{Symbol,Bool}()
+                mask_kwargs = Dict{Symbol, Bool}()
                 for f in fieldnames(TissueMask)
                     mask_kwargs[f] = (f == tissue)
                 end
                 ti_mask = TissueMask(; mask_kwargs...)
-                phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
+                phantom_mask = create_torso_phantom(64, 64, 64; ti = ti_mask)
 
                 # Get the mask (where this tissue exists) - phantom_mask is now BitArray
                 mask = phantom_mask[:, :, :, 1]
@@ -94,11 +94,11 @@ using Statistics
                 # All voxels with the mask should have the custom intensity (with tolerance)
                 if any(mask)
                     masked_values = frame_custom[mask]
-                    @test all(x -> abs(x - custom_intensity) < 1e-5, masked_values)
+                    @test all(x -> abs(x - custom_intensity) < 1.0e-5, masked_values)
                 end
 
                 # All voxels with the custom intensity should be in the mask
-                intensity_positions = abs.(frame_custom .- custom_intensity) .< 1e-5
+                intensity_positions = abs.(frame_custom .- custom_intensity) .< 1.0e-5
                 if any(intensity_positions)
                     @test all(intensity_positions .== mask)
                 end
@@ -113,7 +113,7 @@ using Statistics
             rr = 15.0
             t, resp = generate_respiratory_signal(duration, fs, rr)
 
-            phantom = create_torso_phantom(64, 64, 64; respiratory_signal=resp)
+            phantom = create_torso_phantom(64, 64, 64; respiratory_signal = resp)
             @test size(phantom, 4) == length(resp)
             @test size(phantom)[1:3] == (64, 64, 64)
             @test eltype(phantom) == Float32
@@ -130,7 +130,7 @@ using Statistics
             hr = 70.0
             t, vols = generate_cardiac_signals(duration, fs, hr)
 
-            phantom = create_torso_phantom(64, 64, 64; cardiac_volumes=vols)
+            phantom = create_torso_phantom(64, 64, 64; cardiac_volumes = vols)
             @test size(phantom, 4) == length(vols.lv)
             @test size(phantom)[1:3] == (64, 64, 64)
             @test eltype(phantom) == Float32
@@ -152,7 +152,7 @@ using Statistics
             @test length(resp) == length(vols.lv)
 
             phantom = create_torso_phantom(
-                64, 64, 64; respiratory_signal=resp, cardiac_volumes=vols
+                64, 64, 64; respiratory_signal = resp, cardiac_volumes = vols
             )
             @test size(phantom, 4) == length(resp)
             @test size(phantom)[1:3] == (64, 64, 64)
@@ -171,7 +171,7 @@ using Statistics
             # Create phantom with moderate resolution for faster computation
             nx, ny, nz = 128, 128, 128
             fov = (30, 30, 30)
-            phantom = create_torso_phantom(nx, ny, nz; respiratory_signal=resp)
+            phantom = create_torso_phantom(nx, ny, nz; respiratory_signal = resp)
 
             lung_vol_L = zeros(Float64, length(resp))
 
@@ -212,7 +212,7 @@ using Statistics
         @testset "Lung volume validation - full range" begin
             # Test over entire physiological range (1.2L to 6.0L)
             # Sample the full range with multiple volume levels
-            volume_levels = range(1.2, 6.0, length=25)
+            volume_levels = range(1.2, 6.0, length = 25)
             nt = length(volume_levels)
             resp_full_range = collect(volume_levels)
 
@@ -220,7 +220,7 @@ using Statistics
             nx, ny, nz = 96, 96, 96
             fov = (30, 30, 30)
             phantom = create_torso_phantom(
-                nx, ny, nz; respiratory_signal=resp_full_range
+                nx, ny, nz; respiratory_signal = resp_full_range
             )
 
             lung_vol_L = zeros(Float64, nt)
@@ -260,7 +260,7 @@ using Statistics
 
             # Create phantom
             nx, ny, nz = 96, 96, 96
-            phantom = create_torso_phantom(nx, ny, nz; cardiac_volumes=vols)
+            phantom = create_torso_phantom(nx, ny, nz; cardiac_volumes = vols)
 
             ti = TissueIntensities()
             nt = length(vols.lv)
@@ -275,7 +275,7 @@ using Statistics
             la_meas_mL = zeros(Float64, nt)
             ra_meas_mL = zeros(Float64, nt)
 
-            voxel_vol_mL = (30/nx) * (30/ny) * (30/nz)
+            voxel_vol_mL = (30 / nx) * (30 / ny) * (30 / nz)
 
             for m in 1:nt
                 frame = phantom[:, :, :, m]
@@ -324,14 +324,14 @@ using Statistics
 
             # Modify cardiac volumes to have different length
             vols_short = (
-                lv=vols.lv[1:(end - 2)],
-                rv=vols.rv[1:(end - 2)],
-                la=vols.la[1:(end - 2)],
-                ra=vols.ra[1:(end - 2)],
+                lv = vols.lv[1:(end - 2)],
+                rv = vols.rv[1:(end - 2)],
+                la = vols.la[1:(end - 2)],
+                ra = vols.ra[1:(end - 2)],
             )
 
             @test_throws ArgumentError create_torso_phantom(
-                64, 64, 64; respiratory_signal=resp, cardiac_volumes=vols_short
+                64, 64, 64; respiratory_signal = resp, cardiac_volumes = vols_short
             )
         end
 
@@ -341,10 +341,10 @@ using Statistics
             t, resp = generate_respiratory_signal(duration, fs, 15.0)
 
             # Create invalid cardiac volumes (missing fields)
-            vols_invalid = (lv=fill(140.0, length(resp)), rv=fill(140.0, length(resp)))
+            vols_invalid = (lv = fill(140.0, length(resp)), rv = fill(140.0, length(resp)))
 
             @test_throws ArgumentError create_torso_phantom(
-                64, 64, 64; respiratory_signal=resp, cardiac_volumes=vols_invalid
+                64, 64, 64; respiratory_signal = resp, cardiac_volumes = vols_invalid
             )
         end
     end  # Validation Tests
@@ -357,16 +357,16 @@ using Statistics
             unique_vals = Set(real(frame[:]))
 
             # Check for presence of major tissue types
-            @test any(x -> abs(x - ti.lung) < 1e-6, unique_vals)        # Lung
-            @test any(x -> abs(x - ti.heart) < 1e-6, unique_vals)       # Heart
-            @test any(x -> abs(x - ti.body) < 1e-6, unique_vals)        # Body
-            @test any(x -> abs(x - ti.bones) < 1e-6, unique_vals)       # Bones
-            @test any(x -> abs(x - ti.lv_blood) < 1e-6, unique_vals)    # LV blood
-            @test any(x -> abs(x - ti.rv_blood) < 1e-6, unique_vals)    # RV blood
-            @test any(x -> abs(x - ti.la_blood) < 1e-6, unique_vals)    # LA blood
-            @test any(x -> abs(x - ti.ra_blood) < 1e-6, unique_vals)    # RA blood
-            @test any(x -> abs(x - ti.liver) < 1e-6, unique_vals)       # Liver
-            @test any(x -> abs(x - ti.stomach) < 1e-6, unique_vals)     # Stomach
+            @test any(x -> abs(x - ti.lung) < 1.0e-6, unique_vals)        # Lung
+            @test any(x -> abs(x - ti.heart) < 1.0e-6, unique_vals)       # Heart
+            @test any(x -> abs(x - ti.body) < 1.0e-6, unique_vals)        # Body
+            @test any(x -> abs(x - ti.bones) < 1.0e-6, unique_vals)       # Bones
+            @test any(x -> abs(x - ti.lv_blood) < 1.0e-6, unique_vals)    # LV blood
+            @test any(x -> abs(x - ti.rv_blood) < 1.0e-6, unique_vals)    # RV blood
+            @test any(x -> abs(x - ti.la_blood) < 1.0e-6, unique_vals)    # LA blood
+            @test any(x -> abs(x - ti.ra_blood) < 1.0e-6, unique_vals)    # RA blood
+            @test any(x -> abs(x - ti.liver) < 1.0e-6, unique_vals)       # Liver
+            @test any(x -> abs(x - ti.stomach) < 1.0e-6, unique_vals)     # Stomach
         end
 
         @testset "eltype parameter - Float32 (default)" begin
@@ -376,7 +376,7 @@ using Statistics
             @test size(phantom) == (64, 64, 64, 1)
 
             # Test explicit Float32
-            phantom_f32 = create_torso_phantom(64, 64, 64; eltype=Float32)
+            phantom_f32 = create_torso_phantom(64, 64, 64; eltype = Float32)
             @test eltype(phantom_f32) == Float32
             @test size(phantom_f32) == (64, 64, 64, 1)
 
@@ -386,7 +386,7 @@ using Statistics
 
         @testset "eltype parameter - Float64" begin
             # Test Float64 eltype
-            phantom_f64 = create_torso_phantom(64, 64, 64; eltype=Float64)
+            phantom_f64 = create_torso_phantom(64, 64, 64; eltype = Float64)
             @test eltype(phantom_f64) == Float64
             @test size(phantom_f64) == (64, 64, 64, 1)
 
@@ -396,7 +396,7 @@ using Statistics
             @test any(x -> 0.07 < x < 0.12, unique_vals)  # Lung tissue
 
             # Test that Float64 and Float32 phantoms have similar (but not identical) values
-            phantom_f32 = create_torso_phantom(64, 64, 64; eltype=Float32)
+            phantom_f32 = create_torso_phantom(64, 64, 64; eltype = Float32)
             @test phantom_f32 ≈ phantom_f64
 
             # Verify they are different types
@@ -405,7 +405,7 @@ using Statistics
 
         @testset "eltype parameter - ComplexF32" begin
             # Test ComplexF32 eltype
-            phantom_complex = create_torso_phantom(64, 64, 64; eltype=ComplexF32)
+            phantom_complex = create_torso_phantom(64, 64, 64; eltype = ComplexF32)
             @test eltype(phantom_complex) == ComplexF32
             @test size(phantom_complex) == (64, 64, 64, 1)
 
@@ -417,7 +417,7 @@ using Statistics
 
         @testset "eltype parameter - ComplexF64" begin
             # Test ComplexF64 eltype
-            phantom_complex_f64 = create_torso_phantom(64, 64, 64; eltype=ComplexF64)
+            phantom_complex_f64 = create_torso_phantom(64, 64, 64; eltype = ComplexF64)
             @test eltype(phantom_complex_f64) == ComplexF64
             @test size(phantom_complex_f64) == (64, 64, 64, 1)
 
@@ -434,7 +434,7 @@ using Statistics
             t, resp = generate_respiratory_signal(duration, fs, rr)
 
             phantom_f64 = create_torso_phantom(
-                64, 64, 64; respiratory_signal=resp, eltype=Float64
+                64, 64, 64; respiratory_signal = resp, eltype = Float64
             )
             @test eltype(phantom_f64) == Float64
             @test size(phantom_f64, 4) == length(resp)
@@ -449,9 +449,9 @@ using Statistics
         @testset "eltype parameter - custom tissue intensities with Float64" begin
             # Test that Float64 custom intensities work with Float64 eltype
             ti_custom = TissueIntensities(
-                lung=0.10, heart=0.70, body=0.30, lv_blood=0.95
+                lung = 0.1, heart = 0.7, body = 0.3, lv_blood = 0.95
             )
-            phantom_f64 = create_torso_phantom(64, 64, 64; ti=ti_custom, eltype=Float64)
+            phantom_f64 = create_torso_phantom(64, 64, 64; ti = ti_custom, eltype = Float64)
             @test eltype(phantom_f64) == Float64
 
             # Test each tissue type with binary mask
@@ -459,12 +459,12 @@ using Statistics
 
             for tissue in tissue_types
                 # Create binary mask for this tissue type using TissueMask
-                mask_kwargs = Dict{Symbol,Bool}()
+                mask_kwargs = Dict{Symbol, Bool}()
                 for f in fieldnames(TissueMask)
                     mask_kwargs[f] = (f == tissue)
                 end
                 ti_mask = TissueMask(; mask_kwargs...)
-                phantom_mask = create_torso_phantom(64, 64, 64; ti=ti_mask)
+                phantom_mask = create_torso_phantom(64, 64, 64; ti = ti_mask)
 
                 # Get the mask (where this tissue exists) - phantom_mask is now BitArray
                 mask = phantom_mask[:, :, :, 1]
@@ -478,11 +478,11 @@ using Statistics
                 # All voxels with the mask should have the custom intensity (with tolerance)
                 if any(mask)
                     masked_values = frame_custom[mask]
-                    @test all(x -> abs(x - custom_intensity) < 1e-5, masked_values)
+                    @test all(x -> abs(x - custom_intensity) < 1.0e-5, masked_values)
                 end
 
                 # All voxels with the custom intensity should be in the mask
-                intensity_positions = abs.(frame_custom .- custom_intensity) .< 1e-5
+                intensity_positions = abs.(frame_custom .- custom_intensity) .< 1.0e-5
                 if any(intensity_positions)
                     @test all(intensity_positions .== mask)
                 end
@@ -492,25 +492,25 @@ using Statistics
         @testset "3D phantom - Invalid dimensions" begin
             # Test invalid nx (zero)
             @test_throws ArgumentError create_torso_phantom(0, 64, 64)
-            
+
             # Test invalid ny (zero)
             @test_throws ArgumentError create_torso_phantom(64, 0, 64)
-            
+
             # Test invalid nz (zero)
             @test_throws ArgumentError create_torso_phantom(64, 64, 0)
-            
+
             # Test invalid nx (negative)
             @test_throws ArgumentError create_torso_phantom(-10, 64, 64)
-            
+
             # Test invalid ny (negative)
             @test_throws ArgumentError create_torso_phantom(64, -10, 64)
-            
+
             # Test invalid nz (negative)
             @test_throws ArgumentError create_torso_phantom(64, 64, -10)
-            
+
             # Test invalid fovs (wrong size)
-            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs=(30, 30))
-            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs=(30, 30, 30, 30))
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs = (30, 30))
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs = (30, 30, 30, 30))
         end
     end  # Parameter Tests
 end  # 3D Phantom Tests

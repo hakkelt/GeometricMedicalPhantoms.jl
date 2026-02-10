@@ -24,10 +24,11 @@ Create a boolean mask for the tubes phantom.
 mask = TubesMask(outer_cylinder=true, tube_wall=false, tube_fillings=[true, true, true, true, true, true])
 ```
 """
-function TubesMask(; 
-    outer_cylinder::Bool = true, 
-    tube_wall::Bool = true, 
-    tube_fillings::Vector{Bool} = fill(true, 6))
+function TubesMask(;
+        outer_cylinder::Bool = true,
+        tube_wall::Bool = true,
+        tube_fillings::Vector{Bool} = fill(true, 6)
+    )
     return TubesIntensities{Bool}(
         outer_cylinder = outer_cylinder,
         tube_wall = tube_wall,

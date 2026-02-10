@@ -7,6 +7,6 @@ using GeometricMedicalPhantoms
     # target_modules=(GeometricMedicalPhantoms,) ensures we only analyze this package
     JET.test_package(
         GeometricMedicalPhantoms;
-        target_modules=(GeometricMedicalPhantoms,)
+        target_modules = (GeometricMedicalPhantoms,)
     )
 end
