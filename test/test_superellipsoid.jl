@@ -6,12 +6,12 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
     @testset "3D draw! - superellipsoid outside canvas bounds" begin
         # Create a 3D phantom array
         phantom = zeros(Float32, 10, 10, 10)
-        
+
         # Define axes for a small region
-        ax_x = range(-1.0, 1.0, length=10)
-        ax_y = range(-1.0, 1.0, length=10)
-        ax_z = range(-1.0, 1.0, length=10)
-        
+        ax_x = range(-1.0, 1.0, length = 10)
+        ax_y = range(-1.0, 1.0, length = 10)
+        ax_z = range(-1.0, 1.0, length = 10)
+
         # Create a superellipsoid that is completely outside the canvas bounds
         # Place it far away from the defined axes
         se_outside = SuperEllipsoid(
@@ -24,13 +24,13 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
             (2.0, 2.0, 2.0),  # ex
             1.0    # intensity
         )
-        
+
         # Draw the superellipsoid (should return early without modifying phantom)
         draw!(phantom, ax_x, ax_y, ax_z, se_outside)
-        
+
         # Verify that phantom remains all zeros (superellipsoid was outside bounds)
         @test all(phantom .== 0.0f0)
-        
+
         # Test another case: superellipsoid on negative side
         se_outside_neg = SuperEllipsoid(
             -10.0,  # cx - far left
@@ -42,11 +42,11 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
             (2.0, 2.0, 2.0),  # ex
             1.0     # intensity
         )
-        
+
         phantom2 = zeros(Float32, 10, 10, 10)
         draw!(phantom2, ax_x, ax_y, ax_z, se_outside_neg)
         @test all(phantom2 .== 0.0f0)
-        
+
         # Test case where superellipsoid is partially outside but ix_min > ix_max
         # This happens when the ellipsoid center is outside but radius doesn't reach canvas
         phantom3 = zeros(Float32, 10, 10, 10)
@@ -63,16 +63,16 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
         draw!(phantom3, ax_x, ax_y, ax_z, se_edge)
         @test all(phantom3 .== 0.0f0)
     end
-    
+
     @testset "2D draw! - superellipsoid outside canvas bounds" begin
         # Create a 2D phantom array
         phantom = zeros(Float32, 10, 10)
-        
+
         # Define axes for a small region
-        ax_x = range(-1.0, 1.0, length=10)
-        ax_y = range(-1.0, 1.0, length=10)
+        ax_x = range(-1.0, 1.0, length = 10)
+        ax_y = range(-1.0, 1.0, length = 10)
         ax_z_val = 0.0  # Slice position
-        
+
         # Create a superellipsoid that is completely outside the 2D canvas bounds
         # Place it far away from the defined axes in x-y plane
         se_outside = SuperEllipsoid(
@@ -85,13 +85,13 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
             (2.0, 2.0, 2.0),  # ex
             1.0    # intensity
         )
-        
+
         # Draw the superellipsoid (should return early without modifying phantom)
         draw!(phantom, ax_x, ax_y, ax_z_val, se_outside)
-        
+
         # Verify that phantom remains all zeros (superellipsoid was outside bounds)
         @test all(phantom .== 0.0f0)
-        
+
         # Test another case: superellipsoid on negative side
         se_outside_neg = SuperEllipsoid(
             -10.0,  # cx - far left
@@ -103,11 +103,11 @@ using GeometricMedicalPhantoms: SuperEllipsoid, draw!
             (2.0, 2.0, 2.0),  # ex
             1.0     # intensity
         )
-        
+
         phantom2 = zeros(Float32, 10, 10)
         draw!(phantom2, ax_x, ax_y, ax_z_val, se_outside_neg)
         @test all(phantom2 .== 0.0f0)
-        
+
         # Test case where ix_min > ix_max or iy_min > iy_max
         phantom3 = zeros(Float32, 10, 10)
         se_edge = SuperEllipsoid(

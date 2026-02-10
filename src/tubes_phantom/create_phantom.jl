@@ -30,47 +30,51 @@ phantom_axial = create_tubes_phantom(128, 128, :axial; slice_position=2.0)
 phantom_axial_stack = create_tubes_phantom(128, 128, :axial; ti=[TubesIntensities(), TubesIntensities(tube_fillings=[0.8])])
 ```
 """
-function create_tubes_phantom(nx::Int, ny::Int, nz::Int; 
-    fovs::Tuple{<:Real,<:Real,<:Real}=(10.0, 10.0, 10.0),
-    tg::TubesGeometry=TubesGeometry(),
-    ti::Union{TubesIntensities, Vector{<:TubesIntensities}}=TubesIntensities(),
-    eltype::Type=Float32)
+function create_tubes_phantom(
+        nx::Int, ny::Int, nz::Int;
+        fovs::Tuple{<:Real, <:Real, <:Real} = (10.0, 10.0, 10.0),
+        tg::TubesGeometry = TubesGeometry(),
+        ti::Union{TubesIntensities, Vector{<:TubesIntensities}} = TubesIntensities(),
+        eltype::Type = Float32
+    )
     tis = ti isa Vector ? ti : (ti,)
     if length(tis) == 1
-        return _render_tubes_volume(nx, ny, nz; fovs=fovs, tg=tg, ti=tis[1], eltype=eltype, force_eltype=false)
+        return _render_tubes_volume(nx, ny, nz; fovs = fovs, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false)
     end
-    result = Array{eltype,4}(undef, nx, ny, nz, length(tis))
+    result = Array{eltype, 4}(undef, nx, ny, nz, length(tis))
     for (idx, intensity) in enumerate(tis)
-        result[:, :, :, idx] = _render_tubes_volume(nx, ny, nz; fovs=fovs, tg=tg, ti=intensity, eltype=eltype, force_eltype=true)
+        result[:, :, :, idx] = _render_tubes_volume(nx, ny, nz; fovs = fovs, tg = tg, ti = intensity, eltype = eltype, force_eltype = true)
     end
     return result
 end
 
-function create_tubes_phantom(nx::Int, ny::Int, axis::Symbol; 
-    fovs::Tuple{<:Real,<:Real}=(10.0, 10.0),
-    slice_position::Real=0.0,
-    tg::TubesGeometry=TubesGeometry(),
-    ti::Union{TubesIntensities, Vector{<:TubesIntensities}}=TubesIntensities(),
-    eltype::Type=Float32)
+function create_tubes_phantom(
+        nx::Int, ny::Int, axis::Symbol;
+        fovs::Tuple{<:Real, <:Real} = (10.0, 10.0),
+        slice_position::Real = 0.0,
+        tg::TubesGeometry = TubesGeometry(),
+        ti::Union{TubesIntensities, Vector{<:TubesIntensities}} = TubesIntensities(),
+        eltype::Type = Float32
+    )
     tis = ti isa Vector ? ti : (ti,)
     if length(tis) == 1
-        return _render_tubes_slice(nx, ny; fovs=fovs, slice_position=slice_position, tg=tg, ti=tis[1], eltype=eltype, force_eltype=false, axis=axis)
+        return _render_tubes_slice(nx, ny; fovs = fovs, slice_position = slice_position, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false, axis = axis)
     end
-    result = Array{eltype,3}(undef, nx, ny, length(tis))
+    result = Array{eltype, 3}(undef, nx, ny, length(tis))
     for (idx, intensity) in enumerate(tis)
-        result[:, :, idx] = _render_tubes_slice(nx, ny; fovs=fovs, slice_position=slice_position, tg=tg, ti=intensity, eltype=eltype, force_eltype=true, axis=axis)
+        result[:, :, idx] = _render_tubes_slice(nx, ny; fovs = fovs, slice_position = slice_position, tg = tg, ti = intensity, eltype = eltype, force_eltype = true, axis = axis)
     end
     return result
 end
 
 function _render_tubes_volume(nx, ny, nz; fovs, tg, ti, eltype, force_eltype)
     norm_factor = 10.0
-    ax_x = collect(range(-fovs[1]/2, fovs[1]/2, length=nx)) / norm_factor
-    ax_y = collect(range(-fovs[2]/2, fovs[2]/2, length=ny)) / norm_factor
-    ax_z = collect(range(-fovs[3]/2, fovs[3]/2, length=nz)) / norm_factor
+    ax_x = collect(range(-fovs[1] / 2, fovs[1] / 2, length = nx)) / norm_factor
+    ax_y = collect(range(-fovs[2] / 2, fovs[2] / 2, length = ny)) / norm_factor
+    ax_z = collect(range(-fovs[3] / 2, fovs[3] / 2, length = nz)) / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny, nz)
-    shapes = get_tubes_shapes(tg, ti, output_eltype)
+    shapes = get_tubes_shapes(tg, ti)
     for shape in shapes
         draw!(phantom, ax_x, ax_y, ax_z, shape)
     end
@@ -79,13 +83,13 @@ end
 
 function _render_tubes_slice(nx, ny; fovs, slice_position, tg, ti, eltype, force_eltype, axis)
     norm_factor = 10.0
-    ax_1 = collect(range(-fovs[1]/2, fovs[1]/2, length=nx)) / norm_factor
-    ax_2 = collect(range(-fovs[2]/2, fovs[2]/2, length=ny)) / norm_factor
+    ax_1 = collect(range(-fovs[1] / 2, fovs[1] / 2, length = nx)) / norm_factor
+    ax_2 = collect(range(-fovs[2] / 2, fovs[2] / 2, length = ny)) / norm_factor
     slice_pos_norm = slice_position / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny)
-    phantom = convert(Array{output_eltype,2}, phantom)
-    shapes = get_tubes_shapes(tg, ti, output_eltype)
+    phantom = convert(Array{output_eltype, 2}, phantom)
+    shapes = get_tubes_shapes(tg, ti)
     for shape in shapes
         draw_2d!(phantom, ax_1, ax_2, slice_pos_norm, axis, shape)
     end

@@ -17,7 +17,7 @@ frame = phantom[:, :, :, 1]
 lung_count = count_voxels(frame, 0.08f0)
 ```
 """
-function count_voxels(frame::AbstractArray, intensity::Real; tolerance=1f-6)
+function count_voxels(frame::AbstractArray, intensity::Real; tolerance = 1.0f-6)
     return count(x -> abs(real(x) - intensity) < tolerance, frame)
 end
 
@@ -66,16 +66,16 @@ frame = phantom[:, :, :, 1]
 lung_vol = calculate_volume(frame, (0.075f0, 0.11f0), (30, 30, 30))
 ```
 """
-function calculate_volume(frame::AbstractArray, intensity, fov::Tuple; tolerance=1f-6)
+function calculate_volume(frame::AbstractArray, intensity, fov::Tuple; tolerance = 1.0f-6)
     nx, ny, nz = size(frame)[1:3]
-    voxel_vol_cm3 = (fov[1]/nx) * (fov[2]/ny) * (fov[3]/nz)
+    voxel_vol_cm3 = (fov[1] / nx) * (fov[2] / ny) * (fov[3] / nz)
     voxel_vol_L = voxel_vol_cm3 / 1000.0
-    
+
     voxel_count = if intensity isa Tuple
         count_voxels(frame, intensity)
     else
-        count_voxels(frame, intensity; tolerance=tolerance)
+        count_voxels(frame, intensity; tolerance = tolerance)
     end
-    
+
     return voxel_count * voxel_vol_L
 end

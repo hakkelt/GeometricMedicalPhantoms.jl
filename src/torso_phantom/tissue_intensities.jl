@@ -26,10 +26,10 @@ Fields:
 Base.@kwdef struct TissueIntensities <: AbstractTissueParameters
     lung::Float64 = 0.08
     heart::Float64 = 0.65
-    vessels_blood::Float64 = 1.00
+    vessels_blood::Float64 = 1.0
     bones::Float64 = 0.85
     liver::Float64 = 0.55
-    stomach::Float64 = 0.90
+    stomach::Float64 = 0.9
     body::Float64 = 0.25
     lv_blood::Float64 = 0.98
     rv_blood::Float64 = 0.99

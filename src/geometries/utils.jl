@@ -12,11 +12,11 @@ struct MaskingIntensityValue{T}
 end
 
 @inline function draw_pixel!(image, intensity::AdditiveIntensityValue, idx...)
-    image[idx...] += intensity.value
+    return image[idx...] += intensity.value
 end
 
 @inline function draw_pixel!(image, intensity::MaskingIntensityValue, idx...)
-    image[idx...] = intensity.value
+    return image[idx...] = intensity.value
 end
 
 # Restrict computation to the enclosing axis-aligned box to avoid full-volume work
@@ -41,7 +41,7 @@ end
 Helper function to draw a shape onto a 2D slice.
 Dispatches to the appropriate draw! call based on axis orientation.
 """
-function draw_2d!(image::AbstractArray{T,2}, ax_1n, ax_2n, ax_3_val::Real, axis::Symbol, shape::Shape) where T
+function draw_2d!(image::AbstractArray{T, 2}, ax_1n, ax_2n, ax_3_val::Real, axis::Symbol, shape::Shape) where {T}
     if axis == :axial
         # Axial: x-y plane, z is fixed
         draw!(image, ax_1n, ax_2n, ax_3_val, shape)

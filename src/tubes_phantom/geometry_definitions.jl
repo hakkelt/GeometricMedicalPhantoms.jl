@@ -32,7 +32,7 @@ Returns a tuple of CylinderZ objects representing the outer cylinder and all tub
 # Throws
 - `ArgumentError`: If the geometry parameters don't allow fitting the desired number of tubes
 """
-function get_tubes_shapes(tg::TubesGeometry, ti::TubesIntensities, output_eltype::Type=Float64)
+function get_tubes_shapes(tg::TubesGeometry, ti::TubesIntensities)
     n_tubes = length(ti.tube_fillings)
 
     R = tg.outer_radius # outer radius
@@ -43,34 +43,34 @@ function get_tubes_shapes(tg::TubesGeometry, ti::TubesIntensities, output_eltype
     tube_outer_height = tg.outer_height * tg.tubes_height_fraction
     tube_inner_height = tube_outer_height - 2 * tg.tube_wall_thickness
     wall_thickness = wall_radius - tube_radius
-    
+
     # Create outer cylinder
     outer_cylinder = CylinderZ(
-        0.0, 
-        0.0, 
-        0.0, 
-        tg.outer_radius, 
-        tg.outer_height, 
+        0.0,
+        0.0,
+        0.0,
+        tg.outer_radius,
+        tg.outer_height,
         ti.outer_cylinder
     )
-    
+
     # Create tube cylinders
     shapes = [outer_cylinder]
-    
+
     for i in 1:n_tubes
         # Calculate position on the inner circle
         angle = 2π * (i - 1) / n_tubes
         cx = R_centers * cos(angle)
         cy = R_centers * sin(angle)
-        
+
         # Outer wall of tube (larger radius)
         wall_cylinder = CylinderZ(cx, cy, 0.0, wall_radius, tube_outer_height, ti.tube_wall)
         push!(shapes, wall_cylinder)
-        
+
         # Inner filling of tube (smaller radius)
         filling_cylinder = CylinderZ(cx, cy, 0.0, tube_radius, tube_inner_height, ti.tube_fillings[i])
         push!(shapes, filling_cylinder)
     end
-    
+
     return tuple(shapes...)
 end

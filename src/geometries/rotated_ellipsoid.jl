@@ -1,4 +1,3 @@
-
 @doc raw"""
     RotatedEllipsoid
 
@@ -14,7 +13,7 @@ Fields:
 - `phi, theta, psi::Real`: Rotation angles in radians (Z-Y-X order)
 - `intensity::Real`: Intensity value
 """
-struct RotatedEllipsoid{T,T2} <: Shape
+struct RotatedEllipsoid{T, T2} <: Shape
     cx::T
     cy::T
     cz::T
@@ -26,19 +25,23 @@ struct RotatedEllipsoid{T,T2} <: Shape
     psi::T
     intensity::T2
     plane::Symbol # To track axis permutations
-    function RotatedEllipsoid(cx::T, cy::T, cz::T,
-                              rx::T, ry::T, rz::T,
-                              phi::T, theta::T, psi::T,
-                              intensity::T2) where {T<:Real,T2}
-        new{T,T2}(cx, cy, cz, rx, ry, rz, phi, theta, psi, intensity, :axial)
+    function RotatedEllipsoid(
+            cx::T, cy::T, cz::T,
+            rx::T, ry::T, rz::T,
+            phi::T, theta::T, psi::T,
+            intensity::T2
+        ) where {T <: Real, T2}
+        return new{T, T2}(cx, cy, cz, rx, ry, rz, phi, theta, psi, intensity, :axial)
     end
-    function RotatedEllipsoid(cx::T, cy::T, cz::T,
-                              rx::T, ry::T, rz::T,
-                              phi::T, theta::T, psi::T,
-                              intensity::T2,
-                              plane::Symbol) where {T<:Real,T2}
+    function RotatedEllipsoid(
+            cx::T, cy::T, cz::T,
+            rx::T, ry::T, rz::T,
+            phi::T, theta::T, psi::T,
+            intensity::T2,
+            plane::Symbol
+        ) where {T <: Real, T2}
         @assert plane in (:axial, :coronal, :sagittal) "Invalid plane symbol"
-        new{T,T2}(cx, cy, cz, rx, ry, rz, phi, theta, psi, intensity, plane)
+        return new{T, T2}(cx, cy, cz, rx, ry, rz, phi, theta, psi, intensity, plane)
     end
 end
 
@@ -52,15 +55,15 @@ function get_rotation_matrix(phi, theta, psi, plane)
     c3, s3 = cos(psi), sin(psi)
 
     # R matrix elements
-    r11 = c1*c2
-    r12 = c1*s2*s3 - s1*c3
-    r13 = c1*s2*c3 + s1*s3
-    r21 = s1*c2
-    r22 = s1*s2*s3 + c1*c3
-    r23 = s1*s2*c3 - c1*s3
+    r11 = c1 * c2
+    r12 = c1 * s2 * s3 - s1 * c3
+    r13 = c1 * s2 * c3 + s1 * s3
+    r21 = s1 * c2
+    r22 = s1 * s2 * s3 + c1 * c3
+    r23 = s1 * s2 * c3 - c1 * s3
     r31 = -s2
-    r32 = c2*s3
-    r33 = c2*c3
+    r32 = c2 * s3
+    r33 = c2 * c3
 
     # Apply permutation to rows
     if plane == :axial
@@ -77,8 +80,10 @@ function get_rotation_matrix(phi, theta, psi, plane)
     end
 end
 
-function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
-                               se::RotatedEllipsoid) where T
+function draw!(
+        phantom::AbstractArray{T, 3}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::AbstractVector,
+        se::RotatedEllipsoid
+    ) where {T}
     cx, cy, cz = se.cx, se.cy, se.cz
     rx, ry, rz = se.rx, se.ry, se.rz
     phi, theta, psi = se.phi, se.theta, se.psi
@@ -90,7 +95,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     r11, r12, r13, r21, r22, r23, r31, r32, r33 = R
 
     rx2, ry2, rz2 = rx^2, ry^2, rz^2
-    
+
     # Bounding box radii
     brx = sqrt(r11^2 * rx2 + r12^2 * ry2 + r13^2 * rz2)
     bry = sqrt(r21^2 * rx2 + r22^2 * ry2 + r23^2 * rz2)
@@ -99,7 +104,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     ix_min, ix_max = idx_bounds(ax_x, cx, brx)
     iy_min, iy_max = idx_bounds(ax_y, cy, bry)
     iz_min, iz_max = idx_bounds(ax_z, cz, brz)
-    
+
     if ix_min == -1 || iy_min == -1 || iz_min == -1
         return
     end
@@ -128,7 +133,7 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
             t3yz = r23 * dy + t3z
             for i in ix_min:ix_max
                 dx = ax_x[i] - cx
-                
+
                 x_loc = r11 * dx + t1yz
                 y_loc = r12 * dx + t2yz
                 z_loc = r13 * dx + t3yz
@@ -139,10 +144,13 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
             end
         end
     end
+    return
 end
 
-function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::Real,
-                               se::RotatedEllipsoid) where T
+function draw!(
+        phantom::AbstractArray{T, 2}, ax_x::AbstractVector, ax_y::AbstractVector, ax_z::Real,
+        se::RotatedEllipsoid
+    ) where {T}
     cx, cy, cz = se.cx, se.cy, se.cz
     rx, ry, rz = se.rx, se.ry, se.rz
     phi, theta, psi = se.phi, se.theta, se.psi
@@ -151,7 +159,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     R = get_rotation_matrix(phi, theta, psi, se.plane)
     r11, r12, r13, r21, r22, r23, r31, r32, r33 = R
     rx2, ry2, rz2 = rx^2, ry^2, rz^2
-    
+
     brx = sqrt(r11^2 * rx2 + r12^2 * ry2 + r13^2 * rz2)
     bry = sqrt(r21^2 * rx2 + r22^2 * ry2 + r23^2 * rz2)
     brz = sqrt(r31^2 * rx2 + r32^2 * ry2 + r33^2 * rz2)
@@ -183,7 +191,7 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
         t3yz = r23 * dy + t3z
         for i in ix_min:ix_max
             dx = ax_x[i] - cx
-            
+
             x_loc = r11 * dx + t1yz
             y_loc = r12 * dx + t2yz
             z_loc = r13 * dx + t3yz
@@ -193,4 +201,5 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
             end
         end
     end
+    return
 end

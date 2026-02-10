@@ -43,13 +43,13 @@ lung_mask = TissueMask(lung=true)
 phantom_mask = create_torso_phantom(128, 128, 128; ti=lung_mask)  # BitArray
 ```
 """
-function create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32)
+function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fovs = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype = Float32)
     # 1) Validate inputs
     if nx <= 0 || ny <= 0 || nz <= 0
         throw(ArgumentError("nx, ny, nz must be positive integers"))
     end
     length(fovs) == 3 || throw(ArgumentError("fovs must have 3 elements for 3D phantom"))
-    
+
     # 2) Setup motion signals and parameters
     is_mask = ti isa TissueMask
     ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fovs)
@@ -62,13 +62,13 @@ function create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 3
     else
         zeros(eltype, nx, ny, nz, nt), zeros(eltype, nx, ny, nz)
     end
-    
+
     # 4) Draw static structures once
     draw_static_torso_parts!(static_image, ax_xn, ax_yn, ax_zn, ti)
 
     # 5) Draw dynamic structures for each time frame
     @threads for m in 1:nt
-        cardiac_scales = (lv=lv_scales[m], rv=rv_scales[m], la=la_scales[m], ra=ra_scales[m])
+        cardiac_scales = (lv = lv_scales[m], rv = rv_scales[m], la = la_scales[m], ra = ra_scales[m])
         motion_params = calculate_motion_parameters(respiratory_signal[m], cardiac_scales, cardiac_scales_max)
         frame = view(phantom4d, :, :, :, m)
         draw_single_frame!(frame, static_image, ax_xn, ax_yn, ax_zn, motion_params, ti)
@@ -82,16 +82,16 @@ Helper function to define coordinate axes for phantom generation.
 Returns normalized axes in the range [-1, 1].
 """
 function define_phantom_axes(nx::Int, ny::Int, nz::Int, fovs::Tuple)
-    Δx, Δy, Δz = fovs[1]/nx, fovs[2]/ny, fovs[3]/nz
-    ax_x = range(-(nx-1)/2, (nx-1)/2, length=nx) .* Δx
-    ax_y = range(-(ny-1)/2, (ny-1)/2, length=ny) .* Δy
-    ax_z = range(-(nz-1)/2, (nz-1)/2, length=nz) .* Δz
-    
+    Δx, Δy, Δz = fovs[1] / nx, fovs[2] / ny, fovs[3] / nz
+    ax_x = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δx
+    ax_y = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δy
+    ax_z = range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .* Δz
+
     # Normalize to [-1, 1] range for easier ellipsoid definitions
     ax_xn = @. 2 * ax_x / 30
     ax_yn = @. 2 * ax_y / 30
     ax_zn = @. 2 * ax_z / 30
-    
+
     return (ax_xn, ax_yn, ax_zn)
 end
 

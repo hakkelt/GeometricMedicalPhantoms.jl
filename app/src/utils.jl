@@ -7,7 +7,7 @@ function parse_size(value::String)
     return dims
 end
 
-function parse_plane(value::Union{Nothing,String})
+function parse_plane(value::Union{Nothing, String})
     if value === nothing
         return nothing
     end
@@ -18,7 +18,7 @@ function parse_plane(value::Union{Nothing,String})
     error("Unsupported plane: $value")
 end
 
-function resolve_format(format::Union{Nothing,String}, out_path::String)
+function resolve_format(format::Union{Nothing, String}, out_path::String)
     if format !== nothing
         key = lowercase(strip(format))
         return get(FORMAT_ALIASES, key, key)
@@ -41,7 +41,7 @@ function resolve_format(format::Union{Nothing,String}, out_path::String)
     error("Cannot infer format from --out. Please provide --format.")
 end
 
-function resolve_signal_format(format::Union{Nothing,String}, out_path::String)
+function resolve_signal_format(format::Union{Nothing, String}, out_path::String)
     if format !== nothing
         return lowercase(strip(format))
     end
@@ -56,7 +56,7 @@ function resolve_signal_format(format::Union{Nothing,String}, out_path::String)
     return "csv"
 end
 
-function json_to_value(value::Union{Nothing,String})
+function json_to_value(value::Union{Nothing, String})
     if value === nothing
         return nothing
     end
@@ -70,10 +70,10 @@ function json_to_value(value::Union{Nothing,String})
     return JSON3.read(payload)
 end
 
-function json_kwargs(value::Union{Nothing,String,JSON3.Object})
+function json_kwargs(value::Union{Nothing, String, JSON3.Object})
     obj = value isa JSON3.Object ? value : json_to_value(value)
     if obj === nothing
-        return Dict{Symbol,Any}()
+        return Dict{Symbol, Any}()
     end
 
     return to_symbol_dict(obj)
