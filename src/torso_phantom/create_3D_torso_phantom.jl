@@ -1,15 +1,18 @@
 """
-    create_torso_phantom(nx::Int=128, ny::Int=128, nz::Int=128; fovs=(30, 30, 30), eltype=Float32) -> Array{eltype, 4}
+    create_torso_phantom(nx::Int, ny::Int, nz::Int; fovs=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32) -> Array{eltype, 4}
+    create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs=(30, 30), slice_position=0.0, eltype=Float32) -> Array{eltype, 3}
 
 Generate a 3D torso phantom with anatomical structures including torso outline, lungs, heart, and vessels.
 
 # Arguments
 - `nx::Int=128`: Number of voxels in x-direction
 - `ny::Int=128`: Number of voxels in y-direction  
-- `nz::Int=128`: Number of voxels in z-direction
+- `nz::Int=128`: Number of voxels in z-direction (ignored for 2D slice generation)
+- `axis::Symbol`: Slice orientation for 2D phantom - `:axial`, `:coronal`, or `:sagittal` (ignored for 3D phantom)
 
 # Keywords
-- `fovs::Tuple=(30, 30, 30)`: Field of view in cm for (x, y, z) directions
+- `fovs::Tuple=(30, 30, 30)`: Field of view in cm for (x, y, z) directions for 3D phantom; for 2D phantom, only first two elements are used
+- `slice_position::Real=0.0`: Position of the slice in cm (in the third dimension) for 2D phantom generation; ignored for 3D phantom
 - `respiratory_signal::Union{Nothing,AbstractVector}=nothing`: Respiratory signal in liters for 4D phantom generation
 - `cardiac_volumes::Union{Nothing,NamedTuple}=nothing`: Cardiac volumes in mL for 4D phantom generation; must have fields :lv, :rv, :la, :ra
 - `ti::AbstractTissueParameters=TissueIntensities()`: Tissue parameters (TissueIntensities or TissueMask) for different structures
@@ -17,6 +20,7 @@ Generate a 3D torso phantom with anatomical structures including torso outline, 
 
 # Returns
 - Array{eltype, 4}: 4D phantom array with size (nx, ny, nz, nt) where nt is the number of time frames. Returns BitArray when TissueMask is passed.
+- Array{eltype, 3}: 3D phantom array with size (nx, ny, nz) for static phantom or 2D slice array with size (nx, ny) for 2D phantom generation.
 
 # Description
 Creates a simplified anatomical torso phantom with the following structures:

@@ -1,6 +1,6 @@
 # Torso Phantom
 
-The Torso phantom provides anatomically realistic representations of the human thorax. It includes major organs (heart, lungs, liver), blood vessels, bones, and soft tissues with realistic spatial relationships. Notably, it supports dynamic physiological motion simulation, enabling studies of acquisition methods sensitive to respiratory and cardiac motion.
+The Torso phantom provides a schematic representation of the human thorax. It includes major organs (heart, lungs, liver), blood vessels, bones, and soft tissues. The main feature of this phantom is that it supports dynamic physiological motion simulation, enabling testing and benchmarking of acquisition methods sensitive to respiratory and cardiac motion.
 
 ## Basic Usage
 
@@ -356,4 +356,30 @@ The phantom's physiological accuracy is validated by measuring the actual organ 
 
 **Expected error bounds**: Discretization errors and interpolation introduce small differences between input volumes and measured volumes. Testing confirms these differences remain small (typically <5% relative error), validating the phantom's fidelity to the input signals.
 
+### Example validation code for lung volume:
+```@example imports
+using GeometricMedicalPhantoms: calculate_volume
 
+duration = 4.0
+fs = 24.0
+rr = 15.0
+t, resp = generate_respiratory_signal(duration, fs, rr)
+
+# Create phantom with moderate resolution for faster computation
+nx, ny, nz = 128, 128, 128
+fov = (30, 30, 30)
+phantom = create_torso_phantom(nx, ny, nz; respiratory_signal=resp)
+
+lung_vol_L = zeros(Float64, length(resp))
+
+# Calculate lung volumes using utility function that counts voxels assigned to lung tissue type and converts to liters based on voxel size
+for m in 1:length(resp)
+    frame = phantom[:, :, :, m]
+    lung_vol_L[m] = calculate_volume(frame, (0.075f0, 0.11f0), fov)
+end
+
+plot(t, resp, label="expected", title="Lung volumes")
+plot!(t,lung_vol_L, label="measured", xlabel="time (s)", ylabel="volume (L)")
+savefig("torso_lung_volume_validation.png"); nothing # hide
+```
+![torso_lung_volume_validation.png](torso_lung_volume_validation.png)

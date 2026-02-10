@@ -6,25 +6,27 @@ Return a tuple of 12 `Shape` objects representing the 3D Shepp-Logan phantom
 with intensities specified by `p`.
 
 # Attribution
-- The coefficients were fetched from ImagePhantoms.jl [3].
-   - the coefficients of this source is from [2] with modifications because
-   the original coefficients in [2] deviate from the original Shepp-Logan phantom:
-      - first, there is a duplicated row (errata: [4]), 
-      - second, it contains only 10 ellipsoids, while 12 is needed to match the
-      original 2D Shepp-Logan phantom in [1] (one from the three ellipses in the
-      bottom, and one smaller ellipse in the center is missing if one would render
-      a phantom with these coefficients in axial plane at slice position -0.25
-      compared to the original) -- this was pointed out by Lei Shu PhD student
-      at Stanford (leizhu@stanford.edu)
-- the coefficients in the current implementation have another deviation from the one in [3]:
-it is shifted by 0.25 in the z-direction, so that the central axial slice equals to the
-original 2D Shepp-Logan phantom
+The original 2D Shepp-Logan phantom was introduced by Shepp and Logan in 1974 [1]
+as a test object for evaluating image reconstruction algorithms in computed tomography.
+The 3D extension of the Shepp-Logan phantom was later developed to provide a more
+comprehensive test object for 3D imaging modalities [2,6]. A variant of the 2D phantom
+with modified intensities was also proposed to have better contrast for easier visualization
+was suggested by Toft in 1996 [3]. Another variant of the 3D phantom with two additional ellipsoids
+to better match the original 2D design was suggested in the PhD thesis of Caroline Jacobson
+in 1996 [4]. The coefficients in the current implementation are based on the one in [4],
+but with a shift in z-axis by 0.25 to make the connection between the original 2D phantom
+and the 3D volume more intuitive by centering the axial slice that matches the 2D phantom.
+
+The actual implementation is based on the coefficients from ImagePhantoms.jl [5], which is
+a widely used package for generating analytical phantoms.
 
 # References
-[1] L. A. Shepp, “Computerized tomography and nuclear magnetic resonance,” J Comput Assist Tomogr, vol. 4, no. 1, pp. 94–107, Feb. 1980, doi: 10.1097/00004728-198002000-00018.
-[2] A. C. Kak and M. Slaney, Principles of Computerized Tomographic Imaging. IEEE Press, 1988. page 102.
-[3] https://github.com/JuliaImageRecon/ImagePhantoms.jl/blob/main/src/shepplogan.jl 
-[4] https://www.slaney.org/pct/pct-errata.html
+[1] L. A. Shepp and B. F. Logan, “The Fourier reconstruction of a head section,” IEEE Trans. Nucl. Sci., 1974.  
+[2] A. C. Kak and M. Slaney, Principles of Computerized Tomographic Imaging. IEEE Press, 1988.  
+[3] P. A. Toft, “The Radon Transform - Theory and Implementation,” PhD Thesis, 1996.  
+[4] C. Jacobson, “Fourier Methods in 3D-Reconstruction from Cone-Beam Data,” PhD Thesis, Department of Electrical Engineering, Linköping University, Linköping, Sweden, 1996.  
+[5] https://github.com/JuliaImageRecon/ImagePhantoms.jl/blob/main/src/shepplogan.jl
+[6] https://www.slaney.org/pct/pct-errata.html
 """
 function get_shepp_logan_shapes(p::SheppLoganIntensities)::NTuple{12, Union{Ellipsoid, RotatedEllipsoid}}
     return (
