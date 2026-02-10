@@ -4,20 +4,25 @@ The Shepp-Logan phantom is the classic test phantom in medical imaging. First in
 
 ## History and Design Philosophy
 
-The original phantom (Shepp & Logan, 1974) was designed as a synthetic test image for CT reconstruction, composed of 10 ellipses with different attenuation coefficients. In 1988, Kak and Slaney popularized its use in the context of filtered backprojection algorithms, and defined a 3D version using ellipsoids. It became the standard test case because:
+The original 2D phantom (Shepp & Logan, 1974) was designed as a synthetic test image for CT reconstruction, composed of 10 ellipses with different attenuation coefficients. A more detailed 3D version was proposed in 1980 by the same researchers, but it didn't become widely used. In 1988, Kak and Slaney popularized its use in the context of filtered backprojection algorithms, and defined a 3D version using 10 ellipsoids. It became the standard test case because:
 
 - **Simplicity**: Easy to generate and understand
 - **Reproducibility**: Well-defined mathematical structure enables precise comparisons
 
-The MRI variant (Toft, 1996) adapted intensity values for nuclear magnetic resonance instead of X-ray attenuation, scaling to realistic MRI signal ranges.
+The MRI variant (Toft, 1996) adapted intensity values for nuclear magnetic resonance instead of X-ray attenuation, scaling to realistic MRI signal ranges. Also in 1996, Caroline Jacobson suggested adding two extra ellipsoids to the 3D version to better match the original 2D design.
 
-Compared to Kak & Slaney's implementation, GeometricMedicalPhantoms differs by the following design choices:
-- **Additional ellipsoids**: Includes two extra ellipsoids to approximately match with the original 2D Shepp & Logan design (suggested by Lei Shu <leizhu@stanford.edu>).
-- **Shift in z-axis** by 0.25: This adjustment makes the connection between the original 2D phantom and the 3D volume more intuitive by centering the axial slice that matches the 2D phantom.
+GeometricMedicalPhantoms.jl implements Jacobson's version, but it differs from it by a **shift in z-axis** by 0.25. This adjustment makes the connection between the original 2D phantom and the 3D volume more intuitive by centering the axial slice that matches the 2D phantom.
+
+### References
+[1] L. A. Shepp and B. F. Logan, “The Fourier reconstruction of a head section,” IEEE Trans. Nucl. Sci., 1974.
+[2] L. A. Shepp, “Computerized tomography and nuclear magnetic resonance,” 1980.
+[3] A. C. Kak and M. Slaney, Principles of Computerized Tomographic Imaging. IEEE Press, 1988.
+[4] P. A. Toft, “The Radon Transform - Theory and Implementation,” PhD Thesis, 1996.
+[5] C. Jacobson, “Fourier Methods in 3D-Reconstruction from Cone-Beam Data,” PhD Thesis, Department of Electrical Engineering, Linköping University, Linköping, Sweden, 1996.
 
 ### Comparison with ImagePhantoms.jl
 
-Both the 2D and the 3D Shepp-Logan phantoms are also available in the ImagePhantoms.jl package. For higher precision, one might prefer ImagePhantoms.jl, which samples the analytical definition in Fourier or Randon space directly. GeometricMedicalPhantoms.jl, however, provides more flexibility over geometry and intensity customization, and have been optimized for fast voxel-based rendering.
+Both the original 2D and Jacobson's version of the 3D Shepp-Logan phantom are also available in the ImagePhantoms.jl package. For higher precision, one might prefer ImagePhantoms.jl, which samples the analytical definition in Fourier or Randon space directly. GeometricMedicalPhantoms.jl, however, provides more flexibility over geometry and intensity customization, and have been optimized for fast voxel-based rendering.
 
 ## Basic Usage
 

@@ -8,14 +8,11 @@ Generate a 3D Shepp-Logan phantom or a 2D slice of it.
 For a 2D slice, provide `nx`, `ny`, and an `axis` (`:axial`, `:coronal`, `:sagittal`). The `slice_position` determines where the slice is taken.
 The intensities `ti` can be specified using `CTSheppLoganIntensities()` (default) or `MRISheppLoganIntensities()`.
 
-# Attribution
-The geometry and intensity definitions are based on [1, 2, 3, 4].
-
-# References
-[1] L. A. Shepp and B. F. Logan, “The Fourier reconstruction of a head section,” IEEE Trans. Nucl. Sci., 1974.
-[2] L. A. Shepp, “Computerized tomography and nuclear magnetic resonance,” 1980.
-[3] P. A. Toft, “The Radon Transform - Theory and Implementation,” PhD Thesis, 1996.
-[4] A. C. Kak and M. Slaney, Principles of Computerized Tomographic Imaging. IEEE Press, 1988.
+# Parameters
+- `nx`, `ny`, `nz`: Number of voxels in x, y, and z dimensions for 3D phantom; for 2D slice, `nx` and `ny` are used.
+- `fovs`: Tuple specifying the field of view in each dimension (default is (20, 20, 20) for 3D and (20, 20) for 2D).
+- `ti`: Shepp-Logan intensities, defaulting to `CTSheppLoganIntensities()`, but accepts `MRISheppLoganIntensities()` or any custom `SheppLoganIntensities` struct.
+- `eltype`: Data type for the phantom array (default is `Float32`).
 """
 function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fovs::Tuple{<:Real,<:Real,<:Real}=(20.0, 20.0, 20.0), ti::SheppLoganIntensities=CTSheppLoganIntensities(), eltype::Type=Float32)
     is_mask = ti isa SheppLoganIntensities{Bool}
