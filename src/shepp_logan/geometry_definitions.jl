@@ -48,9 +48,9 @@ function get_shepp_logan_shapes(p::SheppLoganIntensities)::NTuple{12, Union{Elli
         # 9: bottom center
         Ellipsoid(+0.0, -0.605, +0.0, +0.023, +0.023, +0.023, get_intensity(p, :bottom_center)),
         # 10: bottom right
-        RotatedEllipsoid(+0.06, -0.605, +0.0, +0.046, +0.023, +0.02, -90 * π / 180, 0.0, 0.0, get_intensity(p, :bottom_right)),
+        Ellipsoid(+0.06, -0.605, +0.0, +0.023, +0.046, +0.02, get_intensity(p, :bottom_right)),
         # 11: extra 1
-        RotatedEllipsoid(+0.06, -0.105, +0.3125, +0.056, +0.04, +0.1, -90 * π / 180, 0.0, 0.0, get_intensity(p, :extra_1)),
+        Ellipsoid(+0.06, -0.105, +0.3125, +0.04, +0.056, +0.1, get_intensity(p, :extra_1)),
         # 12: extra 2
         Ellipsoid(+0.0, +0.1, +0.875, +0.056, +0.056, +0.1, get_intensity(p, :extra_2)),
     )
