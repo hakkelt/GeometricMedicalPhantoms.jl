@@ -123,18 +123,29 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
 
     # Precompute x and y distances for efficiency
     _dx = @. (ax_x[ix_min:ix_max] - cx)
-    dx = _dx .* _dx .* inv_r_sq
+    dx = @. _dx * _dx * inv_r_sq
     _dy = @. (ax_y[iy_min:iy_max] - cy)
-    dy = _dy .* _dy .* inv_r_sq
+    dy = @. _dy * _dy * inv_r_sq
     
-    @inbounds for i in ix_min:ix_max
+    # Find absolute indices for z-range within height
+    iz_start_rel = findfirst(k -> abs(ax_z[k] - cz) <= half_height, iz_min:iz_max)
+    iz_end_rel = findlast(k -> abs(ax_z[k] - cz) <= half_height, iz_min:iz_max)
+    
+    # Handle case where no valid z-indices found
+    if isnothing(iz_start_rel) || isnothing(iz_end_rel)
+        return
+    end
+    
+    # Convert to absolute indices
+    iz_start = iz_min + iz_start_rel - 1
+    iz_end = iz_min + iz_end_rel - 1
+    
+    @inbounds for k in iz_start:iz_end
         for j in iy_min:iy_max
-            r_sq = dx[i - ix_min + 1] + dy[j - iy_min + 1]
-            if r_sq <= 1.0  # Within radius
-                for k in iz_min:iz_max
-                    if abs(ax_z[k] - cz) <= half_height  # Within height bounds
-                        draw_pixel!(phantom, intensity, i, j, k)
-                    end
+            for i in ix_min:ix_max
+                r_sq = dx[i - ix_min + 1] + dy[j - iy_min + 1]
+                if r_sq <= 1.0  # Within radius
+                    draw_pixel!(phantom, intensity, i, j, k)
                 end
             end
         end
@@ -166,18 +177,29 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
 
     # Precompute x and z distances for efficiency
     _dx = @. (ax_x[ix_min:ix_max] - cx)
-    dx = _dx .* _dx .* inv_r_sq
+    dx = @. _dx * _dx * inv_r_sq
     _dz = @. (ax_z[iz_min:iz_max] - cz)
-    dz = _dz .* _dz .* inv_r_sq
+    dz = @. _dz * _dz * inv_r_sq
     
-    @inbounds for i in ix_min:ix_max
-        for k in iz_min:iz_max
-            r_sq = dx[i - ix_min + 1] + dz[k - iz_min + 1]
-            if r_sq <= 1.0  # Within radius
-                for j in iy_min:iy_max
-                    if abs(ax_y[j] - cy) <= half_height  # Within height bounds
-                        draw_pixel!(phantom, intensity, i, j, k)
-                    end
+    # Find absolute indices for y-range within height
+    iy_start_rel = findfirst(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
+    iy_end_rel = findlast(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
+    
+    # Handle case where no valid y-indices found
+    if isnothing(iy_start_rel) || isnothing(iy_end_rel)
+        return
+    end
+    
+    # Convert to absolute indices
+    iy_start = iy_min + iy_start_rel - 1
+    iy_end = iy_min + iy_end_rel - 1
+    
+    @inbounds for k in iz_min:iz_max
+        for j in iy_start:iy_end
+            for i in ix_min:ix_max
+                r_sq = dx[i - ix_min + 1] + dz[k - iz_min + 1]
+                if r_sq <= 1.0  # Within radius
+                    draw_pixel!(phantom, intensity, i, j, k)
                 end
             end
         end
@@ -209,18 +231,29 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
 
     # Precompute y and z distances for efficiency
     _dy = @. (ax_y[iy_min:iy_max] - cy)
-    dy = _dy .* _dy .* inv_r_sq
+    dy = @. _dy * _dy * inv_r_sq
     _dz = @. (ax_z[iz_min:iz_max] - cz)
-    dz = _dz .* _dz .* inv_r_sq
+    dz = @. _dz * _dz * inv_r_sq
     
-    @inbounds for j in iy_min:iy_max
-        for k in iz_min:iz_max
+    # Find absolute indices for x-range within height
+    ix_start_rel = findfirst(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
+    ix_end_rel = findlast(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
+    
+    # Handle case where no valid x-indices found
+    if isnothing(ix_start_rel) || isnothing(ix_end_rel)
+        return
+    end
+    
+    # Convert to absolute indices
+    ix_start = ix_min + ix_start_rel - 1
+    ix_end = ix_min + ix_end_rel - 1
+    
+    @inbounds for k in iz_min:iz_max
+        for j in iy_min:iy_max
             r_sq = dy[j - iy_min + 1] + dz[k - iz_min + 1]
             if r_sq <= 1.0  # Within radius
-                for i in ix_min:ix_max
-                    if abs(ax_x[i] - cx) <= half_height  # Within height bounds
-                        draw_pixel!(phantom, intensity, i, j, k)
-                    end
+                for i in ix_start:ix_end
+                    draw_pixel!(phantom, intensity, i, j, k)
                 end
             end
         end
@@ -254,12 +287,12 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     
     # Precompute x and y distances for efficiency
     _dx = @. (ax_x[ix_min:ix_max] - cx)
-    dx = _dx .* _dx .* inv_r_sq
+    dx = @. _dx * _dx * inv_r_sq
     _dy = @. (ax_y[iy_min:iy_max] - cy)
-    dy = _dy .* _dy .* inv_r_sq
+    dy = @. _dy * _dy * inv_r_sq
     
-    @inbounds for i in ix_min:ix_max
-        for j in iy_min:iy_max
+    @inbounds for j in iy_min:iy_max
+        for i in ix_min:ix_max
             r_sq = dx[i - ix_min + 1] + dy[j - iy_min + 1]
             if r_sq <= 1.0  # Within radius
                 draw_pixel!(phantom, intensity, i, j)
@@ -294,20 +327,32 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     end
 
     inv_r_sq = 1.0 / (r * r)
+    half_height = height / 2
     
     # For CylinderY at constant z, we need to check if z is within the radial bounds
     # Precompute x and z distances for efficiency
     _dx = @. (ax_x[ix_min:ix_max] - cx)
-    dx = _dx .* _dx .* inv_r_sq
+    dx = @. _dx * _dx * inv_r_sq
     z_contrib = dist_from_cz * dist_from_cz * inv_r_sq
     
-    @inbounds for i in ix_min:ix_max
-        r_sq = dx[i - ix_min + 1] + z_contrib
-        if r_sq <= 1.0  # Within radius in x-z plane
-            for j in iy_min:iy_max
-                if abs(ax_y[j] - cy) <= height / 2  # Within height bounds in y
-                    draw_pixel!(phantom, intensity, i, j)
-                end
+    # Find absolute indices for y-range within height
+    iy_start_rel = findfirst(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
+    iy_end_rel = findlast(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
+    
+    # Handle case where no valid y-indices found
+    if isnothing(iy_start_rel) || isnothing(iy_end_rel)
+        return
+    end
+    
+    # Convert to absolute indices
+    iy_start = iy_min + iy_start_rel - 1
+    iy_end = iy_min + iy_end_rel - 1
+    
+    @inbounds for j in iy_start:iy_end
+        for i in ix_min:ix_max
+            r_sq = dx[i - ix_min + 1] + z_contrib
+            if r_sq <= 1.0  # Within radius in x-z plane
+                draw_pixel!(phantom, intensity, i, j)
             end
         end
     end
@@ -339,20 +384,32 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     end
 
     inv_r_sq = 1.0 / (r * r)
+    half_height = height / 2
     
     # For CylinderX at constant z, we need to check if z is within the radial bounds
     # Precompute y and z distances for efficiency
     _dy = @. (ax_y[iy_min:iy_max] - cy)
-    dy = _dy .* _dy .* inv_r_sq
+    dy = @. _dy * _dy * inv_r_sq
     z_contrib = dist_from_cz * dist_from_cz * inv_r_sq
+    
+    # Find absolute indices for x-range within height
+    ix_start_rel = findfirst(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
+    ix_end_rel = findlast(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
+    
+    # Handle case where no valid x-indices found
+    if isnothing(ix_start_rel) || isnothing(ix_end_rel)
+        return
+    end
+    
+    # Convert to absolute indices
+    ix_start = ix_min + ix_start_rel - 1
+    ix_end = ix_min + ix_end_rel - 1
     
     @inbounds for j in iy_min:iy_max
         r_sq = dy[j - iy_min + 1] + z_contrib
         if r_sq <= 1.0  # Within radius in y-z plane
-            for i in ix_min:ix_max
-                if abs(ax_x[i] - cx) <= height / 2  # Within height bounds in x
-                    draw_pixel!(phantom, intensity, i, j)
-                end
+            for i in ix_start:ix_end
+                draw_pixel!(phantom, intensity, i, j)
             end
         end
     end

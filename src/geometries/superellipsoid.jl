@@ -59,9 +59,9 @@ function draw!(phantom::AbstractArray{T,3}, ax_x::AbstractVector, ax_y::Abstract
     dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
     dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
     dz = @. (abs(ax_z[iz_min:iz_max] - cz) * inv_rz)^exz
-    @inbounds for i in ix_min:ix_max
+    @inbounds for k in iz_min:iz_max
         for j in iy_min:iy_max
-            for k in iz_min:iz_max
+            for i in ix_min:ix_max
                 if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz[k - iz_min + 1] <= 1.0
                     draw_pixel!(phantom, intensity, i, j, k)
                 end
@@ -102,8 +102,8 @@ function draw!(phantom::AbstractArray{T,2}, ax_x::AbstractVector, ax_y::Abstract
     dx = @. (abs(ax_x[ix_min:ix_max] - cx) * inv_rx)^exx
     dy = @. (abs(ax_y[iy_min:iy_max] - cy) * inv_ry)^exy
     dz = (abs(ax_z - cz) * inv_rz)^exz
-    @inbounds for i in ix_min:ix_max
-        for j in iy_min:iy_max
+    @inbounds for j in iy_min:iy_max
+        for i in ix_min:ix_max
             if dx[i - ix_min + 1] + dy[j - iy_min + 1] + dz <= 1.0
                 draw_pixel!(phantom, intensity, i, j)
             end
