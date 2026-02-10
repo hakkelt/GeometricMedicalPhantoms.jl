@@ -7,7 +7,7 @@
 <a href="https://github.com/JuliaTesting/Aqua.jl"><img src="https://img.shields.io/badge/Aqua.jl-%F0%9F%8C%A2-aqua.svg"></a>
 <a href="https://github.com/aviatesk/JET.jl"><img src="https://img.shields.io/badge/%F0%9F%9B%A9%EF%B8%8F_tested_with-JET.jl-233f9a"></a>
 <a href="https://github.com/fredrikekre/Runic.jl"><img src="https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black"></a>
-<a><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat"></a>
 
 **GeometricMedicalPhantoms.jl** provides schematic digital phantoms for medical imaging research. Built on precise geometric primitives, these phantoms enable simulation of CT or MRI acquisition, reconstruction algorithm development, and validation of motion correction techniques.
 
