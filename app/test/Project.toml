@@ -1,0 +1,17 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+GeometricMedicalPhantomsApp = "f7355b9c-06a5-11f1-a496-717a9f746fdc"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+NIfTI = "a3a9e032-41b5-5fc4-967a-a6b7a19844d3"
+NPZ = "15e1cf62-19b3-5cfa-8e77-841668bca605"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+GeometricMedicalPhantomsApp = {path = ".."}
+
+[compat]
+julia = "1.12"

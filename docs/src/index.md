@@ -68,5 +68,6 @@ savefig("index_tubes.png"); nothing # hide
 - Learn about the [Shepp-Logan phantom](phantoms/shepp_logan.md) and its intensity variants
 - Explore the [Torso phantom](phantoms/torso.md) with physiological motion
 - Use the [Tubes phantom](phantoms/tubes.md) for validation
+- Check out standalone [CLI interface](cli.md) for rendering phantoms without installing Julia
 - Understand [geometry primitives](advanced/primitives.md) for building custom phantoms
 - Create your own phantom by following the [custom phantoms guide](advanced/custom_phantoms.md)
