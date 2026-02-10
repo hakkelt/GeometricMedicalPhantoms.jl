@@ -132,10 +132,8 @@ function draw!(
     iz_start_rel = findfirst(k -> abs(ax_z[k] - cz) <= half_height, iz_min:iz_max)
     iz_end_rel = findlast(k -> abs(ax_z[k] - cz) <= half_height, iz_min:iz_max)
 
-    # Handle case where no valid z-indices found
-    if isnothing(iz_start_rel) || isnothing(iz_end_rel)
-        return
-    end
+    # These should always find valid indices due to conservative idx_bounds
+    @assert !isnothing(iz_start_rel) && !isnothing(iz_end_rel) "Internal error: idx_bounds returned range but no valid z-indices found"
 
     # Convert to absolute indices
     iz_start = iz_min + iz_start_rel - 1
@@ -189,10 +187,8 @@ function draw!(
     iy_start_rel = findfirst(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
     iy_end_rel = findlast(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
 
-    # Handle case where no valid y-indices found
-    if isnothing(iy_start_rel) || isnothing(iy_end_rel)
-        return
-    end
+    # These should always find valid indices due to conservative idx_bounds
+    @assert !isnothing(iy_start_rel) && !isnothing(iy_end_rel) "Internal error: idx_bounds returned range but no valid y-indices found (3D CylinderY)"
 
     # Convert to absolute indices
     iy_start = iy_min + iy_start_rel - 1
@@ -246,10 +242,8 @@ function draw!(
     ix_start_rel = findfirst(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
     ix_end_rel = findlast(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
 
-    # Handle case where no valid x-indices found
-    if isnothing(ix_start_rel) || isnothing(ix_end_rel)
-        return
-    end
+    # These should always find valid indices due to conservative idx_bounds
+    @assert !isnothing(ix_start_rel) && !isnothing(ix_end_rel) "Internal error: idx_bounds returned range but no valid x-indices found (3D CylinderX)"
 
     # Convert to absolute indices
     ix_start = ix_min + ix_start_rel - 1
@@ -352,10 +346,8 @@ function draw!(
     iy_start_rel = findfirst(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
     iy_end_rel = findlast(j -> abs(ax_y[j] - cy) <= half_height, iy_min:iy_max)
 
-    # Handle case where no valid y-indices found
-    if isnothing(iy_start_rel) || isnothing(iy_end_rel)
-        return
-    end
+    # These should always find valid indices due to conservative idx_bounds
+    @assert !isnothing(iy_start_rel) && !isnothing(iy_end_rel) "Internal error: idx_bounds returned range but no valid y-indices found (2D CylinderY)"
 
     # Convert to absolute indices
     iy_start = iy_min + iy_start_rel - 1
@@ -412,10 +404,8 @@ function draw!(
     ix_start_rel = findfirst(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
     ix_end_rel = findlast(i -> abs(ax_x[i] - cx) <= half_height, ix_min:ix_max)
 
-    # Handle case where no valid x-indices found
-    if isnothing(ix_start_rel) || isnothing(ix_end_rel)
-        return
-    end
+    # These should always find valid indices due to conservative idx_bounds
+    @assert !isnothing(ix_start_rel) && !isnothing(ix_end_rel) "Internal error: idx_bounds returned range but no valid x-indices found (2D CylinderX)"
 
     # Convert to absolute indices
     ix_start = ix_min + ix_start_rel - 1
