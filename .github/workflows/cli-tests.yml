@@ -1,0 +1,59 @@
+name: CLI Tests
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'app/**'
+      - '.github/workflows/cli-tests.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - '.github/workflows/cli-tests.yml'
+  workflow_dispatch:
+
+concurrency:
+  # Skip intermediate builds: always.
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+jobs:
+  test:
+    name: CLI Tests - Julia ${{ matrix.julia-version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      actions: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1.12', '1']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Cache Julia packages
+        uses: julia-actions/cache@v2
+
+      - name: Install CLI app dependencies
+        working-directory: app
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run CLI tests
+        working-directory: app
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.test()'
+
+      - name: Test CLI executable commands (smoke test)
+        working-directory: app
+        run: |
+          julia --project=. -e 'using GeometricMedicalPhantomsApp; GeometricMedicalPhantomsApp.main(["info"])'

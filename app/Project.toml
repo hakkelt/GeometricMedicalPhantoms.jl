@@ -1,0 +1,43 @@
+name = "GeometricMedicalPhantomsApp"
+uuid = "f7355b9c-06a5-11f1-a496-717a9f746fdc"
+version = "1.0.0"
+authors = ["Tamas Hakkel <hakkelt@gmail.com>"]
+
+[workspace]
+projects = ["test"]
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+BartIO = "8b90e6a2-6e4d-4906-89ae-b5f72ca4a65b"
+ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
+GeometricMedicalPhantoms = "c297bd51-60f5-42e7-80e4-f985777cb71a"
+ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
+ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+NIfTI = "a3a9e032-41b5-5fc4-967a-a6b7a19844d3"
+NPZ = "15e1cf62-19b3-5cfa-8e77-841668bca605"
+
+[sources]
+GeometricMedicalPhantoms = {path = ".."}
+
+[compat]
+ArgParse = "1"
+BartIO = "0.2, 0.3"
+ColorTypes = "0.11, 0.12"
+Dates = "1"
+DelimitedFiles = "1"
+FileIO = "1"
+FixedPointNumbers = "0.8, 0.9"
+GeometricMedicalPhantoms = "1"
+ImageCore = "0.10, 0.11"
+ImageIO = "0.6"
+JSON3 = "1"
+MAT = "0.10"
+NIfTI = "0.5, 0.6"
+NPZ = "0.4"
+julia = "1.12"
