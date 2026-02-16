@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Torso Phantom · GeometricMedicalPhantoms.jl</title><meta name="title" content="Torso Phantom · GeometricMedicalPhantoms.jl"/><meta property="og:title" content="Torso Phantom · GeometricMedicalPhantoms.jl"/><meta property="twitter:title" content="Torso Phantom · GeometricMedicalPhantoms.jl"/><meta name="description" content="Documentation for GeometricMedicalPhantoms.jl."/><meta property="og:description" content="Documentation for GeometricMedicalPhantoms.jl."/><meta property="twitter:description" content="Documentation for GeometricMedicalPhantoms.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.png" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="GeometricMedicalPhantoms.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">GeometricMedicalPhantoms.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Phantoms</span><ul><li><a class="tocitem" href="../shepp_logan/">Shepp-Logan Phantom</a></li><li class="is-active"><a class="tocitem" href>Torso Phantom</a><ul class="internal"><li><a class="tocitem" href="#Basic-Usage"><span>Basic Usage</span></a></li><li><a class="tocitem" href="#Tissue-Customization"><span>Tissue Customization</span></a></li><li><a class="tocitem" href="#Physiological-Signal-Integration"><span>Physiological Signal Integration</span></a></li><li><a class="tocitem" href="#Validation-Methodology"><span>Validation Methodology</span></a></li></ul></li><li><a class="tocitem" href="../tubes/">Tubes Phantom</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../phantom_specification/">Torso Phantom Specification</a></li><li><a class="tocitem" href="../../advanced/primitives/">Geometry Primitives</a></li><li><a class="tocitem" href="../../advanced/custom_phantoms/">Custom Phantoms</a></li></ul></li><li><a class="tocitem" href="../../cli/">CLI</a></li><li><a class="tocitem" href="../../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Phantoms</a></li><li class="is-active"><a href>Torso Phantom</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Torso Phantom</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/hakkelt/GeometricMedicalPhantoms.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/hakkelt/GeometricMedicalPhantoms.jl/blob/master/docs/src/phantoms/torso.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Torso-Phantom"><a class="docs-heading-anchor" href="#Torso-Phantom">Torso Phantom</a><a id="Torso-Phantom-1"></a><a class="docs-heading-anchor-permalink" href="#Torso-Phantom" title="Permalink"></a></h1><p>The Torso phantom provides a schematic representation of the human thorax. It includes major organs (heart, lungs, liver), blood vessels, bones, and soft tissues. The main feature of this phantom is that it supports dynamic physiological motion simulation, enabling testing and benchmarking of acquisition methods sensitive to respiratory and cardiac motion.</p><h2 id="Basic-Usage"><a class="docs-heading-anchor" href="#Basic-Usage">Basic Usage</a><a id="Basic-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage" title="Permalink"></a></h2><h3 id="Static-Anatomy-(No-Motion)"><a class="docs-heading-anchor" href="#Static-Anatomy-(No-Motion)">Static Anatomy (No Motion)</a><a id="Static-Anatomy-(No-Motion)-1"></a><a class="docs-heading-anchor-permalink" href="#Static-Anatomy-(No-Motion)" title="Permalink"></a></h3><p>Generate a 2D slice at a specific anatomical location:</p><pre><code class="language-julia hljs"># Axial slice through the heart
+phantom_axial = create_torso_phantom(256, 256, :axial; slice_position=0.0)
+jim(phantom_axial; title=&quot;Axial Slice (Heart Level)&quot;)</code></pre><p><img src="../torso_axial.png" alt="torso_axial.png"/></p><pre><code class="language-julia hljs"># Coronal slice showing front-to-back view
+phantom_coronal = create_torso_phantom(256, 256, :coronal; slice_position=0.0)
+jim(phantom_coronal; title=&quot;Coronal Slice (Center)&quot;, yflip=false)</code></pre><p><img src="../torso_coronal.png" alt="torso_coronal.png"/></p><pre><code class="language-julia hljs"># Sagittal slice showing left-right view
+phantom_sagittal = create_torso_phantom(256, 256, :sagittal; slice_position=0.0)
+jim(phantom_sagittal; title=&quot;Sagittal Slice (Center)&quot;, yflip=false)</code></pre><p><img src="../torso_sagittal.png" alt="torso_sagittal.png"/></p><h3 id="Spatial-Slicing-GIFs"><a class="docs-heading-anchor" href="#Spatial-Slicing-GIFs">Spatial Slicing GIFs</a><a id="Spatial-Slicing-GIFs-1"></a><a class="docs-heading-anchor-permalink" href="#Spatial-Slicing-GIFs" title="Permalink"></a></h3><p>Generate GIFs showing anatomical variation through the entire organ:</p><pre><code class="language-julia hljs">using FileIO, ImageIO, ImageMagick
+
+# Create 3D torso for slicing
+phantom_3d = create_torso_phantom(128, 128, 128)
+nx, ny, nz = size(phantom_3d)
+
+# Axial slices GIF
+frames_axial = zeros(UInt8, nx, ny, nz)
+max_val = maximum(abs.(phantom_3d))
+
+for i in 1:nz
+    slice = abs.(phantom_3d[:, :, i])
+    frames_axial[:, :, i] = map(x -&gt; UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save(&quot;torso_axial_slices.gif&quot;, frames_axial, fps=10)</code></pre><p><img src="../torso_axial_slices.gif" alt="torso_axial_slices.gif"/></p><pre><code class="language-julia hljs"># Coronal slices GIF
+frames_coronal = zeros(UInt8, nx, nz, ny)
+for i in 1:ny
+    slice = abs.(phantom_3d[:, i, :])
+    frames_coronal[:, :, i] = map(x -&gt; UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save(&quot;torso_coronal_slices.gif&quot;, frames_coronal, fps=10)</code></pre><p><img src="../torso_coronal_slices.gif" alt="torso_coronal_slices.gif"/></p><pre><code class="language-julia hljs"># Sagittal slices GIF
+frames_sagittal = zeros(UInt8, ny, nz, nx)
+for i in 1:nx
+    slice = abs.(phantom_3d[i, :, :])
+    frames_sagittal[:, :, i] = map(x -&gt; UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save(&quot;torso_sagittal_slices.gif&quot;, frames_sagittal, fps=10)</code></pre><p><img src="../torso_sagittal_slices.gif" alt="torso_sagittal_slices.gif"/></p><h2 id="Tissue-Customization"><a class="docs-heading-anchor" href="#Tissue-Customization">Tissue Customization</a><a id="Tissue-Customization-1"></a><a class="docs-heading-anchor-permalink" href="#Tissue-Customization" title="Permalink"></a></h2><p>You can easy overwrite intensities of one or more organs while leaving the rest unchanged. Note that default intensities are chosen for high-contrast visuals and are not meant to represent specific physical parameters (like T1 or T2).</p><pre><code class="language-julia hljs"># Create custom tissue intensities
+# Start with default and override specific tissues
+base_tissues = TissueIntensities()
+custom_tissues = TissueIntensities(
+    lung=0.10,          # Override lung
+    heart=base_tissues.heart,
+    vessels_blood=base_tissues.vessels_blood,
+    bones=base_tissues.bones,
+    liver=base_tissues.liver,
+    stomach=base_tissues.stomach,
+    body=0.30           # Override body
+    # cardiac chambers use their own defaults in the creator if not specified or separate
+)
+# Alternatively, use the constructor with specific kwargs if supported,
+# or just define the ones you care about if creating a full struct:
+custom_tissues_2 = TissueIntensities(
+    lung=0.3,
+    heart=0.8,
+    vessels_blood=1.0,
+    bones=0.1,
+    liver=0.5,
+    stomach=0.9,
+    body=0.2,
+    lv_blood=1.0, rv_blood=1.0, la_blood=0.9, ra_blood=0.9
+)
+
+
+phantom_custom = create_torso_phantom(256, 256, :coronal; ti=custom_tissues_2)
+jim(phantom_custom; title=&quot;Custom Tissue Intensities (Coronal)&quot;, yflip=false)</code></pre><p><img src="../torso_custom_intensities.png" alt="torso_custom_intensities.png"/></p><h3 id="Tissue-Masking"><a class="docs-heading-anchor" href="#Tissue-Masking">Tissue Masking</a><a id="Tissue-Masking-1"></a><a class="docs-heading-anchor-permalink" href="#Tissue-Masking" title="Permalink"></a></h3><p>Extract individual organs or tissue types:</p><pre><code class="language-julia hljs"># Create mask for lungs only
+lung_mask = create_torso_phantom(256, 256, :coronal; ti=TissueMask(lung=true))
+jim(lung_mask; title=&quot;Lung Mask (Coronal)&quot;, yflip=false)</code></pre><p><img src="../torso_lung_mask.png" alt="torso_lung_mask.png"/></p><pre><code class="language-julia hljs"># Create mask for heart chambers
+heart_mask = create_torso_phantom(256, 256, :coronal; ti=TissueMask(heart=true))
+jim(heart_mask; title=&quot;Heart Mask (Coronal)&quot;, yflip=false)</code></pre><p><img src="../torso_heart_mask.png" alt="torso_heart_mask.png"/></p><h2 id="Physiological-Signal-Integration"><a class="docs-heading-anchor" href="#Physiological-Signal-Integration">Physiological Signal Integration</a><a id="Physiological-Signal-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#Physiological-Signal-Integration" title="Permalink"></a></h2><p>The Torso phantom supports dynamic simulation of respiratory and cardiac motion. This is crucial for understanding how motion affects image quality and for developing motion correction algorithms.</p><h3 id="Respiratory-Motion"><a class="docs-heading-anchor" href="#Respiratory-Motion">Respiratory Motion</a><a id="Respiratory-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Respiratory-Motion" title="Permalink"></a></h3><p>The lungs expand and contract during breathing, changing the positions and volumes of surrounding structures.</p><h4 id="Respiratory-Physiology-Model"><a class="docs-heading-anchor" href="#Respiratory-Physiology-Model">Respiratory Physiology Model</a><a id="Respiratory-Physiology-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Respiratory-Physiology-Model" title="Permalink"></a></h4><p>The respiratory model simulates breathing mechanics based on the following principles:</p><p><strong>Realistic lung volume range</strong>: Humans typically breathe with tidal volumes of 0.5-1.0 L (quiet breathing) to 2-3 L (deep breathing). The total lung capacity is ~6 L. The phantom uses a nominal range of 1.2-6.0 L, capturing from minimal to maximal inspiration.</p><p><strong>Lung volume mechanics</strong>: As the lungs expand, the diaphragm moves downward and the chest expands laterally. In the anterior-posterior view (coronal plane), this expansion is most visible. The phantom modulates both the size and position of lung structures based on the input volume signal.</p><p><strong>Signal timing</strong>: Healthy adults breathe at rates of 12-20 breaths per minute at rest. During imaging, subjects are typically coached to breathe regularly, often at slower rates (8-15 breaths/min) to minimize motion artifacts.</p><p><strong>Validation</strong>: The phantom&#39;s volume-to-geometry mapping is designed to stay within physiologically realistic bounds. Validation against the input respiratory signals confirms that measured phantom volumes match the prescribed input, within expected ranges for the numerical simulation.</p><h4 id="Using-Respiratory-Signals"><a class="docs-heading-anchor" href="#Using-Respiratory-Signals">Using Respiratory Signals</a><a id="Using-Respiratory-Signals-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Respiratory-Signals" title="Permalink"></a></h4><pre><code class="language-julia hljs">using FileIO
+
+# Generate a realistic respiratory signal
+
+# Parameters:
+# - duration: 10 seconds
+# - fs: 24 Hz (frame rate matches typical cine imaging)
+# - min_volume: 1.2 L (minimal inspiration)
+# - max_volume: 6.0 L (maximal inspiration)
+fs = 24.0  # frames per second
+duration = 10.0  # seconds
+min_volume = 1.2  # liters
+max_volume = 6.0  # liters
+
+# Create triangular breathing pattern (inhale then exhale)
+t = collect(0:1/fs:duration-1/fs)
+resp_liters = similar(t)
+for (idx, tt) in enumerate(t)
+    if tt &lt;= duration/2
+        # Inhalation phase: linear ramp from min to max
+        resp_liters[idx] = min_volume + (max_volume - min_volume) * (2*tt / duration)
+    else
+        # Exhalation phase: linear ramp from max to min
+        resp_liters[idx] = max_volume - (max_volume - min_volume) * (2*(tt - duration/2) / duration)
+    end
+end
+
+# Create 4D phantom with respiratory motion
+phantom_4d_resp = create_torso_phantom(128, 128, 128;
+    fovs=(35.0, 35.0, 35.0),
+    respiratory_signal=resp_liters)
+
+println(&quot;4D phantom shape: $(size(phantom_4d_resp))&quot;)
+println(&quot;Respiratory signal range: $(round(minimum(resp_liters), digits=2)) - $(round(maximum(resp_liters), digits=2)) L&quot;)
+plot(t, resp_liters, xlabel=&quot;Time (s)&quot;, ylabel=&quot;Lung Volume (L)&quot;, title=&quot;Respiratory Signal&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4D phantom shape: (128, 128, 128, 240)
+Respiratory signal range: 1.2 - 6.0 L</code></pre><p><img src="../torso_respiratory_signal.png" alt="torso_respiratory_signal.png"/></p><p>Generate a temporal GIF showing how the coronal slice changes during the respiratory cycle:</p><pre><code class="language-julia hljs"># Extract center coronal slice and animate over time
+mid_y = cld(128, 2)
+nt = size(phantom_4d_resp, 4)
+fs_actual = nt / duration
+
+frames_coronal_temporal = zeros(UInt8, 128, 128, nt)
+max_val = maximum(abs.(phantom_4d_resp))
+
+for i in 1:nt
+    slice = abs.(phantom_4d_resp[:, mid_y, :, i])
+    frames_coronal_temporal[:, :, i] = map(x -&gt; UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save(&quot;torso_respiratory_motion.gif&quot;, frames_coronal_temporal, fps=24)</code></pre><p><img src="../torso_respiratory_motion.gif" alt="torso_respiratory_motion.gif"/></p><p>The GIF shows the lungs expanding and contracting, and the heart and liver shifting position as the diaphragm moves during breathing.</p><h3 id="Cardiac-Motion"><a class="docs-heading-anchor" href="#Cardiac-Motion">Cardiac Motion</a><a id="Cardiac-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Cardiac-Motion" title="Permalink"></a></h3><p>The heart beats cyclically, with each chamber contracting and relaxing in precise timing to pump blood. This motion is essential for cine MRI and cardiac assessment.</p><h4 id="Cardiac-Physiology-Model"><a class="docs-heading-anchor" href="#Cardiac-Physiology-Model">Cardiac Physiology Model</a><a id="Cardiac-Physiology-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Cardiac-Physiology-Model" title="Permalink"></a></h4><p>The cardiac motion model follows the physiological cardiac cycle:</p><p><strong>Chamber volumes</strong>: The four cardiac chambers (left ventricle, right ventricle, left atrium, right atrium) change volumes throughout the heartbeat. Typical values at rest:</p><ul><li>Left ventricle: ~120 mL at end-diastole (maximum filling), ~40-50 mL at end-systole (maximum contraction)</li><li>Right ventricle: ~100-130 mL at end-diastole, ~30-40 mL at end-systole</li><li>Atria: ~50-70 mL each during diastole, contracts during atrial kick</li></ul><p><strong>Cardiac cycle timing</strong>: At a heart rate of 72 bpm (1.2 Hz), each heartbeat lasts approximately 833 ms, divided into:</p><ul><li><strong>Atrial contraction (P-wave)</strong>: ~100 ms</li><li><strong>Isovolumetric contraction</strong>: ~50 ms</li><li><strong>Ventricular ejection (T-wave)</strong>: ~300 ms</li><li><strong>Isovolumetric relaxation</strong>: ~80 ms</li><li><strong>Ventricular filling</strong>: ~300 ms</li></ul><p><strong>Atrial kick</strong>: The atria contract near the end of ventricular diastole, adding ~20-30% to ventricular filling. This is critical for cardiac output.</p><p><strong>Validation</strong>: The phantom&#39;s chamber volumes follow the typical cardiac pressure-volume relationships and timing sequences. Validation confirms that measured phantom volumes match input cardiac signals within physiological ranges, confirming realistic motion patterns.</p><h4 id="Using-Cardiac-Signals"><a class="docs-heading-anchor" href="#Using-Cardiac-Signals">Using Cardiac Signals</a><a id="Using-Cardiac-Signals-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Cardiac-Signals" title="Permalink"></a></h4><pre><code class="language-julia hljs"># Generate cardiac signals for four heart chambers
+using GeometricMedicalPhantoms: generate_cardiac_signals
+
+# Parameters:
+# - duration: 10 seconds (allows multiple heartbeats)
+# - fs: 24 Hz
+# - heart_rate: 72 bpm (typical resting heart rate)
+duration_cardiac = 10.0  # seconds
+fs_cardiac = 24.0  # Hz
+heart_rate = 72.0  # beats per minute
+
+# Generate realistic chamber volumes
+t_cardiac, cardiac_volumes = generate_cardiac_signals(duration_cardiac, fs_cardiac, heart_rate)
+
+# cardiac_volumes is a NamedTuple with fields: lv, rv, la, ra (volumes in mL)
+println(&quot;Cardiac signal shape: $(size(t_cardiac))&quot;)
+println(&quot;Left atrium (LA) volume range: $(round(minimum(cardiac_volumes.la), digits=1)) - $(round(maximum(cardiac_volumes.la), digits=1)) mL&quot;)
+println(&quot;Left ventricle (LV) volume range: $(round(minimum(cardiac_volumes.lv), digits=1)) - $(round(maximum(cardiac_volumes.lv), digits=1)) mL&quot;)
+println(&quot;Right atrium (RA) volume range: $(round(minimum(cardiac_volumes.ra), digits=1)) - $(round(maximum(cardiac_volumes.ra), digits=1)) mL&quot;)
+println(&quot;Right ventricle (RV) volume range: $(round(minimum(cardiac_volumes.rv), digits=1)) - $(round(maximum(cardiac_volumes.rv), digits=1)) mL&quot;)
+plot(t_cardiac, cardiac_volumes.la, label=&quot;LA&quot;, xlabel=&quot;Time (s)&quot;, ylabel=&quot;Volume (mL)&quot;, title=&quot;Cardiac Chamber Volumes&quot;)
+plot!(t_cardiac, cardiac_volumes.lv, label=&quot;LV&quot;)
+plot!(t_cardiac, cardiac_volumes.ra, label=&quot;RA&quot;)
+plot!(t_cardiac, cardiac_volumes.rv, label=&quot;RV&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Cardiac signal shape: (240,)
+Left atrium (LA) volume range: 27.1 - 60.3 mL
+Left ventricle (LV) volume range: 55.0 - 130.1 mL
+Right atrium (RA) volume range: 27.5 - 60.3 mL
+Right ventricle (RV) volume range: 65.0 - 140.3 mL</code></pre><p><img src="../torso_cardiac_signals.png" alt="torso_cardiac_signals.png"/></p><p>Create a 4D phantom with cardiac motion:</p><pre><code class="language-julia hljs">phantom_4d_cardiac = create_torso_phantom(128, 128, 128;
+    fovs=(35.0, 35.0, 35.0),
+    cardiac_volumes=cardiac_volumes)
+
+println(&quot;4D cardiac phantom shape: $(size(phantom_4d_cardiac))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4D cardiac phantom shape: (128, 128, 128, 240)</code></pre><h3 id="Combined-Respiratory-and-Cardiac-Motion"><a class="docs-heading-anchor" href="#Combined-Respiratory-and-Cardiac-Motion">Combined Respiratory and Cardiac Motion</a><a id="Combined-Respiratory-and-Cardiac-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Combined-Respiratory-and-Cardiac-Motion" title="Permalink"></a></h3><p>Real imaging scenarios include both respiratory and cardiac motion simultaneously:</p><pre><code class="language-julia hljs"># Generate both signals
+phantom_4d_combined = create_torso_phantom(128, 128, 128;
+    fovs=(35.0, 35.0, 35.0),
+    respiratory_signal=resp_liters,
+    cardiac_volumes=cardiac_volumes)
+
+println(&quot;Combined 4D phantom shape: $(size(phantom_4d_combined))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Combined 4D phantom shape: (128, 128, 128, 240)</code></pre><p>Visualize the combined motion in a temporal GIF:</p><pre><code class="language-julia hljs"># Extract center coronal slice with both respiratory and cardiac motion
+mid_y_combined = cld(128, 2)
+nt_combined = size(phantom_4d_combined, 4)
+
+frames_combined = zeros(UInt8, 128, 128, nt_combined)
+max_val_combined = maximum(abs.(phantom_4d_combined))
+
+for i in 1:nt_combined
+    slice = abs.(phantom_4d_combined[:, mid_y_combined, :, i])
+    frames_combined[:, :, i] = map(x -&gt; UInt8(round(clamp(x / max_val_combined, 0, 1) * 255)), slice)
+end
+
+save(&quot;torso_cardiorespiratory_motion.gif&quot;, frames_combined, fps=24)</code></pre><p><img src="../torso_cardiorespiratory_motion.gif" alt="torso_cardiorespiratory_motion.gif"/></p><h2 id="Validation-Methodology"><a class="docs-heading-anchor" href="#Validation-Methodology">Validation Methodology</a><a id="Validation-Methodology-1"></a><a class="docs-heading-anchor-permalink" href="#Validation-Methodology" title="Permalink"></a></h2><p>The phantom&#39;s physiological accuracy is validated by measuring the actual organ volumes in the generated images and comparing them to the input signals:</p><p><strong>Lung volume validation</strong>: The respiratory signal specifies desired lung volumes in liters. The phantom generation algorithm modulates the size and position of lung structures accordingly. After phantom generation, the measured volume of pixels assigned to the &quot;lung&quot; tissue type is extracted and validated to match the input signal within expected numerical accuracy and the discretization effects of the 128³ grid.</p><p><strong>Heart chamber validation</strong>: Similarly, the cardiac signals specify desired volumes (in mL) for each of the four cardiac chambers. The phantom measures these chamber volumes by counting voxels and comparing to input volumes. The validation confirms that chamber volume changes follow the prescribed cardiac cycle, with physiologically realistic timing and magnitude.</p><p><strong>Expected error bounds</strong>: Discretization errors and interpolation introduce small differences between input volumes and measured volumes. Testing confirms these differences remain small (typically &lt;5% relative error), validating the phantom&#39;s fidelity to the input signals.</p><h3 id="Example-validation-code-for-lung-volume:"><a class="docs-heading-anchor" href="#Example-validation-code-for-lung-volume:">Example validation code for lung volume:</a><a id="Example-validation-code-for-lung-volume:-1"></a><a class="docs-heading-anchor-permalink" href="#Example-validation-code-for-lung-volume:" title="Permalink"></a></h3><pre><code class="language-julia hljs">using GeometricMedicalPhantoms: calculate_volume
+
+duration = 4.0
+fs = 24.0
+rr = 15.0
+t, resp = generate_respiratory_signal(duration, fs, rr)
+
+# Create phantom with moderate resolution for faster computation
+nx, ny, nz = 128, 128, 128
+fov = (30, 30, 30)
+phantom = create_torso_phantom(nx, ny, nz; respiratory_signal=resp)
+
+lung_vol_L = zeros(Float64, length(resp))
+
+# Calculate lung volumes using utility function that counts voxels assigned to lung tissue type and converts to liters based on voxel size
+for m in 1:length(resp)
+    frame = phantom[:, :, :, m]
+    lung_vol_L[m] = calculate_volume(frame, (0.075f0, 0.11f0), fov)
+end
+
+plot(t, resp, label=&quot;expected&quot;, title=&quot;Lung volumes&quot;)
+plot!(t,lung_vol_L, label=&quot;measured&quot;, xlabel=&quot;time (s)&quot;, ylabel=&quot;volume (L)&quot;)</code></pre><p><img src="../torso_lung_volume_validation.png" alt="torso_lung_volume_validation.png"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shepp_logan/">« Shepp-Logan Phantom</a><a class="docs-footer-nextpage" href="../tubes/">Tubes Phantom »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 16 February 2026 10:37">Monday 16 February 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
