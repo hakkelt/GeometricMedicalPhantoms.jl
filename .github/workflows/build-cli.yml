@@ -46,17 +46,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            artifact-name: geomphantoms-linux-x64
+            arch: x86_64
+            artifact-name: geomphantoms-linux-x86_64
             exe-name: geomphantoms
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
+          - os: ubuntu-24.04-arm64
+            arch: aarch64
+            artifact-name: geomphantoms-linux-aarch64
+            exe-name: geomphantoms
+            julia-cpu-target: "generic;cortex-a57;thunderx2t99;carmel,clone_all;apple-m1,base(3);neoverse-512tvb,base(3)"
+          - os: macos-15-intel
+            arch: x86_64
+            artifact-name: geomphantoms-macos-x86_64
+            exe-name: geomphantoms
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
           - os: macos-latest
-            artifact-name: geomphantoms-macos-x64
+            arch: aarch64
+            artifact-name: geomphantoms-macos-aarch64
             exe-name: geomphantoms
+            julia-cpu-target: "generic;apple-m1,clone_all"
           - os: windows-latest
-            artifact-name: geomphantoms-windows-x64
+            arch: x86_64
+            artifact-name: geomphantoms-windows-x86_64
             exe-name: geomphantoms.exe
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
+
+    env:
+      JULIA_CPU_TARGET: ${{ matrix.julia-cpu-target }}
 
     steps:
       - uses: actions/checkout@v6
@@ -74,7 +92,8 @@ jobs:
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
-          juliac --output-exe geomphantoms --project=. --bundle build main.jl
+          ${{ runner.os == 'Linux' && 'export LDFLAGS="-lm"' || '' }}
+          julia -e 'using JuliaC; @show(ENV["JULIA_CPU_TARGET"]); JuliaC.main(ARGS)' -- --output-exe geomphantoms --project=. --bundle build main.jl
 
       - name: Test executable
         working-directory: app
