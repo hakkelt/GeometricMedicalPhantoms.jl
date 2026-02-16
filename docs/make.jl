@@ -19,7 +19,7 @@ makedocs(
             "Geometry Primitives" => "advanced/primitives.md",
             "Custom Phantoms" => "advanced/custom_phantoms.md",
         ],
-        "CLI" => "cli.md",
+        "Command-line Interface" => "cli.md",
         "API Reference" => "api.md",
     ],
     modules = [GeometricMedicalPhantoms],

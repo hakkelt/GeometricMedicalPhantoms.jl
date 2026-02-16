@@ -139,19 +139,47 @@ z_{sep, R} = 0.9(dz_{RV} + dz_{RA})
 ```
 Constants: $z_{off} = 0.2$.
 
-### Heart Components Table (Truncated for brevity, see code for full list)
+### Heart Components Table
 
-The heart is composed of 18 ellipsoids/superellipsoids.
+The heart is composed of 20 ellipsoids/superellipsoids.
 
-**Left Ventricle Myocardium:**
-1. Base: $c=(-0.063-dx_{LV}, 0.02-y_{offset}, (0.00+z_{off})-z_{sep,L})$, $R=(0.251 s_{LV}, 0.251 s_{LV}, 0.209 s_{LV} \cdot 1.20)$
-2. Mid:  $c=(-0.063-dx_{LV}, 0.02-y_{offset}, (0.08+z_{off})-z_{sep,L})$, $R=(0.195 s_{LV}, 0.195 s_{LV}, 0.157 s_{LV})$
+Tuning parameters used in the cavity definitions:
+$$
+\begin{aligned}
+&\text{myocardium\_bottom\_z\_scale} = 1.2,\quad \text{lv\_rad\_offset} = 0.006,\quad \text{rv\_rad\_offset} = 0.004,\\
+&\text{la\_rad\_offset} = -0.001,\quad \text{ra\_rad\_offset} = 0.0005,\quad \text{lv\_c\_base\_factor} = 1.02,\quad \text{rv\_c\_base\_factor} = 0.98
+\end{aligned}
+$$
 
-**Right Ventricle Myocardium:**
-1. Base: $c=(0.143+dx_{RV}, 0.0-y_{offset}, (0.00+z_{off})-z_{sep,R})$, $R=(0.209 s_{RV}, 0.209 s_{RV}, 0.195 s_{RV} \cdot 1.20)$
-2. Mid:  $c=(0.143+dx_{RV}, 0.0-y_{offset}, (0.08+z_{off})-z_{sep,R})$, $R=(0.167 s_{RV}, 0.167 s_{RV}, 0.136 s_{RV})$
+Define cavity scales $s_{LV,c}, s_{RV,c}, s_{LA,c}, s_{RA,c}$ as:
+$$
+s_{LV,c} = 1.10 s_{LV},\quad s_{RV,c} = 1.06 s_{RV},\quad s_{LA,c} = 0.95 s_{LA},\quad s_{RA,c} = 1.00 s_{RA}
+$$
 
-(And so on for atria and blood pools).
+For ellipsoids, $\epsilon = (2, 2, 2)$. Intensities map to the tissue labels in Section 2.
+
+| Component | Type | $c_x$ | $c_y$ | $c_z$ | $R_x$ | $R_y$ | $R_z$ | $\epsilon$ | Intensity |
+|-----------|------|-------|-------|-------|-------|-------|-------|-----------|-----------|
+| LV outer myocardium (base) | Ellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $-0.1+z_{off}$ | $0.1595 s_{LV}$ | $0.2145 s_{LV}$ | $0.242 s_{LV}$ | $(2,2,2)$ | heart |
+| RV outer myocardium (base) | Ellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $-0.1+z_{off}$ | $0.1595 s_{RV}$ | $0.2145 s_{RV}$ | $0.242 s_{RV}$ | $(2,2,2)$ | heart |
+| LV outer myocardium (mid) | Superellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $0.0+z_{off}$ | $0.1485 s_{LV}$ | $0.2035 s_{LV}$ | $0.1782 s_{LV}$ | $(2.5,2.5,2.5)$ | heart |
+| RV outer myocardium (mid) | Superellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $0.0+z_{off}$ | $0.1485 s_{RV}$ | $0.2035 s_{RV}$ | $0.1782 s_{RV}$ | $(2.5,2.5,2.5)$ | heart |
+| LV myocardium (base) | Superellipsoid | $-0.063-dx_{LV}$ | $0.02-y_{offset}$ | $(0.0+z_{off})-z_{sep,L}$ | $0.251 s_{LV}$ | $0.251 s_{LV}$ | $(0.209 s_{LV})\,\text{myocardium\_bottom\_z\_scale}$ | $(2,2,2)$ | heart |
+| LV myocardium (mid) | Superellipsoid | $-0.063-dx_{LV}$ | $0.02-y_{offset}$ | $(0.08+z_{off})-z_{sep,L}$ | $0.195 s_{LV}$ | $0.195 s_{LV}$ | $0.157 s_{LV}$ | $(3,3,2)$ | heart |
+| LV cavity (base) | Superellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $(-0.1+z_{off})-z_{sep,L}$ | $(0.112125 s_{LV,c}+\text{lv\_rad\_offset})\,\text{lv\_c\_base\_factor}$ | $(0.160875 s_{LV,c}+\text{lv\_rad\_offset})\,\text{lv\_c\_base\_factor}$ | $(0.156 s_{LV,c})\,\text{lv\_c\_base\_factor}$ | $(2,2,2)$ | lv_blood |
+| LV cavity (mid A) | Superellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $(0.0+z_{off})-z_{sep,L}$ | $0.102375 s_{LV,c}+\text{lv\_rad\_offset}$ | $0.151125 s_{LV,c}+\text{lv\_rad\_offset}$ | $0.1404 s_{LV,c}$ | $(2.5,2.5,2.5)$ | lv_blood |
+| LV cavity (mid B) | Superellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $(0.0+z_{off})-z_{sep,L}$ | $0.193288 s_{LV,c}$ | $0.193288 s_{LV,c}$ | $0.14366 s_{LV,c}$ | $(2,2,2)$ | lv_blood |
+| LV cavity (apex) | Superellipsoid | $-0.06-dx_{LV}$ | $0.02-y_{offset}$ | $(0.04+z_{off})-z_{sep,L}$ | $0.151496 s_{LV,c}$ | $0.151496 s_{LV,c}$ | $0.094032 s_{LV,c}$ | $(3,3,2)$ | lv_blood |
+| RV myocardium (base) | Superellipsoid | $0.143+dx_{RV}$ | $0.0-y_{offset}$ | $(0.0+z_{off})-z_{sep,R}$ | $0.209 s_{RV}$ | $0.209 s_{RV}$ | $(0.195 s_{RV})\,\text{myocardium\_bottom\_z\_scale}$ | $(2,2,2)$ | heart |
+| RV myocardium (mid) | Superellipsoid | $0.143+dx_{RV}$ | $0.0-y_{offset}$ | $(0.08+z_{off})-z_{sep,R}$ | $0.167 s_{RV}$ | $0.167 s_{RV}$ | $0.136 s_{RV}$ | $(3,3,2)$ | heart |
+| RV cavity (base) | Superellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $(-0.1+z_{off})-z_{sep,R}$ | $(0.11822 s_{RV,c}+\text{rv\_rad\_offset})\,\text{rv\_c\_base\_factor}$ | $(0.16962 s_{RV,c}+\text{rv\_rad\_offset})\,\text{rv\_c\_base\_factor}$ | $(0.16448 s_{RV,c})\,\text{rv\_c\_base\_factor}$ | $(2,2,2)$ | rv_blood |
+| RV cavity (mid A) | Superellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $(0.0+z_{off})-z_{sep,R}$ | $0.10794 s_{RV,c}+\text{rv\_rad\_offset}$ | $0.15934 s_{RV,c}+\text{rv\_rad\_offset}$ | $0.148032 s_{RV,c}$ | $(2.5,2.5,2.5)$ | rv_blood |
+| RV cavity (mid B) | Superellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $(0.0+z_{off})-z_{sep,R}$ | $0.172112 s_{RV,c}$ | $0.172112 s_{RV,c}$ | $0.133248 s_{RV,c}$ | $(2,2,2)$ | rv_blood |
+| RV cavity (apex) | Superellipsoid | $0.14+dx_{RV}$ | $0.0-y_{offset}$ | $(0.04+z_{off})-z_{sep,R}$ | $0.1388 s_{RV,c}$ | $0.1388 s_{RV,c}$ | $0.094384 s_{RV,c}$ | $(3,3,2)$ | rv_blood |
+| LA myocardium | Superellipsoid | $-0.101-dx_{LA}$ | $-0.05-y_{offset}$ | $(0.25+z_{off})+z_{sep,L}$ | $0.15 s_{LA}$ | $0.15 s_{LA}$ | $0.188 s_{LA}$ | $(2.2,2.2,2.2)$ | heart |
+| LA cavity | Superellipsoid | $-0.101$ | $-0.05-y_{offset}$ | $(0.25+z_{off})+z_{sep,L}$ | $0.134352 s_{LA,c}+\text{la\_rad\_offset}$ | $0.134352 s_{LA,c}+\text{la\_rad\_offset}$ | $0.16794 s_{LA,c}$ | $(2.2,2.2,2.2)$ | la_blood |
+| RA myocardium | Superellipsoid | $0.161+dx_{RA}$ | $-0.07-y_{offset}$ | $(0.25+z_{off})+z_{sep,R}$ | $0.15 s_{RA}$ | $0.15 s_{RA}$ | $0.188 s_{RA}$ | $(2.2,2.2,2.2)$ | heart |
+| RA cavity | Superellipsoid | $0.161$ | $-0.07-y_{offset}$ | $(0.25+z_{off})+z_{sep,R}$ | $0.126468 s_{RA,c}+\text{ra\_rad\_offset}$ | $0.126468 s_{RA,c}+\text{ra\_rad\_offset}$ | $0.158085 s_{RA,c}$ | $(2.2,2.2,2.2)$ | ra_blood |
 
 ## 6. Physiological Signal Generation
 

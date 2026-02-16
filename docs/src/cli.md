@@ -1,4 +1,4 @@
-# CLI
+# Command-Line Interface (CLI)
 
 GeometricMedicalPhantoms includes a command-line interface for generating phantoms and signals without writing Julia code. While the preferred method is to use the package within Julia programs for maximum flexibility, the CLI provides a convenient way to generate phantoms quickly.
 
@@ -28,7 +28,7 @@ The CLI is shipped as a separate app in `app/` to avoid adding dependencies to t
 
 ```bash
 julia --project=./app -e 'using Pkg; Pkg.instantiate()'
-juliac --output-exe geomphantoms --project=./app --bundle app/build --trim=safe app/src/app.jl
+juliac --output-exe geomphantoms --project=./app --bundle app/build app/src/app.jl
 ```
 
 The executable will be in `app/build/bin/geomphantoms`.
