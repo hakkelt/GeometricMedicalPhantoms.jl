@@ -109,5 +109,5 @@ function define_dynamic_ellipsoids(motion_params::NamedTuple, ti::AbstractTissue
     liver = get_liver(motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
     stomach = get_stomach(motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
 
-    return (torso..., lungs..., heart_background..., vessels..., heart_chambers..., ribs..., liver..., stomach...)
+    return (torso..., lungs..., heart_background..., vessels..., heart_chambers..., ribs..., stomach..., liver...)
 end

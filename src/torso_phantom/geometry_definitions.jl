@@ -206,8 +206,8 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
     vessel_parts = ()
     z_offset = 0.2
     # Curved centerlines parameterized by z (normalized coordinates). These produce gentle 3D curvature.
-    aorta_xy(z) = (-0.02 + 0.06 * sin(π * (z - 0.2)), -0.05 + 0.035 * sin(0.7π * (z - 0.2) + 0.4))
-    pulm_xy(z) = (-0.05 + 0.05 * sin(π * (z - 0.22) + 0.2), -0.05 + 0.03 * sin(0.9π * (z - 0.22) - 0.3))
+    aorta_xy(z) = (-0.08 + 0.03 * sin(π * (z - 0.2)), -0.05 + 0.035 * sin(0.7π * (z - 0.2) + 0.4))
+    pulm_trunk_xy(z) = (-0.05 + 0.02 * sin(π * (z - 0.22) + 0.2), -0.05 + 0.03 * sin(0.9π * (z - 0.22) - 0.3))
     svc_xy(z) = (0.1 + 0.05 * sin(0.8π * (z - 0.3)), -0.05 + 0.03 * sin(0.6π * (z - 0.3) + 0.2))
 
     function add_vessel(current_parts, xyf, z_center, radius_xy, height_z, n)
@@ -218,17 +218,52 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
 
     # Segment lists; lowest segments start at ~0.20 to just touch heart base
     aorta_segments = [(1.0, 0.08), (0.95, 0.08), (0.9, 0.08), (0.75, 0.12), (0.6, 0.12), (0.45, 0.12), (0.32, 0.1)]
-    pulmonary_segments = [(0.75, 0.08), (0.62, 0.1), (0.47, 0.12), (0.34, 0.12), (0.3, 0.1)]
+    pulmonary_trunk_segments = [(0.34, 0.12), (0.3, 0.1)]  # Main pulmonary trunk before bifurcation
     svc_segments = [(1.0, 0.08), (0.95, 0.08), (0.82, 0.1), (0.68, 0.12), (0.55, 0.12), (0.45, 0.08)]
 
     # Aorta (ascending)
     for (z_center, half_height) in aorta_segments
-        vessel_parts = add_vessel(vessel_parts, aorta_xy, z_center, 0.06, half_height, 2.5)
+        vessel_parts = add_vessel(vessel_parts, aorta_xy, z_center, 0.04, half_height, 2.5)
     end
 
-    # Pulmonary artery
-    for (z_center, half_height) in pulmonary_segments
-        vessel_parts = add_vessel(vessel_parts, pulm_xy, z_center, 0.05, half_height, 2.5)
+    # Pulmonary trunk (main artery before branching)
+    for (z_center, half_height) in pulmonary_trunk_segments
+        vessel_parts = add_vessel(vessel_parts, pulm_trunk_xy, z_center, 0.05, half_height, 2.5)
+    end
+
+    # Left pulmonary artery branch (curved path from center toward left lung, converging to horizontal)
+    # z increases initially then levels off to create horizontal trajectory
+    # x moves progressively left, y moves anterior
+    pulm_left_positions = [
+        (0.48, -0.05, -0.05, 0.045),  # Start of branch at bifurcation
+        (0.53, -0.09, -0.04, 0.043),  # Initial upward curve
+        (0.57, -0.14, -0.035, 0.041), # Peak of arc, strong lateral movement
+        (0.60, -0.19, -0.03, 0.039),  # Descending/leveling
+        (0.61, -0.23, -0.025, 0.037), # Nearly horizontal
+        (0.61, -0.26, -0.02, 0.035),  # Horizontal trajectory (z constant)
+        (0.60, -0.29, -0.015, 0.033), # Horizontal toward lung (z decreasing)
+        (0.59, -0.31, -0.01, 0.031),  # Final approach to lung
+    ]
+    for (z_pos, x_pos, y_pos, radius) in pulm_left_positions
+        zc = z_pos + z_offset
+        vessel_parts = (vessel_parts..., SuperEllipsoid(x_pos, -y_pos - y_offset, zc, radius, radius, 0.06, (2.5, 2.5, 2.5), get_intensity(ti, :vessels_blood)))
+    end
+
+    # Right pulmonary artery branch (curved path from center toward right lung, converging to horizontal)
+    # Mirror of left branch with opposite x-direction
+    pulm_right_positions = [
+        (0.48, 0.00, -0.05, 0.045),   # Start of branch at bifurcation
+        (0.53, 0.04, -0.04, 0.043),   # Initial upward curve
+        (0.57, 0.09, -0.035, 0.041),  # Peak of arc, strong lateral movement
+        (0.60, 0.14, -0.03, 0.039),   # Descending/leveling
+        (0.61, 0.18, -0.025, 0.037),  # Nearly horizontal
+        (0.61, 0.21, -0.02, 0.035),   # Horizontal trajectory (z constant)
+        (0.60, 0.24, -0.015, 0.033),  # Horizontal toward lung (z decreasing)
+        (0.59, 0.26, -0.01, 0.031),   # Final approach to lung
+    ]
+    for (z_pos, x_pos, y_pos, radius) in pulm_right_positions
+        zc = z_pos + z_offset
+        vessel_parts = (vessel_parts..., SuperEllipsoid(x_pos, -y_pos - y_offset, zc, radius, radius, 0.06, (2.5, 2.5, 2.5), get_intensity(ti, :vessels_blood)))
     end
 
     # Superior vena cava
@@ -399,11 +434,11 @@ Helper function to get liver parts.
 """
 function get_liver(diaphragm_upshift::Real, y_offset::Real, xy_scale::Real, ti::AbstractTissueParameters)
     return (
-        # Liver (right upper abdomen) moves with diaphragm
-        SuperEllipsoid(0.3, -0.15 - y_offset, -0.55 + diaphragm_upshift, 0.385 * xy_scale, 0.33 * xy_scale, 0.3, (2.5, 2.5, 2.5), get_intensity(ti, :liver)),
+        # Liver (left upper abdomen) moves with diaphragm
+        SuperEllipsoid(-0.3, -0.15 - y_offset, -0.55 + diaphragm_upshift, 0.385 * xy_scale, 0.33 * xy_scale, 0.3, (2.5, 2.5, 2.5), get_intensity(ti, :liver)),
 
-        # Left lobe
-        SuperEllipsoid(0.0, -0.12 - y_offset, -0.5 + diaphragm_upshift, 0.22 * xy_scale, 0.275 * xy_scale, 0.25, (2.5, 2.5, 2.5), get_intensity(ti, :liver)),
+        # Right lobe
+        SuperEllipsoid(-0.05, -0.12 - y_offset, -0.5 + diaphragm_upshift, 0.35 * xy_scale, 0.275 * xy_scale, 0.25, (1.5, 2.5, 2.5), get_intensity(ti, :liver)),
     )
 end
 
@@ -412,11 +447,11 @@ Helper function to get stomach parts.
 """
 function get_stomach(diaphragm_upshift::Real, y_offset::Real, xy_scale::Real, ti::AbstractTissueParameters)
     return (
-        # Stomach (left upper abdomen) moves with diaphragm
-        # Fundus
-        SuperEllipsoid(-0.3, -0.05 - y_offset, -0.45 + diaphragm_upshift, 0.33 * xy_scale, 0.198 * xy_scale, 0.2, (2.5, 2.5, 2.5), get_intensity(ti, :stomach)),
-
+        # Stomach (right upper abdomen) moves with diaphragm
         # Body
-        SuperEllipsoid(-0.2, -0.08 - y_offset, -0.55 + diaphragm_upshift, 0.176 * xy_scale, 0.176 * xy_scale, 0.22, (2.5, 2.5, 2.5), get_intensity(ti, :stomach)),
+        SuperEllipsoid(0.45, 0.0 - y_offset, -0.55 + diaphragm_upshift, 0.176 * xy_scale, 0.176 * xy_scale, 0.3, (2.5, 2.5, 2.5), get_intensity(ti, :stomach)),
+
+        # Pyloric antrum (distal narrower part)
+        SuperEllipsoid(0.25, -0.02 - y_offset, -0.65 + diaphragm_upshift, 0.12 * xy_scale, 0.115 * xy_scale, 0.16, (2.5, 2.5, 2.5), get_intensity(ti, :stomach)),
     )
 end

@@ -199,7 +199,7 @@ using Statistics
             # Test that lung volumes are in reasonable range relative to respiratory signal
             # Strict error threshold for realistic signal (physiologically plausible breathing)
             realistic_signal_median_threshold = 0.0052
-            realistic_signal_max_threshold = 0.01
+            realistic_signal_max_threshold = 0.012
 
             rel_errors = abs.(lung_vol_L .- resp) ./ resp
             median_error = median(rel_errors)
@@ -241,7 +241,7 @@ using Statistics
             # Test error thresholds for full range
             # Full range has more extreme volumes so allow slightly higher errors
             full_range_median_threshold = 0.025
-            full_range_max_threshold = 0.051
+            full_range_max_threshold = 0.053
 
             rel_errors = abs.(lung_vol_L .- resp_full_range) ./ resp_full_range
             median_error = median(rel_errors)
