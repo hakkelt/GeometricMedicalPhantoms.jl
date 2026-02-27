@@ -1,6 +1,6 @@
 name = "GeometricMedicalPhantoms"
 uuid = "c297bd51-60f5-42e7-80e4-f985777cb71a"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Tamas Hakkel <hakkelt@gmail.com>"]
 
 [deps]
