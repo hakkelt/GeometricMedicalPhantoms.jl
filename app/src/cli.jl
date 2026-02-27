@@ -66,7 +66,7 @@ function run_phantom(args::Vector{String})
         arg_type = String
         required = true
         "--format"
-        help = "Output format: npy, mat, cfl, nifti, png, tiff, gif."
+        help = "Output format: $(join(SUPPORTED_OUTPUT_FORMATS, ", "))."
         arg_type = String
         "--meta"
         help = "Metadata JSON path (defaults to <out>.json)"

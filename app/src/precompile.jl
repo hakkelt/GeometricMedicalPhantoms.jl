@@ -14,6 +14,8 @@ redirect_stdout(devnull) do
         # Avoid blocking codec/delegate I/O during precompile.
         precompile(GeometricMedicalPhantomsApp.save_tiff, (String, Matrix{Float32}))
         precompile(GeometricMedicalPhantomsApp.save_tiff, (String, Array{Float32, 3}))
-        precompile(GeometricMedicalPhantomsApp.save_gif, (String, Array{Float32, 3}))
+        if GeometricMedicalPhantomsApp.GIF_SUPPORTED
+            precompile(GeometricMedicalPhantomsApp.save_gif, (String, Array{Float32, 3}))
+        end
     end
 end

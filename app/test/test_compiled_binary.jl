@@ -55,8 +55,14 @@ function main(exe::String)
             card = JSON3.read(read(out_card, String))
             @test haskey(card, "lv")
 
-            @test run_cmd(exe, ["phantom", "torso", "--size", "128,128", "--plane", "coronal", "--resp-signal", out_resp, "--cardiac-signal", out_card, "--out", out_gif])
-            @test isfile(out_gif)
+            gif_ok = run_cmd(exe, ["phantom", "torso", "--size", "128,128", "--plane", "coronal", "--resp-signal", out_resp, "--cardiac-signal", out_card, "--out", out_gif])
+            if Sys.iswindows()
+                @test !gif_ok
+                @test !isfile(out_gif)
+            else
+                @test gif_ok
+                @test isfile(out_gif)
+            end
         end
     end
 end

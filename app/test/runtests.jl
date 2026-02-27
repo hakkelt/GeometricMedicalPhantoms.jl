@@ -112,8 +112,13 @@ end
                     "--out", out_path,
                 ]
             )
-            @test code_dyn == 0
-            @test isfile(out_path)
+            if Sys.iswindows()
+                @test code_dyn != 0
+                @test !isfile(out_path)
+            else
+                @test code_dyn == 0
+                @test isfile(out_path)
+            end
         end
 
         @testset "signals cardiac json" begin
@@ -225,8 +230,13 @@ end
                     "--out", out_path,
                 ]
             )
-            @test code == 0
-            @test isfile(out_path)
+            if Sys.iswindows()
+                @test code != 0
+                @test !isfile(out_path)
+            else
+                @test code == 0
+                @test isfile(out_path)
+            end
         end
 
         @testset "GIF requires 4D data error" begin
@@ -242,7 +252,11 @@ end
             end
             @test err !== nothing
             msg = string(err)
-            @test (occursin("3D array", msg) || occursin("(x, y, time)", msg))
+            if Sys.iswindows()
+                @test occursin("not supported on Windows", msg)
+            else
+                @test (occursin("3D array", msg) || occursin("(x, y, time)", msg))
+            end
         end
 
         @testset "GIF requires z=1 error" begin
@@ -257,7 +271,11 @@ end
                 e
             end
             @test err !== nothing
-            @test occursin("z-dimension", string(err))
+            if Sys.iswindows()
+                @test occursin("not supported on Windows", string(err))
+            else
+                @test occursin("z-dimension", string(err))
+            end
         end
     end
 
