@@ -8,21 +8,27 @@ GeometricMedicalPhantoms includes a command-line interface for generating phanto
 
 Download the latest release for your platform from the [Releases page](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases):
 
-- **Linux**: `geomphantoms-linux-x64.zip`
-- **macOS**: `geomphantoms-macos-x64.zip`
-- **Windows**: `geomphantoms-windows-x64.zip`
+- **Linux**: `geomphantoms-linux-x64-x86_64.zip` or `geomphantoms-linux-x64-aarch64.zip`
+- **macOS**: `geomphantoms-macos-x64-x86_64.zip` or `geomphantoms-macos-aarch64.zip`
+- **Windows**: `geomphantoms-windows-x64-x86_64.zip`
+
+*Note: You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. If unsure, check your CPU architecture. ARM-based Windows is not currently supported.*
 
 Extract and run directly:
 
 ```bash
 # Linux/macOS
-./geomphantoms info
+<extracted path>/bin/geomphantoms info
 
 # Windows
-geomphantoms.exe info
+<extracted path>.\bin\geomphantoms.exe info
 ```
 
-## Building from Source (Requires Julia 1.12+)
+Note: The extracted folder is quite large (1-1.5 GB) due to the bundled Julia runtime and dependencies.
+
+Optionally you can add to your PATH for easier access.
+
+## Building from Source
 
 The CLI is shipped as a separate app in `app/` to avoid adding dependencies to the core package. To build it yourself, install [JuliaC.jl](https://github.com/JuliaLang/JuliaC.jl) Julia app and run:
 
@@ -64,6 +70,8 @@ Supported outputs:
 - `cfl/hdr` (BART): use a base path without extension, e.g. `--out ./phantom`
 - `nifti` (`.nii` or `.nii.gz`)
 - `png` (2D only)
+- `tiff` (multi-page for 3D/4D)
+- `gif` (multi-frame 2D only)
 
 If `--format` is omitted, it is inferred from the `--out` extension. For BART output, always pass the base path and set `--format cfl`.
 
@@ -80,26 +88,6 @@ geomphantoms signals cardiac --duration 10 --fs 100 --rate 70 --out cardiac.json
 ## Metadata
 
 By default, a JSON sidecar is written to `<out>.json`. Disable it with `--no-meta` or specify a custom path with `--meta`.
-
-## Advanced Usage
-
-For complete documentation and examples, see the [CLI README](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/tree/master/app).
-
-To use the package programmatically with full Julia API access:
-
-```julia
-using GeometricMedicalPhantoms
-
-# Full control over phantom parameters
-phantom = create_shepp_logan_phantom(
-    256, 256, :axial;
-    slice_position = 0.5,
-    ti = MRISheppLoganIntensities()
-)
-
-# Advanced features not available in CLI
-phantom_series = [create_torso_phantom(128, 128, 64; respiratory_signal=sig[t]) for t in 1:100]
-```
 
 ---
 
@@ -153,7 +141,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 |--------|-------------|------|---------|-------|
 | `--plane` | Slice plane for 2D output | String | Required for 2D | One of: `axial`, `coronal`, `sagittal` |
 | `--slice-position` | Slice position in cm | Float | `0.0` | Position along the slice axis |
-| `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff` |
+| `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff`, `gif` |
 | `--meta` | Metadata JSON path | String | `<out>.json` | Custom location for metadata |
 | `--no-meta` | Disable metadata output | Flag | `false` | Skips JSON sidecar creation |
 | `--intensity` | Intensity specification | String/JSON | Default preset | See [Intensity Specification](#intensity-specification) |
@@ -173,6 +161,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 | `nifti` | `.nii`, `.nii.gz` | 2D, 3D, 4D | NIfTI format (compressed supported) |
 | `png` | `.png` | 2D only | PNG image (auto-scaled to 8-bit) |
 | `tiff` | `.tif`, `.tiff` | 2D, 3D, 4D | TIFF format (multi-page for 3D/4D) |
+| `gif` | `.gif` | 2D only | GIF image (multi-frame for dynamic phantoms) |
 
 **Format Inference:** If `--format` is omitted, the format is inferred from the `--out` extension.
 
@@ -253,12 +242,12 @@ The `--stack` option (tubes phantom only) provides a stack of intensity sets:
 #### Signal File Formats
 
 **Respiratory Signal:**
-- **CSV**: Single column of signal values (optional header)
+- **CSV**: `t,signal` columns (time first; optional header accepted)
 - **JSON**: `{"signal": [values]}` or `{"t": [times], "signal": [values]}`
 - **NPY**: 1D NumPy array
 
 **Cardiac Signal:**
-- **CSV**: Four columns (lv, rv, la, ra) with optional header
+- **CSV**: `t,lv,rv,la,ra` (time first; optional header accepted)
 - **JSON**: `{"lv": [values], "rv": [values], "la": [values], "ra": [values]}`
 
 **Important:** Respiratory and cardiac signals must have the same length when both are provided.

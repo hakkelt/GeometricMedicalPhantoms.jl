@@ -16,4 +16,5 @@ const FORMAT_ALIASES = Dict(
     "png" => "png",
     "tiff" => "tiff",
     "tif" => "tiff",
+    "gif" => "gif",
 )

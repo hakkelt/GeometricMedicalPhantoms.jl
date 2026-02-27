@@ -36,6 +36,8 @@ function resolve_format(format::Union{Nothing, String}, out_path::String)
         return "tiff"
     elseif ext == ".nii" || endswith(lower_out, ".nii.gz")
         return "nifti"
+    elseif ext == ".gif"
+        return "gif"
     end
 
     error("Cannot infer format from --out. Please provide --format.")
