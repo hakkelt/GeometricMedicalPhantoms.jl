@@ -57,7 +57,7 @@ frames_axial = zeros(UInt8, nx, ny, nz)
 max_val = maximum(abs.(phantom_3d))
 
 for i in 1:nz
-    slice = abs.(phantom_3d[:, :, i])
+    slice = abs.(phantom_3d[:, :, i])'
     frames_axial[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
 end
 
@@ -71,7 +71,7 @@ nothing # hide
 # Coronal slices GIF
 frames_coronal = zeros(UInt8, nx, nz, ny)
 for i in 1:ny
-    slice = abs.(phantom_3d[:, i, :])
+    slice = reverse(abs.(phantom_3d[:, i, :])', dims=1) # flip vertically for correct orientation
     frames_coronal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
 end
 
@@ -85,7 +85,7 @@ nothing # hide
 # Sagittal slices GIF
 frames_sagittal = zeros(UInt8, ny, nz, nx)
 for i in 1:nx
-    slice = abs.(phantom_3d[i, :, :])
+    slice = reverse(abs.(phantom_3d[i, :, :])', dims=1) # flip vertically for correct orientation
     frames_sagittal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
 end
 
@@ -178,33 +178,22 @@ The respiratory model simulates breathing mechanics based on the following princ
 
 #### Using Respiratory Signals
 
+`generate_respiratory_signal` generates a realistic respiratory signal. This creates a physiologically plausible breathing pattern with:
+- Sinusoidal base waveform
+- Asymmetric inspiration/expiration
+- Amplitude modulation (breathing depth variation)
+
+Parameters:
+- duration: 10 seconds
+- fs: 24 Hz (frame rate matches typical cine imaging)
+- rr: 15 breaths per minute (typical resting respiratory rate)
+
 ```@example imports
-using FileIO
-
-# Generate a realistic respiratory signal
-
-# Parameters:
-# - duration: 10 seconds
-# - fs: 24 Hz (frame rate matches typical cine imaging)
-# - min_volume: 1.2 L (minimal inspiration)
-# - max_volume: 6.0 L (maximal inspiration)
 fs = 24.0  # frames per second
 duration = 10.0  # seconds
-min_volume = 1.2  # liters
-max_volume = 6.0  # liters
+rr = 15.0  # respiratory rate in breaths per minute
 
-# Create triangular breathing pattern (inhale then exhale)
-t = collect(0:1/fs:duration-1/fs)
-resp_liters = similar(t)
-for (idx, tt) in enumerate(t)
-    if tt <= duration/2
-        # Inhalation phase: linear ramp from min to max
-        resp_liters[idx] = min_volume + (max_volume - min_volume) * (2*tt / duration)
-    else
-        # Exhalation phase: linear ramp from max to min
-        resp_liters[idx] = max_volume - (max_volume - min_volume) * (2*(tt - duration/2) / duration)
-    end
-end
+t, resp_liters = generate_respiratory_signal(duration, fs, rr)
 
 # Create 4D phantom with respiratory motion
 phantom_4d_resp = create_torso_phantom(128, 128, 128; 
@@ -222,6 +211,8 @@ savefig("torso_respiratory_signal.png"); nothing # hide
 Generate a temporal GIF showing how the coronal slice changes during the respiratory cycle:
 
 ```@example imports
+using FileIO
+
 # Extract center coronal slice and animate over time
 mid_y = cld(128, 2)
 nt = size(phantom_4d_resp, 4)
@@ -231,7 +222,7 @@ frames_coronal_temporal = zeros(UInt8, 128, 128, nt)
 max_val = maximum(abs.(phantom_4d_resp))
 
 for i in 1:nt
-    slice = abs.(phantom_4d_resp[:, mid_y, :, i])
+    slice = reverse(abs.(phantom_4d_resp[:, mid_y, :, i])', dims=1) # flip vertically for correct orientation
     frames_coronal_temporal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
 end
 
@@ -328,6 +319,8 @@ nothing # hide
 Visualize the combined motion in a temporal GIF:
 
 ```@example imports
+using FileIO
+
 # Extract center coronal slice with both respiratory and cardiac motion
 mid_y_combined = cld(128, 2)
 nt_combined = size(phantom_4d_combined, 4)
@@ -336,7 +329,7 @@ frames_combined = zeros(UInt8, 128, 128, nt_combined)
 max_val_combined = maximum(abs.(phantom_4d_combined))
 
 for i in 1:nt_combined
-    slice = abs.(phantom_4d_combined[:, mid_y_combined, :, i])
+    slice = reverse(abs.(phantom_4d_combined[:, mid_y_combined, :, i])', dims=1) # flip vertically for correct orientation
     frames_combined[:, :, i] = map(x -> UInt8(round(clamp(x / max_val_combined, 0, 1) * 255)), slice)
 end
 
