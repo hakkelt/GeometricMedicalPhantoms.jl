@@ -238,10 +238,10 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
         (0.48, -0.05, -0.05, 0.045),  # Start of branch at bifurcation
         (0.53, -0.09, -0.04, 0.043),  # Initial upward curve
         (0.57, -0.14, -0.035, 0.041), # Peak of arc, strong lateral movement
-        (0.60, -0.19, -0.03, 0.039),  # Descending/leveling
+        (0.6, -0.19, -0.03, 0.039),  # Descending/leveling
         (0.61, -0.23, -0.025, 0.037), # Nearly horizontal
         (0.61, -0.26, -0.02, 0.035),  # Horizontal trajectory (z constant)
-        (0.60, -0.29, -0.015, 0.033), # Horizontal toward lung (z decreasing)
+        (0.6, -0.29, -0.015, 0.033), # Horizontal toward lung (z decreasing)
         (0.59, -0.31, -0.01, 0.031),  # Final approach to lung
     ]
     for (z_pos, x_pos, y_pos, radius) in pulm_left_positions
@@ -252,13 +252,13 @@ function get_vessels(y_offset::Real, ti::AbstractTissueParameters)
     # Right pulmonary artery branch (curved path from center toward right lung, converging to horizontal)
     # Mirror of left branch with opposite x-direction
     pulm_right_positions = [
-        (0.48, 0.00, -0.05, 0.045),   # Start of branch at bifurcation
+        (0.48, 0.0, -0.05, 0.045),   # Start of branch at bifurcation
         (0.53, 0.04, -0.04, 0.043),   # Initial upward curve
         (0.57, 0.09, -0.035, 0.041),  # Peak of arc, strong lateral movement
-        (0.60, 0.14, -0.03, 0.039),   # Descending/leveling
+        (0.6, 0.14, -0.03, 0.039),   # Descending/leveling
         (0.61, 0.18, -0.025, 0.037),  # Nearly horizontal
         (0.61, 0.21, -0.02, 0.035),   # Horizontal trajectory (z constant)
-        (0.60, 0.24, -0.015, 0.033),  # Horizontal toward lung (z decreasing)
+        (0.6, 0.24, -0.015, 0.033),  # Horizontal toward lung (z decreasing)
         (0.59, 0.26, -0.01, 0.031),   # Final approach to lung
     ]
     for (z_pos, x_pos, y_pos, radius) in pulm_right_positions

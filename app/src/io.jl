@@ -110,11 +110,11 @@ function save_gif(path::String, data)
             error("GIF output is only supported for 2D images (single z-slice per frame). Got z-dimension of size $(size(data, 3)). Use (x, y, 1, time) shape for GIF output.")
         end
         # Extract 2D frames: (x, y, 1, t) -> (x, y, t)
-        frames_2d = dropdims(data, dims=3)
+        frames_2d = dropdims(data, dims = 3)
     else
         error("GIF output requires a 3D array (x, y, time) for 2D images or 4D array (x, y, 1, time) for 3D images with single z-slice. Got $(ndims(data))D array.")
     end
-    
+
     # Normalize globally across all frames
     values = real.(frames_2d)
     min_val = minimum(values)
@@ -125,7 +125,7 @@ function save_gif(path::String, data)
         frames_normalized = (values .- min_val) ./ (max_val - min_val)
     end
     frames_normalized = clamp.(frames_normalized, 0.0, 1.0)
-    
+
     # Convert to RGB for GIFImages (requires RGB{N0f8})
     num_frames = size(frames_normalized, 3)
     frames_rgb = Vector{Matrix{RGB{N0f8}}}(undef, num_frames)

@@ -6,7 +6,7 @@ using ArgParse
 using BartIO
 using GeometricMedicalPhantoms
 @static if !Sys.iswindows()
-	using GIFImages
+    using GIFImages
 end
 using JSON3
 using MAT

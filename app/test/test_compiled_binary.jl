@@ -11,7 +11,7 @@ function run_cmd(exe::String, args::Vector{String})
 end
 
 function main(exe::String)
-    @testset "compiled geomphantoms binary" begin
+    return @testset "compiled geomphantoms binary" begin
         mktempdir() do dir
             out_npy = joinpath(dir, "shepp.npy")
             out_mat = joinpath(dir, "torso.mat")
