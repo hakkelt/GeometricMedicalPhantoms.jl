@@ -17,6 +17,8 @@ function save_output(path::String, format::String, data)
         save_png(path, data)
     elseif fmt == "tiff"
         save_tiff(path, data)
+    elseif fmt == "gif"
+        save_gif(path, data)
     else
         error("Unsupported output format: $format")
     end
@@ -28,24 +30,24 @@ function save_png(path::String, data)
         error("PNG output requires a 2D array.")
     end
     img = prepare_png(data)
-    FileIO.save(path, img)
+    PNGFiles.save(path, img)
     return nothing
 end
 
 function save_tiff(path::String, data)
     if ndims(data) == 2
         img = prepare_image_2d(data)
-        FileIO.save(path, img)
+        TiffImages.save(path, img)
     elseif ndims(data) == 3
         img = prepare_image_3d(data)
-        FileIO.save(path, img)
+        TiffImages.save(path, img)
     elseif ndims(data) == 4
         # For 4D data (e.g., 3D + time), reshape to 3D by stacking slices
         # Shape (x, y, z, t) -> (x, y, z*t)
         sz = size(data)
         reshaped = reshape(data, sz[1], sz[2], sz[3] * sz[4])
         img = prepare_image_3d(reshaped)
-        FileIO.save(path, img)
+        TiffImages.save(path, img)
     else
         error("TIFF output requires a 2D, 3D, or 4D array.")
     end
@@ -91,6 +93,53 @@ function prepare_image_3d(data)
     return Gray.(N0f8.(norm))
 end
 
+function save_gif(path::String, data)
+    # Handle both 3D (x, y, time) and 4D (x, y, 1, time) data
+    if ndims(data) == 3
+        # 3D case: (x, y, time) - perfect for GIF
+        frames_2d = data
+    elseif ndims(data) == 4
+        if size(data, 3) != 1
+            error("GIF output is only supported for 2D images (single z-slice per frame). Got z-dimension of size $(size(data, 3)). Use (x, y, 1, time) shape for GIF output.")
+        end
+        # Extract 2D frames: (x, y, 1, t) -> (x, y, t)
+        frames_2d = dropdims(data, dims=3)
+    else
+        error("GIF output requires a 3D array (x, y, time) for 2D images or 4D array (x, y, 1, time) for 3D images with single z-slice. Got $(ndims(data))D array.")
+    end
+    
+    # Normalize globally across all frames
+    values = real.(frames_2d)
+    min_val = minimum(values)
+    max_val = maximum(values)
+    if max_val == min_val
+        frames_normalized = fill(0.0, size(values))
+    else
+        frames_normalized = (values .- min_val) ./ (max_val - min_val)
+    end
+    frames_normalized = clamp.(frames_normalized, 0.0, 1.0)
+    
+    # Convert to RGB for GIFImages (requires RGB{N0f8})
+    num_frames = size(frames_normalized, 3)
+    frames_rgb = Vector{Matrix{RGB{N0f8}}}(undef, num_frames)
+    for t in 1:num_frames
+        frame_gray = Gray.(N0f8.(frames_normalized[:, :, t]))
+        frames_rgb[t] = RGB.(frame_gray)
+    end
+
+    # Write GIF using GIFImages
+    try
+        frames_array = Array{RGB{N0f8}, 3}(undef, size(frames_rgb[1], 1), size(frames_rgb[1], 2), num_frames)
+        for t in 1:num_frames
+            frames_array[:, :, t] = frames_rgb[t]
+        end
+        GIFImages.gif_encode(path, frames_array)
+    catch e
+        error("Failed to save GIF file: $e")
+    end
+    return nothing
+end
+
 function save_signal(path::String, format::String, data::Dict)
     fmt = lowercase(format)
     if fmt == "csv"
@@ -109,13 +158,23 @@ function save_signal(path::String, format::String, data::Dict)
 end
 
 function save_signal_csv(path::String, data::Dict)
-    keys_sorted = sort(collect(keys(data)))
-    rows = length(data[keys_sorted[1]])
-    mat = zeros(Float64, rows, length(keys_sorted))
-    for (idx, key) in enumerate(keys_sorted)
+    preferred = ["t", "signal", "lv", "rv", "la", "ra"]
+    all_keys = collect(keys(data))
+    ordered_keys = String[]
+    for key in preferred
+        if key in all_keys
+            push!(ordered_keys, key)
+        end
+    end
+    remaining = sort([k for k in all_keys if !(k in ordered_keys)])
+    append!(ordered_keys, remaining)
+
+    rows = length(data[ordered_keys[1]])
+    mat = zeros(Float64, rows, length(ordered_keys))
+    for (idx, key) in enumerate(ordered_keys)
         mat[:, idx] = data[key]
     end
-    header = join(keys_sorted, ",")
+    header = join(ordered_keys, ",")
     open(path, "w") do io
         println(io, header)
         writedlm(io, mat, ',')

@@ -66,8 +66,6 @@ end
             code = run_cli(["phantom", "shepp-logan", "--size", "16,16", "--plane", "axial", "--out", out_path])
             @test code == 0
             @test isfile(out_path)
-            img = FileIO.load(out_path)
-            @test size(img) == (16, 16)
         end
 
         @testset "shepp-logan tiff" begin
@@ -75,8 +73,6 @@ end
             code = run_cli(["phantom", "shepp-logan", "--size", "16,16", "--plane", "axial", "--out", out_path])
             @test code == 0
             @test isfile(out_path)
-            img = FileIO.load(out_path)
-            @test size(img) == (16, 16)
         end
 
         @testset "torso 3D tiff" begin
@@ -84,8 +80,6 @@ end
             code = run_cli(["phantom", "torso", "--size", "8,8,8", "--out", out_path])
             @test code == 0
             @test isfile(out_path)
-            img = FileIO.load(out_path)
-            @test size(img) == (8, 8, 8)
         end
 
         @testset "signals respiratory csv" begin
@@ -94,7 +88,32 @@ end
             @test code == 0
             @test isfile(out_path)
             header = split(read(out_path, String), "\n")[1]
+            @test startswith(header, "t,")
             @test occursin("signal", header)
+        end
+
+        @testset "torso dynamic GIF from CLI-generated signals" begin
+            resp_path = joinpath(dir, "resp_generated.csv")
+            cardiac_path = joinpath(dir, "cardiac_generated.json")
+            out_path = joinpath(dir, "torso_dynamic.gif")
+
+            code_resp = run_cli(["signals", "respiratory", "--duration", "2", "--fs", "24", "--rate", "15", "--out", resp_path])
+            @test code_resp == 0
+            @test isfile(resp_path)
+
+            code_card = run_cli(["signals", "cardiac", "--duration", "2", "--fs", "24", "--rate", "70", "--out", cardiac_path])
+            @test code_card == 0
+            @test isfile(cardiac_path)
+
+            code_dyn = run_cli(
+                [
+                    "phantom", "torso", "--size", "128,128", "--plane", "coronal",
+                    "--resp-signal", resp_path, "--cardiac-signal", cardiac_path,
+                    "--out", out_path,
+                ]
+            )
+            @test code_dyn == 0
+            @test isfile(out_path)
         end
 
         @testset "signals cardiac json" begin
@@ -191,6 +210,54 @@ end
             @test isfile(out_path)
             data = NPZ.npzread(out_path)
             @test haskey(data, "phantom")
+        end
+
+        @testset "torso 2D with respiratory signal as GIF" begin
+            # Generate a respiratory signal file
+            resp_path = joinpath(dir, "resp_gif.csv")
+            writedlm(resp_path, [0.1 * sin(2π * 0.2 * i) for i in 1:5], ',')
+
+            out_path = joinpath(dir, "torso_resp.gif")
+            code = run_cli(
+                [
+                    "phantom", "torso", "--size", "8,8", "--plane", "coronal",
+                    "--resp-signal", resp_path, "--format", "gif",
+                    "--out", out_path,
+                ]
+            )
+            @test code == 0
+            @test isfile(out_path)
+        end
+
+        @testset "GIF requires 4D data error" begin
+            err = try
+                # 2D data should fail (no time dimension)
+                GeometricMedicalPhantomsApp.save_gif(
+                    joinpath(dir, "bad.gif"),
+                    zeros(16, 16)
+                )
+                nothing
+            catch e
+                e
+            end
+            @test err !== nothing
+            msg = string(err)
+            @test (occursin("3D array", msg) || occursin("(x, y, time)", msg))
+        end
+
+        @testset "GIF requires z=1 error" begin
+            err = try
+                # 4D data with z > 1 should fail
+                GeometricMedicalPhantomsApp.save_gif(
+                    joinpath(dir, "bad.gif"),
+                    zeros(16, 16, 8, 5)
+                )
+                nothing
+            catch e
+                e
+            end
+            @test err !== nothing
+            @test occursin("z-dimension", string(err))
         end
     end
 

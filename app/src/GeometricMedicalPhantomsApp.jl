@@ -4,14 +4,14 @@ export main
 
 using ArgParse
 using BartIO
-using FileIO
 using GeometricMedicalPhantoms
-using ImageCore
-using ImageIO
+using GIFImages
 using JSON3
 using MAT
 using NIfTI
 using NPZ
+using PNGFiles
+using TiffImages
 using DelimitedFiles
 using Dates
 using ColorTypes

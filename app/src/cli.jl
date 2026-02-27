@@ -1,21 +1,26 @@
 function main(args::Vector{String})
-    if isempty(args)
-        print_usage()
-        return 1
-    end
+    try
+        if isempty(args)
+            print_usage()
+            return 1
+        end
 
-    command = args[1]
-    rest = args[2:end]
+        command = args[1]
+        rest = args[2:end]
 
-    if command == "phantom"
-        return run_phantom(rest)
-    elseif command == "signals"
-        return run_signals(rest)
-    elseif command == "info"
-        return run_info()
-    else
-        println("Unknown command: $command")
-        print_usage()
+        if command == "phantom"
+            return run_phantom(rest)
+        elseif command == "signals"
+            return run_signals(rest)
+        elseif command == "info"
+            return run_info()
+        else
+            println("Unknown command: $command")
+            print_usage()
+            return 1
+        end
+    catch e
+        println("Error: ", e)
         return 1
     end
 end
@@ -61,7 +66,7 @@ function run_phantom(args::Vector{String})
         arg_type = String
         required = true
         "--format"
-        help = "Output format: npy, mat, cfl, nifti, png"
+        help = "Output format: npy, mat, cfl, nifti, png, tiff, gif."
         arg_type = String
         "--meta"
         help = "Metadata JSON path (defaults to <out>.json)"
