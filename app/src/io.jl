@@ -18,6 +18,9 @@ function save_output(path::String, format::String, data)
     elseif fmt == "tiff"
         save_tiff(path, data)
     elseif fmt == "gif"
+        if !GIF_SUPPORTED
+            error("GIF output is not supported on Windows in the CLI app.")
+        end
         save_gif(path, data)
     else
         error("Unsupported output format: $format")
@@ -94,6 +97,10 @@ function prepare_image_3d(data)
 end
 
 function save_gif(path::String, data)
+    if !GIF_SUPPORTED
+        error("GIF output is not supported on Windows in the CLI app.")
+    end
+
     # Handle both 3D (x, y, time) and 4D (x, y, 1, time) data
     if ndims(data) == 3
         # 3D case: (x, y, time) - perfect for GIF

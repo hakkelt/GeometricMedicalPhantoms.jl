@@ -120,8 +120,11 @@ The CLI supports multiple output formats:
 | BART | `.cfl`/`.hdr` | BART complex float format (pass base path without extension) |
 | NIfTI | `.nii`, `.nii.gz` | Medical imaging format |
 | PNG | `.png` | 2D image (grayscale, normalized) |
+| GIF | `.gif` | Animated image for dynamic 2D outputs (Linux/macOS only) |
 | CSV | `.csv` | Comma-separated values (signals only) |
 | JSON | `.json` | JSON format (signals only) |
+
+Note: GIF export is disabled on Windows in the CLI app due to `GIFImages.jl` precompile issues.
 
 If `--format` is omitted, it's inferred from the file extension. For BART output, specify `--format cfl` and provide the base path:
 

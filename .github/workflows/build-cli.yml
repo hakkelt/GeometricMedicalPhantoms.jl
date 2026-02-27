@@ -29,10 +29,17 @@ jobs:
       - name: Cache Julia packages
         uses: julia-actions/cache@v2
 
-      - name: Install CLI app dependencies
+      - name: Install CLI app dependencies (non-Windows)
+        if: runner.os != 'Windows'
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Remove GIFImages and instantiate (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.resolve(); Pkg.instantiate()'
 
       - name: Run CLI tests
         working-directory: app
@@ -88,10 +95,21 @@ jobs:
         run: |
           julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", rev="d801470"))'
 
-      - name: Build CLI executable
+      - name: Prepare CLI app dependencies (non-Windows)
+        if: runner.os != 'Windows'
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Remove GIFImages and instantiate (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.resolve(); Pkg.instantiate()'
+
+      - name: Build CLI executable
+        working-directory: app
+        run: |
           julia --project=. build.jl
 
       - name: Test executable

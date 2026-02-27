@@ -6,7 +6,10 @@ const PLANE_MAP = Dict(
 
 const PHANTOM_TYPES = Set(["shepp-logan", "torso", "tubes"])
 const SIGNAL_TYPES = Set(["respiratory", "cardiac"])
-const FORMAT_ALIASES = Dict(
+const GIF_SUPPORTED = !Sys.iswindows()
+const SUPPORTED_OUTPUT_FORMATS = GIF_SUPPORTED ? ["npy", "mat", "cfl", "nifti", "png", "tiff", "gif"] : ["npy", "mat", "cfl", "nifti", "png", "tiff"]
+
+const FORMAT_ALIASES = let aliases = Dict(
     "npy" => "npy",
     "mat" => "mat",
     "cfl" => "cfl",
@@ -16,5 +19,9 @@ const FORMAT_ALIASES = Dict(
     "png" => "png",
     "tiff" => "tiff",
     "tif" => "tiff",
-    "gif" => "gif",
 )
+    if GIF_SUPPORTED
+        aliases["gif"] = "gif"
+    end
+    aliases
+end

@@ -5,7 +5,9 @@ export main
 using ArgParse
 using BartIO
 using GeometricMedicalPhantoms
-using GIFImages
+@static if !Sys.iswindows()
+	using GIFImages
+end
 using JSON3
 using MAT
 using NIfTI

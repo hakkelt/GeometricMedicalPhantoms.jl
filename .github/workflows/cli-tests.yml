@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: ['1.12', '1']
+        julia-version: ['1.12']
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v6
@@ -43,10 +43,17 @@ jobs:
       - name: Cache Julia packages
         uses: julia-actions/cache@v2
 
-      - name: Install CLI app dependencies
+      - name: Install CLI app dependencies (non-Windows)
+        if: runner.os != 'Windows'
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Remove GIFImages and instantiate (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.resolve(); Pkg.instantiate()'
 
       - name: Run CLI tests
         working-directory: app

@@ -71,7 +71,9 @@ Supported outputs:
 - `nifti` (`.nii` or `.nii.gz`)
 - `png` (2D only)
 - `tiff` (multi-page for 3D/4D)
-- `gif` (multi-frame 2D only)
+- `gif` (multi-frame 2D only, Linux/macOS only)
+
+On Windows, GIF export is disabled in the CLI app due to `GIFImages.jl` precompile issues.
 
 If `--format` is omitted, it is inferred from the `--out` extension. For BART output, always pass the base path and set `--format cfl`.
 
@@ -141,7 +143,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 |--------|-------------|------|---------|-------|
 | `--plane` | Slice plane for 2D output | String | Required for 2D | One of: `axial`, `coronal`, `sagittal` |
 | `--slice-position` | Slice position in cm | Float | `0.0` | Position along the slice axis |
-| `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff`, `gif` |
+| `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff`, `gif` (`gif` is not available on Windows) |
 | `--meta` | Metadata JSON path | String | `<out>.json` | Custom location for metadata |
 | `--no-meta` | Disable metadata output | Flag | `false` | Skips JSON sidecar creation |
 | `--intensity` | Intensity specification | String/JSON | Default preset | See [Intensity Specification](#intensity-specification) |
@@ -161,7 +163,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 | `nifti` | `.nii`, `.nii.gz` | 2D, 3D, 4D | NIfTI format (compressed supported) |
 | `png` | `.png` | 2D only | PNG image (auto-scaled to 8-bit) |
 | `tiff` | `.tif`, `.tiff` | 2D, 3D, 4D | TIFF format (multi-page for 3D/4D) |
-| `gif` | `.gif` | 2D only | GIF image (multi-frame for dynamic phantoms) |
+| `gif` | `.gif` | 2D only | GIF image (multi-frame for dynamic phantoms, Linux/macOS only) |
 
 **Format Inference:** If `--format` is omitted, the format is inferred from the `--out` extension.
 

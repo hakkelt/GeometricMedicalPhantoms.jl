@@ -21,6 +21,9 @@ end
 function resolve_format(format::Union{Nothing, String}, out_path::String)
     if format !== nothing
         key = lowercase(strip(format))
+        if key == "gif" && !GIF_SUPPORTED
+            error("GIF output is not supported on Windows in the CLI app.")
+        end
         return get(FORMAT_ALIASES, key, key)
     end
 
@@ -37,6 +40,9 @@ function resolve_format(format::Union{Nothing, String}, out_path::String)
     elseif ext == ".nii" || endswith(lower_out, ".nii.gz")
         return "nifti"
     elseif ext == ".gif"
+        if !GIF_SUPPORTED
+            error("Cannot infer GIF format on Windows because GIF output is not supported in the CLI app. Use another format.")
+        end
         return "gif"
     end
 
