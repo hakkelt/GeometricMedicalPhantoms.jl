@@ -12,10 +12,10 @@ makedocs(
         "Phantoms" => [
             "Shepp-Logan Phantom" => "phantoms/shepp_logan.md",
             "Torso Phantom" => "phantoms/torso.md",
+            "Torso Phantom Specification" => "phantoms/phantom_specification.md",
             "Tubes Phantom" => "phantoms/tubes.md",
         ],
         "Advanced" => [
-            "Torso Phantom Specification" => "phantoms/phantom_specification.md",
             "Geometry Primitives" => "advanced/primitives.md",
             "Custom Phantoms" => "advanced/custom_phantoms.md",
         ],
