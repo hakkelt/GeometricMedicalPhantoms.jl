@@ -2,6 +2,7 @@ using JSON3
 using NIfTI
 using NPZ
 using MAT
+using TiffImages
 using DelimitedFiles
 using Test
 
@@ -18,6 +19,8 @@ function main(exe::String)
             out_nii = joinpath(dir, "shepp.nii.gz")
             out_png = joinpath(dir, "shepp.png")
             out_tiff = joinpath(dir, "torso.tif")
+            out_tiff_cor = joinpath(dir, "torso_coronal.tif")
+            out_tiff_sag = joinpath(dir, "torso_sagittal.tif")
             out_resp = joinpath(dir, "resp.csv")
             out_card = joinpath(dir, "cardiac.json")
             out_gif = joinpath(dir, "torso_dynamic.gif")
@@ -44,6 +47,18 @@ function main(exe::String)
 
             @test run_cmd(exe, ["phantom", "torso", "--size", "8,8,8", "--out", out_tiff])
             @test isfile(out_tiff)
+            img_axial = TiffImages.load(out_tiff)
+            @test size(img_axial) == (8, 8, 8)
+
+            @test run_cmd(exe, ["phantom", "torso", "--size", "8,6,4", "--plane", "coronal", "--out", out_tiff_cor])
+            @test isfile(out_tiff_cor)
+            img_coronal = TiffImages.load(out_tiff_cor)
+            @test size(img_coronal) == (8, 4, 6)
+
+            @test run_cmd(exe, ["phantom", "torso", "--size", "8,6,4", "--plane", "sagittal", "--out", out_tiff_sag])
+            @test isfile(out_tiff_sag)
+            img_sagittal = TiffImages.load(out_tiff_sag)
+            @test size(img_sagittal) == (6, 4, 8)
 
             @test run_cmd(exe, ["signals", "respiratory", "--duration", "10", "--fs", "24", "--rate", "15", "--out", out_resp])
             @test isfile(out_resp)

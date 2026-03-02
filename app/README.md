@@ -53,7 +53,7 @@ geomphantoms phantom shepp-logan --size 256,256 --plane axial --out shepp.npy
 ```
 
 Options:
-- `--plane`: Slice plane (`axial`, `coronal`, `sagittal`)
+- `--plane`: Slice plane (`axial`, `coronal`, `sagittal`); for TIFF export of 3D/4D data this selects which anatomical plane is written as frames
 - `--slice-position`: Slice position in cm (default: 0.0)
 - `--intensity`: Preset (`ct`, `mri`, `default`) or custom JSON
 - `--mask`: Mask configuration as JSON
@@ -120,6 +120,7 @@ The CLI supports multiple output formats:
 | BART | `.cfl`/`.hdr` | BART complex float format (pass base path without extension) |
 | NIfTI | `.nii`, `.nii.gz` | Medical imaging format |
 | PNG | `.png` | 2D image (grayscale, normalized) |
+| TIFF | `.tif`, `.tiff` | 2D image or multi-frame stack; for 3D/4D data, frame plane follows `--plane` |
 | GIF | `.gif` | Animated image for dynamic 2D outputs (Linux/macOS only) |
 | CSV | `.csv` | Comma-separated values (signals only) |
 | JSON | `.json` | JSON format (signals only) |

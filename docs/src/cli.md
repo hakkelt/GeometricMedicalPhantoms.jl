@@ -70,7 +70,7 @@ Supported outputs:
 - `cfl/hdr` (BART): use a base path without extension, e.g. `--out ./phantom`
 - `nifti` (`.nii` or `.nii.gz`)
 - `png` (2D only)
-- `tiff` (multi-page for 3D/4D)
+- `tiff` (multi-page for 3D/4D; frame plane follows `--plane`, default `axial`)
 - `gif` (multi-frame 2D only, Linux/macOS only)
 
 On Windows, GIF export is disabled in the CLI app due to `GIFImages.jl` precompile issues.
@@ -141,7 +141,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 
 | Option | Description | Type | Default | Notes |
 |--------|-------------|------|---------|-------|
-| `--plane` | Slice plane for 2D output | String | Required for 2D | One of: `axial`, `coronal`, `sagittal` |
+| `--plane` | Slice plane for 2D output and TIFF frame orientation for 3D/4D output | String | `axial` for 2D; `axial` for TIFF if omitted | One of: `axial`, `coronal`, `sagittal` |
 | `--slice-position` | Slice position in cm | Float | `0.0` | Position along the slice axis |
 | `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff`, `gif` (`gif` is not available on Windows) |
 | `--meta` | Metadata JSON path | String | `<out>.json` | Custom location for metadata |
@@ -162,7 +162,7 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 | `cfl`/`hdr` | `.cfl` + `.hdr` | 2D, 3D, 4D | BART format (use base path without extension) |
 | `nifti` | `.nii`, `.nii.gz` | 2D, 3D, 4D | NIfTI format (compressed supported) |
 | `png` | `.png` | 2D only | PNG image (auto-scaled to 8-bit) |
-| `tiff` | `.tif`, `.tiff` | 2D, 3D, 4D | TIFF format (multi-page for 3D/4D) |
+| `tiff` | `.tif`, `.tiff` | 2D, 3D, 4D | TIFF format (multi-page for 3D/4D; frame plane controlled by `--plane`) |
 | `gif` | `.gif` | 2D only | GIF image (multi-frame for dynamic phantoms, Linux/macOS only) |
 
 **Format Inference:** If `--format` is omitted, the format is inferred from the `--out` extension.
@@ -380,7 +380,7 @@ When metadata is enabled (default), a JSON sidecar file is created with the foll
 - `command` - CLI command used (`phantom` or `signals`)
 - `type` - Phantom or signal type
 - `size` - Array dimensions (phantom command only)
-- `plane` - Slice plane (`null` for 3D)
+- `plane` - Selected plane; used for 2D slicing and TIFF frame orientation
 - `slice_position` - Slice position in cm
 - `format` - Output format
 - `output` - Output file path
@@ -436,8 +436,11 @@ geomphantoms phantom torso --size 128,128,128 --out torso.nii.gz
 # BART format
 geomphantoms phantom torso --size 128,128,128 --format cfl --out phantom_base
 
-# Multi-page TIFF (all slices in one file)
+# Multi-page TIFF (axial frames by default)
 geomphantoms phantom torso --size 128,128,128 --out torso.tiff
+
+# Multi-page TIFF with coronal frames
+geomphantoms phantom torso --size 128,128,128 --plane coronal --out torso_coronal.tiff
 ```
 
 #### Dynamic Phantoms with Motion
@@ -501,13 +504,13 @@ geomphantoms phantom torso --size 128,128,128 --out torso.mat \
    # Creates phantom.cfl and phantom.hdr
    ```
 
-3. **2D vs 3D:** For 2D output, specify `--plane`:
+3. **Plane behavior:** `--plane` controls 2D slice orientation and TIFF frame orientation for 3D/4D outputs:
    ```bash
-   # 2D requires --plane
+   # 2D (defaults to axial if omitted)
    geomphantoms phantom shepp-logan --size 256,256 --plane axial --out shepp.npy
    
-   # 3D does not use --plane
-   geomphantoms phantom torso --size 128,128,128 --out torso.npy
+   # 3D TIFF with coronal frames
+   geomphantoms phantom torso --size 128,128,128 --plane coronal --out torso.tiff
    ```
 
 4. **Signal Length Matching:** When using both respiratory and cardiac signals, ensure they have the same number of samples:
@@ -522,10 +525,13 @@ geomphantoms phantom torso --size 128,128,128 --out torso.mat \
    geomphantoms phantom torso --size 512,512,512 --out torso.nii.gz
    ```
 
-6. **Multi-page TIFF:** For 3D data that needs to be opened in standard image viewers:
+6. **Multi-page TIFF:** For 3D data that needs to be opened in standard image viewers, use `--plane` to choose frame orientation:
    ```bash
    geomphantoms phantom torso --size 256,256,256 --out torso.tiff
-   # Creates multi-page TIFF with all slices
+   # Creates multi-page TIFF with axial frames (default)
+
+   geomphantoms phantom torso --size 256,256,256 --plane coronal --out torso_coronal.tiff
+   # Creates multi-page TIFF with coronal frames
    ```
 
 7. **Version Information:** Check the version before reporting issues:

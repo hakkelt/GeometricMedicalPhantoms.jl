@@ -1,4 +1,4 @@
-function save_output(path::String, format::String, data)
+function save_output(path::String, format::String, data; plane::Union{Nothing, Symbol} = nothing)
     fmt = lowercase(format)
     if fmt == "npy"
         NPZ.npzwrite(path, Dict("phantom" => data))
@@ -16,7 +16,7 @@ function save_output(path::String, format::String, data)
     elseif fmt == "png"
         save_png(path, data)
     elseif fmt == "tiff"
-        save_tiff(path, data)
+        save_tiff(path, data; plane = plane)
     elseif fmt == "gif"
         if !GIF_SUPPORTED
             error("GIF output is not supported on Windows in the CLI app.")
@@ -37,24 +37,50 @@ function save_png(path::String, data)
     return nothing
 end
 
-function save_tiff(path::String, data)
+function save_tiff(path::String, data; plane::Union{Nothing, Symbol} = nothing)
     if ndims(data) == 2
         img = prepare_image_2d(data)
         TiffImages.save(path, img)
     elseif ndims(data) == 3
-        img = prepare_image_3d(data)
+        img = prepare_image_3d(tiff_stack_by_plane(data, plane))
         TiffImages.save(path, img)
     elseif ndims(data) == 4
-        # For 4D data (e.g., 3D + time), reshape to 3D by stacking slices
-        # Shape (x, y, z, t) -> (x, y, z*t)
-        sz = size(data)
-        reshaped = reshape(data, sz[1], sz[2], sz[3] * sz[4])
+        reshaped = tiff_stack_by_plane(data, plane)
         img = prepare_image_3d(reshaped)
         TiffImages.save(path, img)
     else
         error("TIFF output requires a 2D, 3D, or 4D array.")
     end
     return nothing
+end
+
+function tiff_stack_by_plane(data::AbstractArray{T, 3}, plane::Union{Nothing, Symbol}) where {T}
+    selected_plane = plane === nothing ? :axial : plane
+    if selected_plane == :axial
+        return data
+    elseif selected_plane == :coronal
+        return permutedims(data, (1, 3, 2))
+    elseif selected_plane == :sagittal
+        return permutedims(data, (2, 3, 1))
+    end
+    error("Unsupported plane for TIFF export: $selected_plane")
+end
+
+function tiff_stack_by_plane(data::AbstractArray{T, 4}, plane::Union{Nothing, Symbol}) where {T}
+    selected_plane = plane === nothing ? :axial : plane
+    if selected_plane == :axial
+        sz = size(data)
+        return reshape(data, sz[1], sz[2], sz[3] * sz[4])
+    elseif selected_plane == :coronal
+        reoriented = permutedims(data, (1, 3, 2, 4))
+        sz = size(reoriented)
+        return reshape(reoriented, sz[1], sz[2], sz[3] * sz[4])
+    elseif selected_plane == :sagittal
+        reoriented = permutedims(data, (2, 3, 1, 4))
+        sz = size(reoriented)
+        return reshape(reoriented, sz[1], sz[2], sz[3] * sz[4])
+    end
+    error("Unsupported plane for TIFF export: $selected_plane")
 end
 
 function prepare_png(data)

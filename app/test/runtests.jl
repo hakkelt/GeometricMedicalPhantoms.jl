@@ -82,6 +82,46 @@ end
             @test isfile(out_path)
         end
 
+        @testset "torso 3D tiff plane orientation" begin
+            out_axial = joinpath(dir, "torso_axial.tif")
+            out_coronal = joinpath(dir, "torso_coronal.tif")
+            out_sagittal = joinpath(dir, "torso_sagittal.tif")
+
+            nx, ny, nz = 9, 7, 5
+            @test run_cli(["phantom", "torso", "--size", "$(nx),$(ny),$(nz)", "--plane", "axial", "--out", out_axial]) == 0
+            @test run_cli(["phantom", "torso", "--size", "$(nx),$(ny),$(nz)", "--plane", "coronal", "--out", out_coronal]) == 0
+            @test run_cli(["phantom", "torso", "--size", "$(nx),$(ny),$(nz)", "--plane", "sagittal", "--out", out_sagittal]) == 0
+
+            img_axial = GeometricMedicalPhantomsApp.TiffImages.load(out_axial)
+            img_coronal = GeometricMedicalPhantomsApp.TiffImages.load(out_coronal)
+            img_sagittal = GeometricMedicalPhantomsApp.TiffImages.load(out_sagittal)
+
+            @test size(img_axial) == (nx, ny, nz)
+            @test size(img_coronal) == (nx, nz, ny)
+            @test size(img_sagittal) == (ny, nz, nx)
+        end
+
+        @testset "save_tiff 4D plane orientation" begin
+            out_axial = joinpath(dir, "stack_axial.tif")
+            out_coronal = joinpath(dir, "stack_coronal.tif")
+            out_sagittal = joinpath(dir, "stack_sagittal.tif")
+
+            nx, ny, nz, nt = 6, 5, 4, 3
+            data = reshape(collect(Float32, 1:(nx * ny * nz * nt)), nx, ny, nz, nt)
+
+            GeometricMedicalPhantomsApp.save_tiff(out_axial, data; plane = :axial)
+            GeometricMedicalPhantomsApp.save_tiff(out_coronal, data; plane = :coronal)
+            GeometricMedicalPhantomsApp.save_tiff(out_sagittal, data; plane = :sagittal)
+
+            img_axial = GeometricMedicalPhantomsApp.TiffImages.load(out_axial)
+            img_coronal = GeometricMedicalPhantomsApp.TiffImages.load(out_coronal)
+            img_sagittal = GeometricMedicalPhantomsApp.TiffImages.load(out_sagittal)
+
+            @test size(img_axial) == (nx, ny, nz * nt)
+            @test size(img_coronal) == (nx, nz, ny * nt)
+            @test size(img_sagittal) == (ny, nz, nx * nt)
+        end
+
         @testset "signals respiratory csv" begin
             out_path = joinpath(dir, "resp.csv")
             code = run_cli(["signals", "respiratory", "--duration", "1", "--fs", "4", "--out", out_path])

@@ -55,7 +55,7 @@ function run_phantom(args::Vector{String})
         arg_type = String
         required = true
         "--plane"
-        help = "Slice plane for 2D output: axial, coronal, sagittal"
+        help = "Slice plane for 2D output and TIFF frame orientation for 3D/4D output: axial, coronal, sagittal"
         arg_type = String
         "--slice-position"
         help = "Slice position in cm for 2D output"
@@ -115,7 +115,7 @@ function run_phantom(args::Vector{String})
         error("Unsupported phantom type: $phantom_type")
     end
 
-    save_output(out_path, format, data)
+    save_output(out_path, format, data; plane = plane)
 
     if !parsed[:no_meta]
         meta_path = get(parsed, :meta, nothing)
