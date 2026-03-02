@@ -117,50 +117,62 @@ Normalized signal ``\hat{r}``:
 \hat{r} = \frac{S_{resp} - 1.2}{6.0 - 1.2}
 ```
 
-Polynomial Coefficients:
-``a = (0.598, 0.842, -0.175, -0.0320625)``
-``b = (1.819140625, 0.831375, -1.7111875, 1.24575)``
+Polynomial Coefficients:  
+```math
+\begin{aligned}
+a &= (0.598, 0.842, -0.175, -0.0320625) \\
+b &= (1.819140625, 0.831375, -1.7111875, 1.24575)
+\end{aligned}
+```
 
 Global Scaling Factors:
 ```math
-S_{scale} = a_0 + a_1\hat{r} + a_2\hat{r}^2 + a_3\hat{r}^3
-S_{lower\_rz} = b_0 + b_1\hat{r} + b_2\hat{r}^2 + b_3\hat{r}^3
+\begin{aligned}
+S_{scale} &= a_0 + a_1\hat{r} + a_2\hat{r}^2 + a_3\hat{r}^3 \\
+S_{lower\_rz} &= b_0 + b_1\hat{r} + b_2\hat{r}^2 + b_3\hat{r}^3
+\end{aligned}
 ```
 
 Derived Parameters:
 ```math
-S_{body} = 0.4 + 0.63 \cdot S_{scale}
-y_{offset} = -0.40 + S_{body} \cdot 0.45
-\Delta z_{dia} = -0.5 \cdot (S_{lower\_rz} - 1.0)
-S_{dia} = S_{lower\_rz}
+\begin{aligned}
+S_{body} &= 0.4 + 0.63 \cdot S_{scale} \\
+y_{offset} &= -0.40 + S_{body} \cdot 0.45 \\
+\Delta z_{dia} &= -0.5 \cdot (S_{lower\_rz} - 1.0) \\
+S_{dia} &= S_{lower\_rz}
+\end{aligned}
 ```
 
 ### Dynamic Torso Shells (Main Body)
 
-| Component | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` |
-|-----------|-------|-------|-------|-------|-------|-------|------------|
-| Chest (Upper) | 0.0 | ``-y_{offset}`` | 0.45 | ``0.86 S_{body}`` | ``0.69 S_{body}`` | 0.35 | (2.5, 2.5, 2.5) |
-| Chest (Mid) | 0.0 | ``-y_{offset}`` | 0.17 | ``0.93 S_{body}`` | ``0.72 S_{body}`` | 0.32 | (2.5, 2.5, 3.5) |
-| Chest (Lower) | 0.0 | ``-y_{offset}`` | -0.11 | ``0.91 S_{body}`` | ``0.71 S_{body}`` | 0.32 | (2.5, 2.5, 3.5) |
-| Abd (Upper) | 0.0 | ``-y_{offset}`` | -0.45 | ``0.87 S_{body}`` | ``0.67 S_{body}`` | 0.40 | (2.5, 2.5, 3.5) |
-| Abd (Lower) | 0.0 | ``-y_{offset}`` | -0.85 | ``0.83 \sqrt{S_{body}}`` | ``0.62 \sqrt{S_{body}}`` | 0.45 | (2.5, 2.5, 3.5) | 
+| Component | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` | Intensity |
+|-----------|-------|-------|-------|-------|-------|-------|------------|-----------|
+| Chest (Upper) | 0.0 | ``-y_{offset}`` | 0.45 | ``0.86 S_{body}`` | ``0.69 S_{body}`` | 0.35 | (2.5, 2.5, 2.5) | Body |
+| Chest (Mid) | 0.0 | ``-y_{offset}`` | 0.17 | ``0.93 S_{body}`` | ``0.72 S_{body}`` | 0.32 | (2.5, 2.5, 3.5) | Body |
+| Chest (Lower) | 0.0 | ``-y_{offset}`` | -0.11 | ``0.91 S_{body}`` | ``0.71 S_{body}`` | 0.32 | (2.5, 2.5, 3.5) | Body |
+| Abd (Upper) | 0.0 | ``-y_{offset}`` | -0.45 | ``0.87 S_{body}`` | ``0.67 S_{body}`` | 0.40 | (2.5, 2.5, 3.5) | Body |
+| Abd (Lower) | 0.0 | ``-y_{offset}`` | -0.85 | ``0.83 \sqrt{S_{body}}`` | ``0.62 \sqrt{S_{body}}`` | 0.45 | (2.5, 2.5, 3.5) | Body |
 
 ### Lungs
 
 **Constants:**
-``x_{off} = 0.32`` (Lung Center Offset)
-``R_{top} = 0.25 + 0.22 S_{scale}``
-``R_{low} = 0.430 S_{scale}``
-``R_{z,low} = 0.480 S_{lower\_rz}``
+```math
+\begin{aligned}
+x_{off} &= 0.32 \text{(Lung Center Offset)} \\
+R_{top} &= 0.25 + 0.22 S_{scale} \\
+R_{low} &= 0.430 S_{scale} \\
+R_{z,low} &= 0.480 S_{lower\_rz}
+\end{aligned}
+```
 
-| Component | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` |
-|-----------|-------|-------|-------|-------|-------|-------|------------|
-| L Upper | ``-(x_{off}-0.1)`` | ``-y_{offset}`` | ``-0.1 - 0.5 \Delta z_{dia}`` | ``R_{top}`` | ``R_{low}`` | 0.70 | (2, 2, 1.2) |
-| L Lower | ``-x_{off}`` | ``-y_{offset}`` | ``-0.17 + 0.5 \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | ``R_{z,low}`` | (2, 2, 2.5) |
-| R Upper | ``x_{off} - 0.1`` | ``-y_{offset}`` | ``-0.1 - 0.5 \Delta z_{dia}`` | ``R_{top}`` | ``R_{low}`` | 0.70 | (2, 2, 1.2) |
-| R Lower | ``x_{off}`` | ``-y_{offset}`` | ``-0.17 + 0.5 \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | ``R_{z,low}`` | (2, 2, 2.5) |
-| L Diaphragm | ``-x_{off}`` | ``-y_{offset}`` | ``-0.50 + \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | 0.40 | (2.5, 2.5, 1.5) |
-| R Diaphragm | ``x_{off}`` | ``-y_{offset}`` | ``-0.50 + \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | 0.40 | (2.5, 2.5, 1.5) |
+| Component | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` | Intensity |
+|-----------|-------|-------|-------|-------|-------|-------|------------|-----------|
+| L Upper | ``-(x_{off}-0.1)`` | ``-y_{offset}`` | ``-0.1 - 0.5 \Delta z_{dia}`` | ``R_{top}`` | ``R_{low}`` | 0.70 | (2, 2, 1.2) | Lung |
+| L Lower | ``-x_{off}`` | ``-y_{offset}`` | ``-0.17 + 0.5 \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | ``R_{z,low}`` | (2, 2, 2.5) | Lung |
+| R Upper | ``x_{off} - 0.1`` | ``-y_{offset}`` | ``-0.1 - 0.5 \Delta z_{dia}`` | ``R_{top}`` | ``R_{low}`` | 0.70 | (2, 2, 1.2) | Lung |
+| R Lower | ``x_{off}`` | ``-y_{offset}`` | ``-0.17 + 0.5 \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | ``R_{z,low}`` | (2, 2, 2.5) | Lung |
+| L Diaphragm | ``-x_{off}`` | ``-y_{offset}`` | ``-0.50 + \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | 0.40 | (2.5, 2.5, 1.5) | Body |
+| R Diaphragm | ``x_{off}`` | ``-y_{offset}`` | ``-0.50 + \Delta z_{dia}`` | ``R_{low}`` | ``R_{low}`` | 0.40 | (2.5, 2.5, 1.5) | Body |
 
 ## 6. Heart
 
@@ -175,14 +187,16 @@ s'_{LV} = 1.10 s_{LV}, \quad s'_{RV} = 1.06 s_{RV}, \quad s'_{LA} = 0.95 s_{LA},
 
 Displacements:
 ```math
-dx_{LV} = 0.45 \cdot 0.251 \cdot (s_{LV} - 1.0)
-dx_{RV} = 0.45 \cdot 0.209 \cdot (s_{RV} - 1.0)
-dx_{LA} = 0.15048 \cdot (s_{LA} - 1.0)
-dx_{RA} = 0.15048 \cdot (s_{RA} - 1.0)
-dz_{LV} = 0.209(s_{LV}-1), \quad dz_{LA} = 0.188(s_{LA}-1)
-dz_{RV} = 0.195(s_{RV}-1), \quad dz_{RA} = 0.188(s_{RA}-1)
-z_{sep, L} = 0.9(dz_{LV} + dz_{LA})
-z_{sep, R} = 0.9(dz_{RV} + dz_{RA})
+\begin{aligned}
+dx_{LV} &= 0.45 \cdot 0.251 \cdot (s_{LV} - 1.0) \\
+dx_{RV} &= 0.45 \cdot 0.209 \cdot (s_{RV} - 1.0) \\
+dx_{LA} &= 0.15048 \cdot (s_{LA} - 1.0) \\
+dx_{RA} &= 0.15048 \cdot (s_{RA} - 1.0) \\
+dz_{LV} &= 0.209(s_{LV}-1), \quad dz_{LA} = 0.188(s_{LA}-1) \\
+dz_{RV} &= 0.195(s_{RV}-1), \quad dz_{RA} = 0.188(s_{RA}-1) \\
+z_{sep, L} &= 0.9(dz_{LV} + dz_{LA}) \\
+z_{sep, R} &= 0.9(dz_{RV} + dz_{RA})
+\end{aligned}
 ```
 Constants: ``z_{off} = 0.2``.
 
@@ -191,19 +205,22 @@ Constants: ``z_{off} = 0.2``.
 The heart is composed of 20 ellipsoids/superellipsoids.
 
 Tuning parameters used in the cavity definitions:
-````
+```math
 \begin{aligned}
-&\text{myocardium\_bottom\_z\_scale} = 1.2,\quad \text{lv\_rad\_offset} = 0.006,\quad \text{rv\_rad\_offset} = 0.004,\\
-&\text{la\_rad\_offset} = -0.001,\quad \text{ra\_rad\_offset} = 0.0005,\quad \text{lv\_c\_base\_factor} = 1.02,\quad \text{rv\_c\_base\_factor} = 0.98
+\text{myocardium\_bottom\_z\_scale} &= 1.2 \\
+\text{lv\_rad\_offset} &= 0.006 \\
+\text{rv\_rad\_offset} &= 0.004, \\
+\text{la\_rad\_offset} &= -0.001 \\
+\text{ra\_rad\_offset} &= 0.0005 \\
+\text{lv\_c\_base\_factor} &= 1.02 \\
+\text{rv\_c\_base\_factor} &= 0.98
 \end{aligned}
-````
+```
 
 Define cavity scales ``s_{LV,c}, s_{RV,c}, s_{LA,c}, s_{RA,c}`` as:
-````
+```math
 s_{LV,c} = 1.10 s_{LV},\quad s_{RV,c} = 1.06 s_{RV},\quad s_{LA,c} = 0.95 s_{LA},\quad s_{RA,c} = 1.00 s_{RA}
-````
-
-For ellipsoids, ``\epsilon = (2, 2, 2)``. Intensities map to the tissue labels in Section 2.
+```
 
 | Component | Type | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` | Intensity |
 |-----------|------|-------|-------|-------|-------|-------|-------|-----------|-----------|
@@ -232,7 +249,7 @@ For ellipsoids, ``\epsilon = (2, 2, 2)``. Intensities map to the tissue labels i
 
 ### Liver
 
-The liver is positioned in the **left upper abdomen** and moves with diaphragm motion. It consists of two lobes with respiratory-dependent positioning.
+The liver is positioned in the left upper abdomen and moves with diaphragm motion. It consists of two lobes with respiratory-dependent positioning.
 
 **Constants:**
 - Moves with: ``\Delta z_{dia}`` (diaphragm vertical displacement)
@@ -245,14 +262,12 @@ The liver is positioned in the **left upper abdomen** and moves with diaphragm m
 
 ### Stomach
 
-The stomach is positioned in the **right upper abdomen** and moves with diaphragm motion. It consists of the body and pyloric antrum.
+The stomach is positioned in the right upper abdomen and moves with diaphragm motion. It consists of the body and pyloric antrum.
 
 | Component | ``c_x`` | ``c_y`` | ``c_z`` | ``R_x`` | ``R_y`` | ``R_z`` | ``\epsilon`` | Intensity |
 |-----------|-------|-------|-------|-------|-------|-------|------------|-----------|
 | Body | 0.45 | ``0.0 - y_{offset}`` | ``-0.55 + \Delta z_{dia}`` | ``0.176 \cdot xy_{scale}`` | ``0.176 \cdot xy_{scale}`` | 0.3 | (2.5, 2.5, 2.5) | Stomach |
 | Pyloric Antrum | 0.25 | ``-0.02 - y_{offset}`` | ``-0.65 + \Delta z_{dia}`` | ``0.12 \cdot xy_{scale}`` | ``0.115 \cdot xy_{scale}`` | 0.16 | (2.5, 2.5, 2.5) | Stomach |
-
-**Note:** The liver and stomach positions reflect anatomically correct laterality with the liver on the left side and stomach on the right side of the body in the phantom's coordinate system.
 
 ## 8. Major Vessels
 
@@ -264,21 +279,29 @@ Vessels follow 3D curved paths defined by sinusoidal functions to simulate anato
 
 **Aorta (Ascending):**
 ```math
-x_{aorta}(z) = -0.08 + 0.03 \sin(\pi (z - 0.2))
-y_{aorta}(z) = -0.05 + 0.035 \sin(0.7\pi (z - 0.2) + 0.4)
+\begin{aligned}
+x_{aorta}(z) &= -0.08 + 0.03 \sin(\pi (z - 0.2)) \\
+y_{aorta}(z) &= -0.05 + 0.035 \sin(0.7\pi (z - 0.2) + 0.4)
+\end{aligned}
 ```
 
 **Pulmonary Trunk:**
 ```math
-x_{pulm}(z) = -0.05 + 0.02 \sin(\pi (z - 0.22) + 0.2)
-y_{pulm}(z) = -0.05 + 0.03 \sin(0.9\pi (z - 0.22) - 0.3)
+\begin{aligned}
+x_{pulm}(z) &= -0.05 + 0.02 \sin(\pi (z - 0.22) + 0.2) \\
+y_{pulm}(z) &= -0.05 + 0.03 \sin(0.9\pi (z - 0.22) - 0.3)
+\end{aligned}
 ```
 
 **Superior Vena Cava:**
 ```math
-x_{svc}(z) = 0.1 + 0.05 \sin(0.8\pi (z - 0.3))
-y_{svc}(z) = -0.05 + 0.03 \sin(0.6\pi (z - 0.3) + 0.2)
+\begin{aligned}
+x_{svc}(z) &= 0.1 + 0.05 \sin(0.8\pi (z - 0.3)) \\
+y_{svc}(z) &= -0.05 + 0.03 \sin(0.6\pi (z - 0.3) + 0.2)
+\end{aligned}
 ```
+
+**Constants:** ``z_{offset} = 0.2`` (vertical offset for vessel centerlines)
 
 ### Aorta (Ascending)
 
@@ -362,38 +385,173 @@ The default respiratory signal ``S_{resp}(t)`` (in Liters) is generated with a f
 ```math
 \theta(t) = 2\pi f_{resp} t - \frac{f_{resp} A_{rr}}{f_{rr}} (\cos(2\pi f_{rr} t) - 1)
 ```
-
 2. **Base Waveform** (Asymmetric):
 ```math
 W(t) = \sin(\theta(t)) + A_{asym} \sin(2\theta(t))
 ```
-
 3. **Amplitude Modulation** (Depth Variability ``A_{am}, f_{am}``):
 ```math
-M(t) = 1 + A_{am} \sin(2\pi f_{am} t)
-S_{raw}(t) = W(t) \cdot M(t)
+\begin{aligned}
+&M(t) = 1 + A_{am} \sin(2\pi f_{am} t) \\
+&S_{raw}(t) = W(t) \cdot M(t)
+\end{aligned}
+```
+4. **Normalization:**
+```math
+\begin{aligned}
+S_{norm} &= \frac{S_{raw}(t) - \min(S_{raw})}{\max(S_{raw}) - \min(S_{raw})} \\
+S_{resp}(t) &= physiology.minL .+ (physiology.maxL - physiology.minL) .* S_{norm}
+\end{aligned}
 ```
 
-4. **Normalization:**
-Map ``S_{raw}`` linearly to range ``[V_{min}, V_{max}]``.
+where `physiology` refers to the respiratory signal generation parameters defined, defaulting to `minL = 1.2` and `maxL = 6.0` Liters. For more details, see [API Reference](../api.md).
 
 ### Cardiac Signals
 
-The cardiac cycle is modeled as a piecewise function of phase ``\phi(t) = (t \pmod T) / T``, where ``T = 60/HR``.
-Systole duration fraction ``\gamma = T_{sys}/T \approx 0.35``.
+The function `generate_cardiac_signals(duration, fs, HR; physiology=CardiacPhysiology())` generates chamber-volume time series for LV, RV, LA, and RA (mL).
 
-**Systole (``0 \le \phi < \gamma``):**
-Normalized time ``x_s = \phi / \gamma``.
-Left Ventricle Volume:
+Given sampling frequency ``f_s`` and duration ``D``, the time axis is:
 ```math
-V_{LV}(\phi) = V_{ED} - (V_{ED} - V_{ES}) \cdot (1 - (1 - x_s)^3)
+t_n = n/f_s, \quad n=0,1,\dots,\lfloor D f_s \rfloor-1
 ```
 
-**Diastole (``\gamma \le \phi < 1``):**
-Normalized time ``x_d = (\phi - \gamma) / (1 - \gamma)``.
-Left Ventricle Volume (Passive Filling + Atrial Kick):
+Heart rate and cycle period are:
 ```math
-V_{LV}(\phi) = V_{ES} + (V_{ED} - V_{ES}) \cdot \left( x_d^{2.2} + A_{kick} \exp\left( - \frac{(x_d - \mu_{kick})^2}{\sigma_{kick}^2} \right) \right)
+f_{HR} = HR/60, \qquad T = 1/f_{HR}
 ```
 
-Atrial volumes are modeled similarly in counter-phase (filling during systole, emptying during diastole).
+### Phase Model and Time-Varying Systole Fraction
+
+To model mild beat-to-beat variability, the implementation uses a warped time variable:
+```math
+t_{var}(t) = t + A_{HR}\sin(2\pi f_{HR,var} t)
+```
+where ``A_{HR} = physiology.hr\_var\_amp`` and ``f_{HR,var} = physiology.hr\_var\_freq``.
+
+Phase is then:
+```math
+\phi(t) = (t_{var}(t) \bmod T)/T \in [0,1)
+```
+
+Systole fraction is not constant; it oscillates around ``s\_frac\_base``:
+```math
+\gamma(t) = s_{frac,base}\left(1 + 0.08\sin(2\pi\cdot0.1\,t)\right)
+```
+with ``s_{frac,base} = physiology.s\_frac\_base`` (default 0.35).
+
+Normalized coordinates in each phase are:
+```math
+x_s = \mathrm{clamp}(\phi/\gamma,\,0,1), \qquad
+x_d = \mathrm{clamp}((\phi-\gamma)/(1-\gamma),\,0,1)
+```
+
+### Ventricular Volumes (LV, RV)
+
+Define stroke ranges:
+```math
+\Delta V_{LV} = V_{LV,ED} - V_{LV,ES}, \qquad
+\Delta V_{RV} = V_{RV,ED} - V_{RV,ES}
+```
+
+**Systole (ejection, both ventricles):**
+```math
+V_{LV,s} = V_{LV,ED} - \Delta V_{LV}\left(1-(1-x_s)^3\right)
+```
+```math
+V_{RV,s} = V_{RV,ED} - \Delta V_{RV}\left(1-(1-x_s)^3\right)
+```
+
+**Diastole (passive filling + late atrial kick):**
+```math
+V_{LV,d} = V_{LV,ES} + \Delta V_{LV}x_d^{2.2}
++ A_{LV,kick}\,\Delta V_{LV}\exp\!\left[-\left(\frac{x_d-\mu_{LV,kick}}{\sigma_{LV,kick}}\right)^2\right]
+```
+```math
+V_{RV,d} = V_{RV,ES} + \Delta V_{RV}x_d^{2.0}
++ A_{RV,kick}\,\Delta V_{RV}\exp\!\left[-\left(\frac{x_d-\mu_{RV,kick}}{\sigma_{RV,kick}}\right)^2\right]
+```
+
+with
+``A_{LV,kick}=physiology.lv\_kick\_amp\_frac``,
+``\mu_{LV,kick}=physiology.lv\_kick\_center``,
+``\sigma_{LV,kick}=physiology.lv\_kick\_width``
+and analogous RV parameters.
+
+The final piecewise ventricular signals are:
+```math
+V_{LV}(t)=\begin{cases}
+V_{LV,s}, & \phi < \gamma\\
+V_{LV,d}, & \phi \ge \gamma
+\end{cases},
+\qquad
+V_{RV}(t)=\begin{cases}
+V_{RV,s}, & \phi < \gamma\\
+V_{RV,d}, & \phi \ge \gamma
+\end{cases}
+```
+
+### Atrial Volumes (LA, RA)
+
+Define atrial ranges:
+```math
+\Delta V_{LA} = V_{LA,max} - V_{LA,min}, \qquad
+\Delta V_{RA} = V_{RA,max} - V_{RA,min}
+```
+
+**Systole (atria filling while ventricles eject):**
+```math
+V_{LA,s} = V_{LA,min} + \Delta V_{LA}x_s^{1.5}, \qquad
+V_{RA,s} = V_{RA,min} + \Delta V_{RA}x_s^{1.5}
+```
+
+**Diastole (atria emptying + contraction notch):**
+```math
+V_{LA,d} = V_{LA,max} - \Delta V_{LA}\left(1-(1-x_d)^3\right)
+- A_{LA,contr}\,\Delta V_{LA}\exp\!\left[-\left(\frac{x_d-\mu_{LA,contr}}{\sigma_{LA,contr}}\right)^2\right]
+```
+```math
+V_{RA,d} = V_{RA,max} - \Delta V_{RA}\left(1-(1-x_d)^3\right)
+- A_{RA,contr}\,\Delta V_{RA}\exp\!\left[-\left(\frac{x_d-\mu_{RA,contr}}{\sigma_{RA,contr}}\right)^2\right]
+```
+
+with contraction parameters from
+`la_contr_amp_frac`, `la_contr_center`, `la_contr_width` and
+`ra_contr_amp_frac`, `ra_contr_center`, `ra_contr_width`.
+
+Piecewise atrial signals are:
+```math
+V_{LA}(t)=\begin{cases}
+V_{LA,s}, & \phi < \gamma\\
+V_{LA,d}, & \phi \ge \gamma
+\end{cases},
+\qquad
+V_{RA}(t)=\begin{cases}
+V_{RA,s}, & \phi < \gamma\\
+V_{RA,d}, & \phi \ge \gamma
+\end{cases}
+```
+
+### Slow Modulation and Baseline Wander
+
+After piecewise synthesis, slow modulations are applied:
+```math
+M_V(t)=1 + A_V\sin(2\pi f_V t), \qquad
+M_A(t)=1 + A_A\sin(2\pi f_A t + 0.7)
+```
+```math
+B(t)=A_{BW}\sin(2\pi f_{BW} t)
+```
+where
+``A_V=physiology.v\_amp\_amp``, ``f_V=physiology.v\_amp\_freq``,
+``A_A=physiology.a\_amp\_amp``, ``f_A=physiology.a\_amp\_freq``,
+``A_{BW}=physiology.bw\_amp``, and ``f_{BW}=physiology.bw\_freq``.
+
+Final output signals are:
+```math
+\widetilde V_{LV}=V_{LV}M_V + B, \qquad \widetilde V_{RV}=V_{RV}M_V + B
+```
+```math
+\widetilde V_{LA}=V_{LA}M_A + 0.8B, \qquad \widetilde V_{RA}=V_{RA}M_A + 0.8B
+```
+
+The function returns ``(t, (lv=\widetilde V_{LV}, rv=\widetilde V_{RV}, la=\widetilde V_{LA}, ra=\widetilde V_{RA}))``.

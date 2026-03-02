@@ -74,14 +74,6 @@ savefig("ellipsoid_example.png"); nothing # hide
 
 ![ellipsoid_example.png](ellipsoid_example.png)
 
-### Use Cases
-
-Ellipsoids are used throughout the Shepp-Logan phantom (12 ellipses) and are suitable for:
-
-- Anatomical structures with roughly elliptical cross-sections (brain, organs)
-- Lesions and tumors
-- Cysts and other pathological structures
-
 ## SuperEllipsoid
 
 A SuperEllipsoid generalizes the ellipsoid by introducing adjustable exponents. This allows creating shapes ranging from perfect spheres to rounded boxes.
@@ -138,15 +130,6 @@ savefig(fig_superell, "superellipsoid_exponents.png"); nothing # hide
 ```
 
 ![superellipsoid_exponents.png](superellipsoid_exponents.png)
-
-### Use Cases
-
-SuperEllipsoids are useful for:
-
-- Anatomical structures with non-standard curvature
-- Rounded rectangles (boxes with rounded corners)
-- Organic shapes that are smoother or more angular than pure ellipsoids
-- Creating variety in phantom designs while maintaining mathematical clarity
 
 ## RotatedEllipsoid
 
@@ -210,15 +193,6 @@ savefig(fig_rotations, "rotated_ellipsoid_example.png"); nothing # hide
 ```
 
 ![rotated_ellipsoid_example.png](rotated_ellipsoid_example.png)
-
-### Use Cases
-
-RotatedEllipsoids enable:
-
-- Obliquely oriented vessels and tubes
-- Anatomically realistic organ orientations (e.g., liver, kidney)
-- Lesions aligned with anatomical axes
-- Realistic representation of bone structures
 
 ## Cylinders
 
@@ -297,15 +271,6 @@ savefig(fig, "cylinders_example.png"); nothing # hide
 ```
 
 ![cylinders_example.png](cylinders_example.png)
-
-### Use Cases
-
-Cylinders represent:
-
-- Blood vessels
-- Anatomical tubes (airways, ducts)
-- Symmetric structures
-- Validation phantoms (constant cross-section)
 
 ## Implementing New Shapes
 
@@ -438,9 +403,5 @@ shape = MyCustomShape(0.0, 0.0, 0.0, 1.0, 0.5, 0.8)
 \```
 """
 ```
-
-### Example: Complete Implementation
-
-See the source code for `Ellipsoid`, `CylinderZ`, or `SuperEllipsoid` in the package for complete examples of shape implementations.
 
 

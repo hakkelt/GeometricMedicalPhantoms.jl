@@ -1,6 +1,6 @@
 # Torso Phantom
 
-The Torso phantom provides a schematic representation of the human thorax. It includes major organs (heart, lungs, liver), blood vessels, bones, and soft tissues. The main feature of this phantom is that it supports dynamic physiological motion simulation, enabling testing and benchmarking of acquisition methods sensitive to respiratory and cardiac motion.
+The Torso phantom provides a schematic representation of the human thorax. It includes major organs (heart, lungs, liver, stomach), blood vessels, bones, and soft tissues. The main feature of this phantom is that it supports dynamic physiological motion simulation, enabling testing and benchmarking of acquisition methods sensitive to respiratory and cardiac motion.
 
 ## Basic Usage
 
@@ -158,7 +158,7 @@ savefig("torso_heart_mask.png"); nothing # hide
 
 ## Physiological Signal Integration
 
-The Torso phantom supports dynamic simulation of respiratory and cardiac motion. This is crucial for understanding how motion affects image quality and for developing motion correction algorithms.
+The Torso phantom supports dynamic simulation of respiratory and cardiac motion via input signals specifying lung volumes and heart chamber volumes over time. This allows testing of motion-compensated reconstruction methods and acquisition strategies that are sensitive to physiological motion. This package includes utility functions to generate parametrized realistic respiratory and cardiac signals, which can be directly fed into the phantom generation process, but you can also use custom signals from real measurements or other sources.
 
 ### Respiratory Motion
 
@@ -168,13 +168,10 @@ The lungs expand and contract during breathing, changing the positions and volum
 
 The respiratory model simulates breathing mechanics based on the following principles:
 
-**Realistic lung volume range**: Humans typically breathe with tidal volumes of 0.5-1.0 L (quiet breathing) to 2-3 L (deep breathing). The total lung capacity is ~6 L. The phantom uses a nominal range of 1.2-6.0 L, capturing from minimal to maximal inspiration.
-
-**Lung volume mechanics**: As the lungs expand, the diaphragm moves downward and the chest expands laterally. In the anterior-posterior view (coronal plane), this expansion is most visible. The phantom modulates both the size and position of lung structures based on the input volume signal.
-
-**Signal timing**: Healthy adults breathe at rates of 12-20 breaths per minute at rest. During imaging, subjects are typically coached to breathe regularly, often at slower rates (8-15 breaths/min) to minimize motion artifacts.
-
-**Validation**: The phantom's volume-to-geometry mapping is designed to stay within physiologically realistic bounds. Validation against the input respiratory signals confirms that measured phantom volumes match the prescribed input, within expected ranges for the numerical simulation.
+- **Realistic lung volume range**: Humans typically breathe with tidal volumes of 0.5-1.0 L (quiet breathing) to 2-3 L (deep breathing). The total lung capacity is ~6 L. The phantom uses a nominal range of 1.2-6.0 L, capturing from minimal to maximal inspiration.
+- **Lung volume mechanics**: As the lungs expand, the diaphragm moves downward and the chest expands laterally. In the anterior-posterior view (coronal plane), this expansion is most visible. The phantom modulates both the size and position of lung structures based on the input volume signal.
+- **Signal timing**: Healthy adults breathe at rates of 12-20 breaths per minute at rest. During imaging, subjects are typically coached to breathe regularly, often at slower rates (8-15 breaths/min) to minimize motion artifacts.
+- **Validation**: The phantom's volume-to-geometry mapping is designed to be accurate within physiologically realistic bounds. Validation against the input respiratory signals confirms that measured phantom volumes match the prescribed input, within expected ranges for the numerical simulation.
 
 #### Using Respiratory Signals
 
@@ -184,13 +181,18 @@ The respiratory model simulates breathing mechanics based on the following princ
 - Amplitude modulation (breathing depth variation)
 
 Parameters:
-- duration: 10 seconds
-- fs: 24 Hz (frame rate matches typical cine imaging)
-- rr: 15 breaths per minute (typical resting respiratory rate)
+- length of the signal in seconds
+- frames per second (temporal resolution)
+- respiratory rate in breaths per minute
+- `physiology`: Optional struct of `RespiratoryPhysiology` type to specify additional physiological parameters like tidal volume range, breath timing variability, and amplitude modulation characteristics.
+
+Output:
+- time vector
+- lung volume in liters over time
 
 ```@example imports
-fs = 24.0  # frames per second
 duration = 10.0  # seconds
+fs = 24.0  # frames per second
 rr = 15.0  # respiratory rate in breaths per minute
 
 t, resp_liters = generate_respiratory_signal(duration, fs, rr)
@@ -236,29 +238,38 @@ The GIF shows the lungs expanding and contracting, and the heart and liver shift
 
 ### Cardiac Motion
 
-The heart beats cyclically, with each chamber contracting and relaxing in precise timing to pump blood. This motion is essential for cine MRI and cardiac assessment.
+The heart undergoes complex motion during the cardiac cycle, with the four chambers changing volumes and positions. The phantom simulates this by modulating the size and position of the heart structures based on input cardiac signals specifying chamber volumes over time.
 
 #### Cardiac Physiology Model
 
 The cardiac motion model follows the physiological cardiac cycle:
 
-**Chamber volumes**: The four cardiac chambers (left ventricle, right ventricle, left atrium, right atrium) change volumes throughout the heartbeat. Typical values at rest:
-- Left ventricle: ~120 mL at end-diastole (maximum filling), ~40-50 mL at end-systole (maximum contraction)
-- Right ventricle: ~100-130 mL at end-diastole, ~30-40 mL at end-systole
-- Atria: ~50-70 mL each during diastole, contracts during atrial kick
-
-**Cardiac cycle timing**: At a heart rate of 72 bpm (1.2 Hz), each heartbeat lasts approximately 833 ms, divided into:
-- **Atrial contraction (P-wave)**: ~100 ms
-- **Isovolumetric contraction**: ~50 ms
-- **Ventricular ejection (T-wave)**: ~300 ms
-- **Isovolumetric relaxation**: ~80 ms
-- **Ventricular filling**: ~300 ms
-
-**Atrial kick**: The atria contract near the end of ventricular diastole, adding ~20-30% to ventricular filling. This is critical for cardiac output.
-
-**Validation**: The phantom's chamber volumes follow the typical cardiac pressure-volume relationships and timing sequences. Validation confirms that measured phantom volumes match input cardiac signals within physiological ranges, confirming realistic motion patterns.
+- **Chamber volumes**: The four cardiac chambers (left ventricle, right ventricle, left atrium, right atrium) change volumes throughout the heartbeat. Typical values at rest:
+    - Left ventricle: ~120 mL at end-diastole (maximum filling), ~40-50 mL at end-systole (maximum contraction)
+    - Right ventricle: ~100-130 mL at end-diastole, ~30-40 mL at end-systole
+    - Atria: ~50-70 mL each during diastole, contracts during atrial kick
+- **Cardiac cycle timing**: At a heart rate of 72 bpm (1.2 Hz), each heartbeat lasts approximately 833 ms, divided into:
+    - **Atrial contraction (P-wave)**: ~100 ms
+    - **Isovolumetric contraction**: ~50 ms
+    - **Ventricular ejection (T-wave)**: ~300 ms
+    - **Isovolumetric relaxation**: ~80 ms
+    - **Ventricular filling**: ~300 ms
+- **Atrial kick**: The atria contract near the end of ventricular diastole, adding ~20-30% to ventricular filling. This is critical for cardiac output.
+- **Validation**: The phantom's chamber volumes follow the typical cardiac pressure-volume relationships and timing sequences. Validation confirms that measured phantom volumes match input cardiac signals within physiological ranges, confirming realistic motion patterns.
 
 #### Using Cardiac Signals
+
+`generate_cardiac_signals` creates realistic cardiac volume signals for the four chambers based on specified heart rate and duration.
+
+Arguments:
+- length of the signal in seconds (should allow for multiple heartbeats)
+- frames per second (temporal resolution)
+- beats per minute
+- `physiology`: Optional struct of `CardiacPhysiology` type to specify additional parameters like stroke volume, ejection fraction, atrial contribution, and timing characteristics.
+
+Output:
+- t: time vector
+- cardiac_volumes: NamedTuple with fields `lv`, `rv`, `la`, `ra` containing volume signals in mL for each chamber.
 
 ```@example imports
 # Generate cardiac signals for four heart chambers
@@ -341,21 +352,23 @@ nothing # hide
 
 ## Validation Methodology
 
-The phantom's physiological accuracy is validated by measuring the actual organ volumes in the generated images and comparing them to the input signals:
+The phantom's physiological accuracy is validated by measuring the actual organ volumes in the generated images and comparing them to the input signals. The validation process includes:
+1. **Volume measurement**: Use image processing techniques to segment the lungs and heart chambers in the generated phantom images by intensity, counting the voxels assigned to each organ type, and calculate their volumes based on the specified field of view (FOV) and resolution.
+2. **Signal comparison**: Compare the measured volumes over time to the input respiratory and cardiac signals. This involves calculating relative errors and correlation metrics to quantify how closely the phantom's motion matches the prescribed physiological patterns.
 
-**Lung volume validation**: The respiratory signal specifies desired lung volumes in liters. The phantom generation algorithm modulates the size and position of lung structures accordingly. After phantom generation, the measured volume of pixels assigned to the "lung" tissue type is extracted and validated to match the input signal within expected numerical accuracy and the discretization effects of the 128³ grid.
+### Expected error bounds
 
-**Heart chamber validation**: Similarly, the cardiac signals specify desired volumes (in mL) for each of the four cardiac chambers. The phantom measures these chamber volumes by counting voxels and comparing to input volumes. The validation confirms that chamber volume changes follow the prescribed cardiac cycle, with physiologically realistic timing and magnitude.
+Discretization errors and interpolation introduce small differences between input volumes and measured volumes.
 
-**Expected error bounds**: Discretization errors and interpolation introduce small differences between input volumes and measured volumes. Testing confirms these differences remain small (typically <5% relative error), validating the phantom's fidelity to the input signals.
+- Testing confirms that within the volume range of typical breathing (2.4-3.0 L), the measured lung volumes closely track the input signal (correlation > 0.999, and relative error < 1.5%).
+- Over the full validated range (1.2-6.0 L), the error remains within 5.5% with only a slight decrease in correlation (correlation > 0.998).
+- For cardiac volumes, similar validation shows that the measured chamber volumes closely follow the input signals with relative errors typically below 5% across the cardiac cycle.
 
 ### Example validation code for lung volume:
 ```@example imports
 using GeometricMedicalPhantoms: calculate_volume
 
-duration = 4.0
-fs = 24.0
-rr = 15.0
+duration, fs, rr = 4.0, 24.0, 15.0
 t, resp = generate_respiratory_signal(duration, fs, rr)
 
 # Create phantom with moderate resolution for faster computation
