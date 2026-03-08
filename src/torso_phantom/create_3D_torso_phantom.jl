@@ -43,38 +43,73 @@ lung_mask = TissueMask(lung=true)
 phantom_mask = create_torso_phantom(128, 128, 128; ti=lung_mask)  # BitArray
 ```
 """
-function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fovs = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype = Float32)
+function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fovs = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
     # 1) Validate inputs
     if nx <= 0 || ny <= 0 || nz <= 0
         throw(ArgumentError("nx, ny, nz must be positive integers"))
     end
     length(fovs) == 3 || throw(ArgumentError("fovs must have 3 elements for 3D phantom"))
 
-    # 2) Setup motion signals and parameters
-    is_mask = ti isa TissueMask
+    # 2) Allocate output phantom array
+    resp_length = isnothing(respiratory_signal) ? 1 : length(respiratory_signal)
+    cardiac_length = isnothing(cardiac_volumes) ? 1 : length(cardiac_volumes.lv)
+    nt = max(resp_length, cardiac_length)
+    phantom4d, static_image = preallocate_phantom_array(nx, ny, nz, nt, eltype, ti)
+    static_bones_mask = fill(false, nx, ny, nz)
+
+    draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fovs, ti, respiratory_signal, cardiac_volumes)
+    return to_bitarray_if_mask(phantom4d, ti)
+end
+
+function preallocate_phantom_array(nx, ny, nz, nt, ::Type{T}, ::TissueMask) where {T}
+    return Array{Bool, 4}(undef, nx, ny, nz, nt), fill(false, nx, ny, nz)
+end
+
+function preallocate_phantom_array(nx, ny, nz, nt, ::Type{T}, ::AbstractTissueParameters) where {T}
+    return Array{T, 4}(undef, nx, ny, nz, nt), zeros(T, nx, ny, nz)
+end
+
+function to_bitarray_if_mask(phantom, ::TissueMask)
+    return BitArray(phantom)
+end
+
+function to_bitarray_if_mask(phantom, ::AbstractTissueParameters)
+    return phantom
+end
+
+function draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fovs, ti, respiratory_signal, cardiac_volumes)
+    # 3) Setup motion signals and parameters
+    nx, ny, nz, nt = size(phantom4d)
     ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fovs)
     respiratory_signal, cardiac_volumes, nt = setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
-    # 3) Allocate output phantom array
-    phantom4d, static_image = if is_mask
-        falses(nx, ny, nz, nt), falses(nx, ny, nz)
-    else
-        zeros(eltype, nx, ny, nz, nt), zeros(eltype, nx, ny, nz)
-    end
-
     # 4) Draw static structures once
-    draw_static_torso_parts!(static_image, ax_xn, ax_yn, ax_zn, ti)
+    ctx = DrawContext3D(static_image, ax_xn, ax_yn, ax_zn)
+    ctx_bone = DrawContext3D(static_bones_mask, ax_xn, ax_yn, ax_zn)
+    draw_torso_static_shapes!(ctx, ti)
+    draw_static_bones!(ctx_bone, MaskingIntensityValue(true))
+    static_bones_indices = findall(static_bones_mask)
 
     # 5) Draw dynamic structures for each time frame
-    @threads for m in 1:nt
-        cardiac_scales = (lv = lv_scales[m], rv = rv_scales[m], la = la_scales[m], ra = ra_scales[m])
-        motion_params = calculate_motion_parameters(respiratory_signal[m], cardiac_scales, cardiac_scales_max)
-        frame = view(phantom4d, :, :, :, m)
-        draw_single_frame!(frame, static_image, ax_xn, ax_yn, ax_zn, motion_params, ti)
-        draw_static_bones!(frame, ax_xn, ax_yn, ax_zn, ti)  # Draw bones last to overlay
+    if nt == 1
+        cardiac_scales = (lv = lv_scales[1], rv = rv_scales[1], la = la_scales[1], ra = ra_scales[1])
+        motion_params = calculate_motion_parameters(respiratory_signal[1], cardiac_scales, cardiac_scales_max)
+        draw_dynamic_shapes!(DrawContext3D(static_image, ax_xn, ax_yn, ax_zn), motion_params, ti)
+        static_image[static_bones_indices] .= ti.bones  # Draw bones last to overlay
+        phantom4d[:, :, :, 1] .= static_image
+    else
+        @batch threadlocal = similar(static_image) for m in 1:nt
+            cardiac_scales = CardiacScales(lv_scales[m], rv_scales[m], la_scales[m], ra_scales[m])
+            motion_params = calculate_motion_parameters(respiratory_signal[m], cardiac_scales, cardiac_scales_max)
+            frame = threadlocal
+            copyto!(frame, static_image)
+            draw_dynamic_shapes!(DrawContext3D(frame, ax_xn, ax_yn, ax_zn), motion_params, ti)
+            frame[static_bones_indices] .= ti.bones  # Draw bones last to overlay
+            phantom4d[:, :, :, m] .= frame
+        end
     end
-    return phantom4d
+    return
 end
 
 """
@@ -96,36 +131,10 @@ function define_phantom_axes(nx::Int, ny::Int, nz::Int, fovs::Tuple)
 end
 
 """
-Helper function to draw static phantom structures onto an image.
+Helper function to draw static bone structures via DrawContext3D.
 """
-function draw_static_torso_parts!(image, ax_xn, ax_yn, ax_zn, ti::AbstractTissueParameters)
-    for se in get_torso_static_parts(ti)
-        draw!(image, ax_xn, ax_yn, ax_zn, se)
-    end
-    return image
-end
-
-"""
-Helper function to draw static bone structures onto an image.
-"""
-function draw_static_bones!(image, ax_xn, ax_yn, ax_zn, ti::AbstractTissueParameters)
-    for se in get_arm_bones(ti)
-        draw!(image, ax_xn, ax_yn, ax_zn, se)
-    end
-    for se in get_spine(ti)
-        draw!(image, ax_xn, ax_yn, ax_zn, se)
-    end
-    return image
-end
-
-"""
-Helper function to draw a single dynamic frame.
-"""
-function draw_single_frame!(frame, static_image, ax_xn, ax_yn, ax_zn, motion_params::NamedTuple, ti::AbstractTissueParameters)
-    copyto!(frame, static_image)
-    dynamic_ellipsoids = define_dynamic_ellipsoids(motion_params, ti)
-    for se in dynamic_ellipsoids
-        draw!(frame, ax_xn, ax_yn, ax_zn, se)
-    end
-    return frame
+function draw_static_bones!(ctx::DrawContext3D, bone_intensity)
+    draw_arm_bones!(ctx, bone_intensity)
+    draw_spine!(ctx, bone_intensity)
+    return nothing
 end

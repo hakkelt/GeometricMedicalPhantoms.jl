@@ -74,24 +74,34 @@ function _render_tubes_volume(nx, ny, nz; fovs, tg, ti, eltype, force_eltype)
     ax_z = collect(range(-fovs[3] / 2, fovs[3] / 2, length = nz)) / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny, nz)
-    shapes = get_tubes_shapes(tg, ti)
-    for shape in shapes
-        draw!(phantom, ax_x, ax_y, ax_z, shape)
-    end
+    ctx = DrawContext3D(phantom, ax_x, ax_y, ax_z)
+    draw_tubes_shapes!(ctx, tg, ti)
     return phantom
 end
 
 function _render_tubes_slice(nx, ny; fovs, slice_position, tg, ti, eltype, force_eltype, axis)
+    # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
+    kw = (; fovs, slice_position, tg, ti, eltype, force_eltype)
+    if axis === :axial
+        return _render_tubes_slice_impl(nx, ny, Val(:axial); kw...)
+    elseif axis === :coronal
+        return _render_tubes_slice_impl(nx, ny, Val(:coronal); kw...)
+    elseif axis === :sagittal
+        return _render_tubes_slice_impl(nx, ny, Val(:sagittal); kw...)
+    else
+        throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
+    end
+end
+
+function _render_tubes_slice_impl(nx, ny, ::Val{A}; fovs, slice_position, tg, ti, eltype, force_eltype) where {A}
     norm_factor = 10.0
     ax_1 = collect(range(-fovs[1] / 2, fovs[1] / 2, length = nx)) / norm_factor
     ax_2 = collect(range(-fovs[2] / 2, fovs[2] / 2, length = ny)) / norm_factor
     slice_pos_norm = slice_position / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny)
-    phantom = convert(Array{output_eltype, 2}, phantom)
-    shapes = get_tubes_shapes(tg, ti)
-    for shape in shapes
-        draw_2d!(phantom, ax_1, ax_2, slice_pos_norm, axis, shape)
-    end
+    # A is a compile-time constant here — DrawContext2D{A} is fully typed.
+    ctx = DrawContext2D{A}(phantom, ax_1, ax_2, slice_pos_norm)
+    draw_tubes_shapes!(ctx, tg, ti)
     return phantom
 end

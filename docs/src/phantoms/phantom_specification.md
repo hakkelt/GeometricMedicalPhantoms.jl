@@ -52,34 +52,34 @@ The phantom generation follows a two-phase rendering process:
 
 | Order | Structure | Function | Description |
 |-------|-----------|----------|-------------|
-| 1 | Static Torso | `get_torso_static_parts()` | Neck (2 segments), shoulders, arms (left/right, 3 segments each), posterior back coverage (upper/mid/lower) |
+| 1 | Static Torso | `draw_torso_static_shapes!(ctx, ti)` | Neck (2 segments), shoulders, arms (left/right, 3 segments each), posterior back coverage (upper/mid/lower) |
 
 **Phase 2: Dynamic Structures (drawn per frame)**
 
 | Order | Structure | Function | Description | Motion Dependencies |
 |-------|-----------|----------|-------------|---------------------|
-| 2 | Dynamic Torso | `get_torso_dynamic_parts()` | Chest (upper/mid/lower), abdomen (upper/lower) | Respiratory: ``S_{body}``, ``y_{offset}`` |
-| 3 | Lungs | `get_lungs()` | Left/right upper and lower lobes, diaphragm domes | Respiratory: scale, diaphragm displacement, ``R_{z,low}`` |
-| 4 | Heart Background | `get_heart_background()` | Pericardium/outer heart envelope | Cardiac: max chamber scales |
-| 5 | Vessels | `get_vessels()` | Aorta, pulmonary trunk + branches, superior vena cava | Static (no motion) |
-| 6 | Heart Chambers | `get_heart_chambers()` | LV/RV/LA/RA myocardium and blood cavities (20 components) | Cardiac: chamber scales, dynamic separation |
-| 7 | Ribs | `get_ribs()` | Rib cage with curvature | Respiratory: body scales |
-| 8 | Stomach | `get_stomach()` | Body and pyloric antrum | Respiratory: diaphragm displacement, visceral scaling |
-| 9 | Liver | `get_liver()` | Main lobe and right lobe | Respiratory: diaphragm displacement, visceral scaling |
+| 2 | Dynamic Torso | `draw_torso_dynamic_parts!(ctx, ...)` | Chest (upper/mid/lower), abdomen (upper/lower) | Respiratory: ``S_{body}``, ``y_{offset}`` |
+| 3 | Lungs | `draw_lungs!(ctx, ...)` | Left/right upper and lower lobes, diaphragm domes | Respiratory: scale, diaphragm displacement, ``R_{z,low}`` |
+| 4 | Heart Background | `draw_heart_background!(ctx, ...)` | Pericardium/outer heart envelope | Cardiac: max chamber scales |
+| 5 | Vessels | `draw_vessels!(ctx, ...)` | Aorta, pulmonary trunk + branches, superior vena cava | Static (no motion) |
+| 6 | Heart Chambers | `draw_heart_chambers!(ctx, ...)` | LV/RV/LA/RA myocardium and blood cavities (20 components) | Cardiac: chamber scales, dynamic separation |
+| 7 | Ribs | `draw_ribs!(ctx, ...)` | Rib cage with curvature | Respiratory: body scales |
+| 8 | Stomach | `draw_stomach!(ctx, ...)` | Body and pyloric antrum | Respiratory: diaphragm displacement, visceral scaling |
+| 9 | Liver | `draw_liver!(ctx, ...)` | Main lobe and right lobe | Respiratory: diaphragm displacement, visceral scaling |
 
 **Phase 3: Bone Overlay (drawn last per frame)**
 
 | Order | Structure | Function | Description |
 |-------|-----------|----------|-------------|
-| 10 | Arm Bones | `get_arm_bones()` | Left and right humerus, radius, ulna segments |
-| 11 | Spine | `get_spine()` | Cervical, thoracic, and lumbar vertebrae with spinal curvature |
+| 10 | Arm Bones | `draw_arm_bones!(ctx, ...)` | Left and right humerus, radius, ulna segments |
+| 11 | Spine | `draw_spine!(ctx, ...)` | Cervical, thoracic, and lumbar vertebrae with spinal curvature |
 
 ### Code Reference
 
 The complete rendering sequence is implemented in:
 - `src/torso_phantom/create_3D_torso_phantom.jl`: Main rendering loop
-- `src/torso_phantom/motion_calculations.jl`: `define_dynamic_ellipsoids()` function defining dynamic structure order
-- `src/torso_phantom/geometry_definitions.jl`: Individual `get_*()` functions for each anatomical structure
+- `src/torso_phantom/motion_calculations.jl`: `calculate_motion_parameters(...)` computes per-frame motion parameters; `draw_dynamic_shapes!(ctx, ...)` orchestrates drawing all dynamic structures
+- `src/torso_phantom/geometry_definitions.jl`: Individual `draw_*!()` functions for each anatomical structure (e.g. `draw_lungs!`, `draw_heart_chambers!`)
 
 ## 4. Static Structures
 

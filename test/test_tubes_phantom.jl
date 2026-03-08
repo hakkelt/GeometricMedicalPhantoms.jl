@@ -189,4 +189,8 @@ using GeometricMedicalPhantoms
         @test size(phantom3) == (32, 32)
     end
 
+    @testset "Invalid axis throws ArgumentError" begin
+        @test_throws ArgumentError create_tubes_phantom(32, 32, :invalid)
+    end
+
 end

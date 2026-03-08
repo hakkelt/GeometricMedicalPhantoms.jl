@@ -120,6 +120,16 @@ end
         @test all(isfinite.(resp_L))
     end
 
+    @testset "Single-sample (length(t) == 1 branch)" begin
+        # duration = 1/fs gives t = 0:1/fs:0 = [0], exactly 1 sample
+        fs = 100.0
+        t, resp_L = generate_respiratory_signal(1 / fs, fs)
+        @test length(t) == 1
+        @test length(resp_L) == 1
+        phys = RespiratoryPhysiology()
+        @test resp_L[1] ≈ phys.minL + (phys.maxL - phys.minL) / 2
+    end
+
     # Test amplitude modulation (line 64: amplitude_mod = 1.0 .+ amplitude_mod_amp .* sin(...))
     @testset "Amplitude modulation (line 64)" begin
         duration = 60.0

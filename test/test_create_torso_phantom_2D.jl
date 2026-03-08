@@ -401,4 +401,8 @@ using GeometricMedicalPhantoms
             @test lung_vol_tol >= 0.0
         end
     end  # Integration Tests
+
+    @testset "Invalid axis throws ArgumentError" begin
+        @test_throws ArgumentError create_torso_phantom(32, 32, :invalid)
+    end
 end  # 2D Phantom Tests

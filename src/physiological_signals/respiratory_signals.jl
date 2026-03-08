@@ -51,6 +51,9 @@ t, resp_L = generate_respiratory_signal(60.0, 50.0, 15.0)
 function generate_respiratory_signal(duration = 60.0, fs = 50.0, rr = 15.0; physiology::RespiratoryPhysiology = RespiratoryPhysiology())
     # Time vector
     t = 0:(1 / fs):(duration - 1 / fs)
+    if length(t) == 1
+        return t, [physiology.minL + (physiology.maxL - physiology.minL) / 2] # Single static frame at mid lung volume
+    end
 
     # Respiratory rate in Hz
     rr_hz = rr / 60.0

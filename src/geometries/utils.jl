@@ -38,21 +38,48 @@ end
 end
 
 """
-Helper function to draw a shape onto a 2D slice.
-Dispatches to the appropriate draw! call based on axis orientation.
+Drawing context for 3D phantom rendering.
+Holds the image array and normalized axes for type-stable dispatch.
 """
-function draw_2d!(image::AbstractArray{T, 2}, ax_1n, ax_2n, ax_3_val::Real, axis::Symbol, shape::Shape) where {T}
-    if axis == :axial
-        # Axial: x-y plane, z is fixed
-        draw!(image, ax_1n, ax_2n, ax_3_val, shape)
-    elseif axis == :coronal
-        # Coronal: x-z plane, y is fixed (swap y and z)
-        shape_rotated = rotate_coronal(shape)
-        draw!(image, ax_1n, ax_2n, ax_3_val, shape_rotated)
-    elseif axis == :sagittal
-        # Sagittal: y-z plane, x is fixed (swap x with z, then y with x)
-        shape_rotated = rotate_sagittal(shape)
-        draw!(image, ax_1n, ax_2n, ax_3_val, shape_rotated)
+struct DrawContext3D{I <: AbstractArray, AX <: AbstractVector}
+    image::I
+    ax_x::AX
+    ax_y::AX
+    ax_z::AX
+end
+
+"""
+Drawing context for 2D phantom slice rendering.
+The axis orientation `A` is encoded as a type parameter for compile-time dispatch.
+"""
+struct DrawContext2D{A, I <: AbstractArray, AX <: AbstractVector, T <: Real}
+    image::I
+    ax_1::AX
+    ax_2::AX
+    ax_3_val::T
+    function DrawContext2D{A}(image::I, ax_1::AX, ax_2::AX, ax_3_val::T) where {A, I <: AbstractArray, AX <: AbstractVector, T <: Real}
+        return new{A, I, AX, T}(image, ax_1, ax_2, ax_3_val)
     end
-    return image
+end
+
+@inline function draw_shape!(ctx::DrawContext3D, shape::Shape)
+    draw!(ctx.image, ctx.ax_x, ctx.ax_y, ctx.ax_z, shape)
+    return nothing
+end
+
+@inline function draw_shape!(ctx::DrawContext2D{:axial}, shape::Shape)
+    draw!(ctx.image, ctx.ax_1, ctx.ax_2, ctx.ax_3_val, shape)
+    return nothing
+end
+
+@inline function draw_shape!(ctx::DrawContext2D{:coronal}, shape::Shape)
+    rotated = rotate_coronal(shape)
+    draw!(ctx.image, ctx.ax_1, ctx.ax_2, ctx.ax_3_val, rotated)
+    return nothing
+end
+
+@inline function draw_shape!(ctx::DrawContext2D{:sagittal}, shape::Shape)
+    rotated = rotate_sagittal(shape)
+    draw!(ctx.image, ctx.ax_1, ctx.ax_2, ctx.ax_3_val, rotated)
+    return nothing
 end

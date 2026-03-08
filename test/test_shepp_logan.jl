@@ -172,4 +172,8 @@ using ImagePhantoms
 
         @test all(phantom_custom_2d[mask[div(nx, 2), :, :]] .- phantom_mri_2d[mask[div(nx, 2), :, :]] .≈ expected_intensity_diff)
     end
+
+    @testset "Invalid axis throws ArgumentError" begin
+        @test_throws ArgumentError create_shepp_logan_phantom(32, 32, :invalid)
+    end
 end
