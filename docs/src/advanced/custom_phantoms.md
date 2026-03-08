@@ -6,10 +6,10 @@ This guide shows how to create new phantom types from scratch using the geometri
 
 Every phantom in GeometricMedicalPhantoms follows the same pattern:
 
-1. **Define geometry**: Create an array of geometric primitives (ellipsoids, cylinders, etc.)
-2. **Define intensities**: Create a structure specifying how to assign intensities to tissues
-3. **Create parameters**: Build a function to generate these based on user input
-4. **Render**: Call the internal rendering function to create the phantom
+1. **Define geometry parameters**: Create a struct to parameters of your phantom geometry (e.g., centers, radii, etc.) -- Optional
+2. **Define intensities**: Create a struct specifying how to assign intensities to tissues
+3. **Define drawing function**: Write a `draw_*!(ctx, geometry, intensities)` function that calls `draw_shape!(ctx, shape)` for each primitive — shapes are drawn directly onto the context rather than collected in an intermediate array
+4. **Render**: Construct a `DrawContext3D` or `DrawContext2D` and call your drawing function, then return the image
 
 ## Intensity Assignment: Additive vs. Masking
 
@@ -100,19 +100,17 @@ end
 # Default constructor
 SimpleBrainGeometry() = SimpleBrainGeometry(0.8f0, 0.15f0, 0.1f0, (0.3f0, 0.2f0, 0.0f0))
 
-# Function that generates the list of shapes
-function get_brain_shapes(geom::SimpleBrainGeometry, intensities)
-    shapes = []
-    
+# Function that draws all shapes directly onto a rendering context
+function draw_brain_shapes!(ctx, geom::SimpleBrainGeometry, intensities)
     # Brain ellipsoid (outermost) - using MaskingIntensityValue for masking mode
-    push!(shapes, Ellipsoid(
+    GeometricMedicalPhantoms.draw_shape!(ctx, Ellipsoid(
         0.0f0, 0.0f0, 0.0f0,  # center
         geom.brain_radius, geom.brain_radius * 1.1f0, geom.brain_radius * 0.9f0,  # radii
         GeometricMedicalPhantoms.MaskingIntensityValue(Float32(intensities.brain))  # wrapped intensity
     ))
     
     # Ventricles (overwrites brain interior)
-    push!(shapes, Ellipsoid(
+    GeometricMedicalPhantoms.draw_shape!(ctx, Ellipsoid(
         0.0f0, 0.0f0, 0.0f0,
         geom.ventricle_radius, geom.ventricle_radius * 1.5f0, geom.ventricle_radius * 2f0,
         GeometricMedicalPhantoms.MaskingIntensityValue(Float32(intensities.ventricles))
@@ -120,13 +118,12 @@ function get_brain_shapes(geom::SimpleBrainGeometry, intensities)
     
     # Tumor (overwrites everything at its location)
     tx, ty, tz = geom.tumor_position
-    push!(shapes, Ellipsoid(
+    GeometricMedicalPhantoms.draw_shape!(ctx, Ellipsoid(
         tx, ty, tz,
         geom.tumor_radius * 1.2f0, geom.tumor_radius * 1.0f0, geom.tumor_radius * 0.8f0,
         GeometricMedicalPhantoms.MaskingIntensityValue(Float32(intensities.tumor))
     ))
-    
-    return shapes
+    return nothing
 end
 nothing # hide
 ```
@@ -205,13 +202,9 @@ function create_simple_brain_phantom(
     ax_y = collect(range(-fovs[2]/2, fovs[2]/2, length=ny))
     ax_z = collect(range(-fovs[3]/2, fovs[3]/2, length=nz))
     
-    # Get shapes with their intensities
-    shapes = get_brain_shapes(geometry, intensities)
-    
-    # Draw each shape onto the phantom
-    for shape in shapes
-        draw!(phantom, ax_x, ax_y, ax_z, shape)
-    end
+    # Create drawing context and draw all shapes onto the phantom
+    ctx = GeometricMedicalPhantoms.DrawContext3D(phantom, ax_x, ax_y, ax_z)
+    draw_brain_shapes!(ctx, geometry, intensities)
     
     return phantom
 end
@@ -262,9 +255,10 @@ savefig("custom_brain_tumor_mask.png"); nothing # hide
 When building custom phantoms, follow these practices:
 
 ### 1. Separate Concerns
-- **Geometry structure**: Holds shape parameters
-- **Intensity structure**: Holds tissue properties
-- **Rendering function**: Combines them into a phantom
+- **Geometry parameters**: Define a struct to hold all shape parameters (radii, centers, etc.)
+- **Intensity structure**: Holds tissue properties (signal values or boolean masks)
+- **Drawing function**: `draw_*!(ctx, geometry, intensities)` draws shapes directly onto the context — no intermediate shape arrays
+- **Rendering function**: Creates axes, allocates the phantom, builds the `DrawContext`, calls the drawing function, and returns the result
 
 ### 2. Coordinate System
 Always work in physical space (cm), not voxel indices:

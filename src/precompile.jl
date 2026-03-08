@@ -21,6 +21,11 @@ using PrecompileTools
     # 2D phantom creation - ComplexF64
     create_torso_phantom(64, 64, :axial; eltype = ComplexF64)
 
+    # 2D phantom creation - TissueMask
+    create_torso_phantom(64, 64, :axial; ti = TissueMask(lung = true))
+    create_torso_phantom(64, 64, :coronal; ti = TissueMask(lung = true))
+    create_torso_phantom(64, 64, :sagittal; ti = TissueMask(lung = true))
+
     # 3D phantom creation - Float32 (default)
     # Keep dimensions small (64^3) for fast precompilation
     create_torso_phantom(64, 64, 64)
@@ -33,6 +38,9 @@ using PrecompileTools
 
     # 3D phantom creation - ComplexF64
     create_torso_phantom(64, 64, 64; eltype = ComplexF64)
+
+    # 3D phantom creation - TissueMask
+    create_torso_phantom(64, 64, 64; ti = TissueMask(lung = true))
 
     # Shepp-Logan phantom generation
     # 2D phantom creation - Float32 (default) with different orientations

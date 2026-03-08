@@ -1,3 +1,10 @@
+struct CardiacScales
+    lv::Float64
+    rv::Float64
+    la::Float64
+    ra::Float64
+end
+
 """
 Helper function to set default motion signals and validate inputs.
 Returns validated (respiratory_signal, cardiac_volumes, nt).
@@ -54,7 +61,7 @@ end
 Helper function to calculate motion parameters for a given time frame.
 Returns a NamedTuple with all motion-related parameters.
 """
-function calculate_motion_parameters(respiratory_signal_val::Real, cardiac_scales::NamedTuple, cardiac_scales_max::NamedTuple)
+function calculate_motion_parameters(respiratory_signal_val::Real, cardiac_scales, cardiac_scales_max)
     # Cubic coefficients for lung scaling (tuned to minimize volume offset)
     a0, a1, a2, a3 = (0.598, 0.842, -0.175, -0.0320625)
     b0, b1, b2, b3 = (1.819140625, 0.831375, -1.7111875, 1.24575)
@@ -89,25 +96,24 @@ function calculate_motion_parameters(respiratory_signal_val::Real, cardiac_scale
 end
 
 """
-Helper function to define dynamic phantom ellipsoids for a single frame.
-Returns a tuple of all dynamic superellipsoids for the given motion parameters.
+Type-stable dynamic shape drawing: calls each `draw_*!` function in order.
+No tuple assembly or splatting — each anatomical group is drawn directly.
 """
-function define_dynamic_ellipsoids(motion_params::NamedTuple, ti::AbstractTissueParameters)
-    torso = get_torso_dynamic_parts(motion_params.body_scale, motion_params.y_offset, ti)
-    lungs = get_lungs(
-        motion_params.scale, motion_params.diaphragm_up, motion_params.diaphragm_rscale,
+function draw_dynamic_shapes!(ctx, motion_params::NamedTuple, ti::AbstractTissueParameters)
+    draw_torso_dynamic_parts!(ctx, motion_params.body_scale, motion_params.y_offset, ti)
+    draw_lungs!(
+        ctx, motion_params.scale, motion_params.diaphragm_up, motion_params.diaphragm_rscale,
         motion_params.lower_rz_scale, motion_params.y_offset, ti
     )
-    heart_background = get_heart_background(
-        motion_params.heart_scale_max.lv, motion_params.heart_scale_max.rv,
+    draw_heart_background!(
+        ctx, motion_params.heart_scale_max.lv, motion_params.heart_scale_max.rv,
         motion_params.heart_scale_max.la, motion_params.heart_scale_max.ra,
         motion_params.y_offset_visc, ti
     )
-    vessels = get_vessels(motion_params.y_offset, ti)
-    heart_chambers = get_heart_chambers(motion_params.heart_scale, motion_params.y_offset_visc, ti)
-    ribs = get_ribs(motion_params.body_scale, motion_params.body_scale, motion_params.y_offset, ti)
-    liver = get_liver(motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
-    stomach = get_stomach(motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
-
-    return (torso..., lungs..., heart_background..., vessels..., heart_chambers..., ribs..., stomach..., liver...)
+    draw_vessels!(ctx, motion_params.y_offset, ti)
+    draw_heart_chambers!(ctx, motion_params.heart_scale, motion_params.y_offset_visc, ti)
+    draw_ribs!(ctx, motion_params.body_scale, motion_params.body_scale, motion_params.y_offset, ti)
+    draw_liver!(ctx, motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
+    draw_stomach!(ctx, motion_params.diaphragm_up, motion_params.y_offset_visc, motion_params.xy_visc_scale, ti)
+    return nothing
 end

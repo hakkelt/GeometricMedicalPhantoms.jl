@@ -18,59 +18,30 @@ Base.@kwdef struct TubesGeometry
 end
 
 """
-    get_tubes_shapes(tg::TubesGeometry, ti::TubesIntensities, output_eltype::Type=Float64)
-
-Generate the cylinder shapes for the tubes phantom.
-
-Returns a tuple of CylinderZ objects representing the outer cylinder and all tubes.
-
-# Arguments
-- `tg::TubesGeometry`: Geometry parameters
-- `ti::TubesIntensities`: Intensity parameters
-- `output_eltype::Type`: Element type for the output (default: Float64)
-
-# Throws
-- `ArgumentError`: If the geometry parameters don't allow fitting the desired number of tubes
+Draw all tube shapes onto `ctx`.  The outer cylinder is drawn first, then each
+tube's wall + filling pair is drawn.
 """
-function get_tubes_shapes(tg::TubesGeometry, ti::TubesIntensities)
+function draw_tubes_shapes!(ctx, tg::TubesGeometry, ti::TubesIntensities)
     n_tubes = length(ti.tube_fillings)
 
-    R = tg.outer_radius # outer radius
-    r = R * sin(π / n_tubes) / (1.0 + sin(π / n_tubes)) # initial tube radius estimate
+    R = tg.outer_radius
+    r = R * sin(π / n_tubes) / (1.0 + sin(π / n_tubes))
     R_centers = R - r
-    wall_radius = r * (1 - tg.gap_fraction / 2) # adjust tube radius for gap fraction
-    tube_radius = r * (1 - tg.gap_fraction) # inner filling radius
+    wall_radius = r * (1 - tg.gap_fraction / 2)
+    tube_radius = r * (1 - tg.gap_fraction)
     tube_outer_height = tg.outer_height * tg.tubes_height_fraction
     tube_inner_height = tube_outer_height - 2 * tg.tube_wall_thickness
-    wall_thickness = wall_radius - tube_radius
 
-    # Create outer cylinder
-    outer_cylinder = CylinderZ(
-        0.0,
-        0.0,
-        0.0,
-        tg.outer_radius,
-        tg.outer_height,
-        ti.outer_cylinder
-    )
+    # Outer cylinder
+    draw_shape!(ctx, CylinderZ(0.0, 0.0, 0.0, tg.outer_radius, tg.outer_height, ti.outer_cylinder))
 
-    # Create tube cylinders
-    shapes = [outer_cylinder]
-
+    # Individual tubes (wall + filling)
     for i in 1:n_tubes
-        # Calculate position on the inner circle
         angle = 2π * (i - 1) / n_tubes
         cx = R_centers * cos(angle)
         cy = R_centers * sin(angle)
-
-        # Outer wall of tube (larger radius)
-        wall_cylinder = CylinderZ(cx, cy, 0.0, wall_radius, tube_outer_height, ti.tube_wall)
-        push!(shapes, wall_cylinder)
-
-        # Inner filling of tube (smaller radius)
-        filling_cylinder = CylinderZ(cx, cy, 0.0, tube_radius, tube_inner_height, ti.tube_fillings[i])
-        push!(shapes, filling_cylinder)
+        draw_shape!(ctx, CylinderZ(cx, cy, 0.0, wall_radius, tube_outer_height, ti.tube_wall))
+        draw_shape!(ctx, CylinderZ(cx, cy, 0.0, tube_radius, tube_inner_height, ti.tube_fillings[i]))
     end
-
-    return tuple(shapes...)
+    return nothing
 end

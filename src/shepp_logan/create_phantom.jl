@@ -31,16 +31,28 @@ function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fovs::Tuple{<:Rea
         zeros(eltype, nx, ny, nz)
     end
 
-    shapes = get_shepp_logan_shapes(ti)
-    for s in shapes
-        draw!(phantom, ax_xn, ax_yn, ax_zn, s)
-    end
+    ctx = DrawContext3D(phantom, ax_xn, ax_yn, ax_zn)
+    draw_shepp_logan_shapes!(ctx, ti)
 
     return phantom
 end
 
 
 function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fovs::Tuple{<:Real, <:Real} = (20.0, 20.0), slice_position::Real = 0.0, ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32)
+    # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
+    kw = (; fovs, slice_position, ti, eltype)
+    if axis === :axial
+        return _create_shepp_logan_2d(nx, ny, Val(:axial); kw...)
+    elseif axis === :coronal
+        return _create_shepp_logan_2d(nx, ny, Val(:coronal); kw...)
+    elseif axis === :sagittal
+        return _create_shepp_logan_2d(nx, ny, Val(:sagittal); kw...)
+    else
+        throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
+    end
+end
+
+function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}; fovs, slice_position, ti::SheppLoganIntensities, eltype::Type) where {A}
     is_mask = ti isa SheppLoganIntensities{Bool}
 
     Δ1, Δ2 = fovs[1] / nx, fovs[2] / ny
@@ -57,10 +69,9 @@ function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fovs::Tuple{
         zeros(eltype, nx, ny)
     end
 
-    shapes = get_shepp_logan_shapes(ti)
-    for s in shapes
-        draw_2d!(phantom, ax_1n, ax_2n, ax_3_val, axis, s)
-    end
+    # A is a compile-time constant here — DrawContext2D{A} is fully typed.
+    ctx = DrawContext2D{A}(phantom, ax_1n, ax_2n, ax_3_val)
+    draw_shepp_logan_shapes!(ctx, ti)
 
     return phantom
 end

@@ -1,6 +1,6 @@
 module GeometricMedicalPhantoms
 
-using Base.Threads
+using Polyester: @batch
 
 # Export geometric primitives
 export Ellipsoid, SuperEllipsoid, RotatedEllipsoid

@@ -1,8 +1,9 @@
 """
-    get_shepp_logan_shapes(p::SheppLoganIntensities)
+    draw_shepp_logan_shapes!(ctx, p::SheppLoganIntensities)
 
-Return a tuple of 12 `Shape` objects representing the 3D Shepp-Logan phantom
-with intensities specified by `p`.
+Draw 12 shapes representing the 3D Shepp-Logan phantom directly onto `ctx`.
+Each shape is drawn with a concrete type (Ellipsoid or RotatedEllipsoid) so the
+compiler sees the exact type at every call site — no heterogeneous tuple iteration.
 
 # Attribution
 The original 2D Shepp-Logan phantom was introduced by Shepp and Logan in 1974 [1]
@@ -27,31 +28,30 @@ a widely used package for generating analytical phantoms.
 [5] https://github.com/JuliaImageRecon/ImagePhantoms.jl/blob/main/src/shepplogan.jl
 [6] https://www.slaney.org/pct/pct-errata.html
 """
-function get_shepp_logan_shapes(p::SheppLoganIntensities)::NTuple{12, Union{Ellipsoid, RotatedEllipsoid}}
-    return (
-        # 1: skull
-        Ellipsoid(+0.0, +0.0, +0.25, +0.69, +0.92, +0.9, get_intensity(p, :skull)),
-        # 2: brain
-        Ellipsoid(+0.0, -0.0184, +0.25, +0.6624, +0.874, +0.88, get_intensity(p, :brain)),
-        # 3: right big
-        RotatedEllipsoid(-0.22, +0.0, +0.0, +0.41, +0.16, +0.21, -72 * π / 180, 0.0, 0.0, get_intensity(p, :right_big)),
-        # 4: left big
-        RotatedEllipsoid(+0.22, +0.0, +0.0, +0.31, +0.11, +0.22, +72 * π / 180, 0.0, 0.0, get_intensity(p, :left_big)),
-        # 5: top
-        Ellipsoid(+0.0, +0.35, +0.0, +0.21, +0.25, +0.35, get_intensity(p, :top)),
-        # 6: middle high
-        Ellipsoid(+0.0, +0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_high)),
-        # 7: bottom left
-        Ellipsoid(-0.08, -0.605, +0.0, +0.046, +0.023, +0.02, get_intensity(p, :bottom_left)),
-        # 8: middle low
-        Ellipsoid(+0.0, -0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_low)),
-        # 9: bottom center
-        Ellipsoid(+0.0, -0.605, +0.0, +0.023, +0.023, +0.023, get_intensity(p, :bottom_center)),
-        # 10: bottom right
-        Ellipsoid(+0.06, -0.605, +0.0, +0.023, +0.046, +0.02, get_intensity(p, :bottom_right)),
-        # 11: extra 1
-        Ellipsoid(+0.06, -0.105, +0.3125, +0.04, +0.056, +0.1, get_intensity(p, :extra_1)),
-        # 12: extra 2
-        Ellipsoid(+0.0, +0.1, +0.875, +0.056, +0.056, +0.1, get_intensity(p, :extra_2)),
-    )
+function draw_shepp_logan_shapes!(ctx, p::SheppLoganIntensities)
+    # 1: skull
+    draw_shape!(ctx, Ellipsoid(+0.0, +0.0, +0.25, +0.69, +0.92, +0.9, get_intensity(p, :skull)))
+    # 2: brain
+    draw_shape!(ctx, Ellipsoid(+0.0, -0.0184, +0.25, +0.6624, +0.874, +0.88, get_intensity(p, :brain)))
+    # 3: right big
+    draw_shape!(ctx, RotatedEllipsoid(-0.22, +0.0, +0.0, +0.41, +0.16, +0.21, -72 * π / 180, 0.0, 0.0, get_intensity(p, :right_big)))
+    # 4: left big
+    draw_shape!(ctx, RotatedEllipsoid(+0.22, +0.0, +0.0, +0.31, +0.11, +0.22, +72 * π / 180, 0.0, 0.0, get_intensity(p, :left_big)))
+    # 5: top
+    draw_shape!(ctx, Ellipsoid(+0.0, +0.35, +0.0, +0.21, +0.25, +0.35, get_intensity(p, :top)))
+    # 6: middle high
+    draw_shape!(ctx, Ellipsoid(+0.0, +0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_high)))
+    # 7: bottom left
+    draw_shape!(ctx, Ellipsoid(-0.08, -0.605, +0.0, +0.046, +0.023, +0.02, get_intensity(p, :bottom_left)))
+    # 8: middle low
+    draw_shape!(ctx, Ellipsoid(+0.0, -0.1, +0.0, +0.046, +0.046, +0.046, get_intensity(p, :middle_low)))
+    # 9: bottom center
+    draw_shape!(ctx, Ellipsoid(+0.0, -0.605, +0.0, +0.023, +0.023, +0.023, get_intensity(p, :bottom_center)))
+    # 10: bottom right
+    draw_shape!(ctx, Ellipsoid(+0.06, -0.605, +0.0, +0.023, +0.046, +0.02, get_intensity(p, :bottom_right)))
+    # 11: extra 1
+    draw_shape!(ctx, Ellipsoid(+0.06, -0.105, +0.3125, +0.04, +0.056, +0.1, get_intensity(p, :extra_1)))
+    # 12: extra 2
+    draw_shape!(ctx, Ellipsoid(+0.0, +0.1, +0.875, +0.056, +0.056, +0.1, get_intensity(p, :extra_2)))
+    return nothing
 end
