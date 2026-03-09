@@ -36,10 +36,10 @@ using ImagePhantoms
 
     @testset "CT Comparison with ImagePhantoms" begin
         nx, ny = 64, 64
-        fovs = (16.0, 16.0)
-        phantom_our = create_shepp_logan_phantom(nx, ny, :axial; fovs = fovs)
+        fov = (16.0, 16.0)
+        phantom_our = create_shepp_logan_phantom(nx, ny, :axial; fov = fov)
 
-        Δx, Δy = fovs[1] / nx, fovs[2] / ny
+        Δx, Δy = fov[1] / nx, fov[2] / ny
         ax_x = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δx
         ax_y = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δy
         ax_z = [-2.0]
@@ -53,8 +53,8 @@ using ImagePhantoms
     @testset "FOV Scaling and Cropping" begin
         # Test that rendering with fov=(10,10,10) and size (64,64,64) equals
         # cropping the center of a rendered phantom with fov=(20,20,20) and size (128,128,128)
-        phantom_small = create_shepp_logan_phantom(64, 64, 64; fovs = (10, 10, 10))
-        phantom_large = create_shepp_logan_phantom(128, 128, 128; fovs = (20, 20, 20))
+        phantom_small = create_shepp_logan_phantom(64, 64, 64; fov = (10, 10, 10))
+        phantom_large = create_shepp_logan_phantom(128, 128, 128; fov = (20, 20, 20))
 
         # Extract center of the large phantom
         center_crop = phantom_large[33:96, 33:96, 33:96] # 33 = (128 - 64) / 2 + 1, 96 = 33 + 64 - 1
@@ -66,16 +66,16 @@ using ImagePhantoms
         # Test that rendering a 3D volume slice by slice in axial plane
         # gives the same output as rendering the 3D phantom
         nx, ny, nz = 64, 64, 64
-        fovs = (20, 20, 20)
+        fov = (20, 20, 20)
 
         # Render full 3D phantom
-        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs)
+        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fov = fov)
 
         # Render each axial slice individually
         phantom_2d_slices = Array{Float32, 3}(undef, nx, ny, nz)
         for k in 1:nz
-            slice_pos = (k - 1 - (nz - 1) / 2) * (fovs[3] / nz)
-            slice_2d = create_shepp_logan_phantom(nx, ny, :axial; fovs = (fovs[1], fovs[2]), slice_position = slice_pos)
+            slice_pos = (k - 1 - (nz - 1) / 2) * (fov[3] / nz)
+            slice_2d = create_shepp_logan_phantom(nx, ny, :axial; fov = (fov[1], fov[2]), slice_position = slice_pos)
             phantom_2d_slices[:, :, k] = slice_2d
         end
         @test phantom_2d_slices ≈ phantom_3d atol = 1.0e-6
@@ -85,16 +85,16 @@ using ImagePhantoms
         # Test that rendering a 3D volume slice by slice in coronal plane
         # gives the same output as rendering the 3D phantom
         nx, ny, nz = 64, 64, 64
-        fovs = (20, 20, 20)
+        fov = (20, 20, 20)
 
         # Render full 3D phantom
-        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs)
+        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fov = fov)
 
         # Render each coronal slice individually
         phantom_2d_slices = Array{Float32, 3}(undef, nx, ny, nz)
         for j in 1:ny
-            slice_pos = (j - 1 - (ny - 1) / 2) * (fovs[2] / ny)
-            slice_2d = create_shepp_logan_phantom(nx, nz, :coronal; fovs = (fovs[1], fovs[3]), slice_position = slice_pos)
+            slice_pos = (j - 1 - (ny - 1) / 2) * (fov[2] / ny)
+            slice_2d = create_shepp_logan_phantom(nx, nz, :coronal; fov = (fov[1], fov[3]), slice_position = slice_pos)
             phantom_2d_slices[:, j, :] = slice_2d
         end
         @test phantom_2d_slices ≈ phantom_3d atol = 1.0e-6
@@ -104,16 +104,16 @@ using ImagePhantoms
         # Test that rendering a 3D volume slice by slice in sagittal plane
         # gives the same output as rendering the 3D phantom
         nx, ny, nz = 64, 64, 64
-        fovs = (20, 20, 20)
+        fov = (20, 20, 20)
 
         # Render full 3D phantom
-        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs)
+        phantom_3d = create_shepp_logan_phantom(nx, ny, nz; fov = fov)
 
         # Render each sagittal slice individually
         phantom_2d_slices = Array{Float32, 3}(undef, nx, ny, nz)
         for i in 1:nx
-            slice_pos = (i - 1 - (nx - 1) / 2) * (fovs[1] / nx)
-            slice_2d = create_shepp_logan_phantom(ny, nz, :sagittal; fovs = (fovs[2], fovs[3]), slice_position = slice_pos)
+            slice_pos = (i - 1 - (nx - 1) / 2) * (fov[1] / nx)
+            slice_2d = create_shepp_logan_phantom(ny, nz, :sagittal; fov = (fov[2], fov[3]), slice_position = slice_pos)
             phantom_2d_slices[i, :, :] = slice_2d
         end
         @test phantom_2d_slices ≈ phantom_3d atol = 1.0e-6
@@ -122,7 +122,7 @@ using ImagePhantoms
     @testset "Intensity Changes Reflected in Rendering" begin
         # Test that changing intensities is reflected in the rendered image
         nx, ny, nz = 64, 64, 64
-        fovs = (20, 20, 20)
+        fov = (20, 20, 20)
 
         # Create custom intensity based on MRI but with different "top" value
         mri_intensities = MRISheppLoganIntensities()
@@ -142,33 +142,33 @@ using ImagePhantoms
         )
 
         # Render with MRI intensities
-        phantom_mri = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs, ti = mri_intensities)
+        phantom_mri = create_shepp_logan_phantom(nx, ny, nz; fov = fov, ti = mri_intensities)
 
         # Render with custom intensities
-        phantom_custom = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs, ti = custom_intensities)
+        phantom_custom = create_shepp_logan_phantom(nx, ny, nz; fov = fov, ti = custom_intensities)
 
         # Render mask that selects only the "top" ellipsoid
-        mask = create_shepp_logan_phantom(nx, ny, nz; fovs = fovs, ti = SheppLoganMask(top = true))
+        mask = create_shepp_logan_phantom(nx, ny, nz; fov = fov, ti = SheppLoganMask(top = true))
 
         # They should be different
         expected_intensity_diff = 0.5 - mri_intensities.top
         @test all(phantom_custom[mask] .- phantom_mri[mask] .≈ expected_intensity_diff)
 
         # Test 2D axial as well
-        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :axial; fovs = (fovs[1], fovs[2]), ti = mri_intensities)
-        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :axial; fovs = (fovs[1], fovs[2]), ti = custom_intensities)
+        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :axial; fov = (fov[1], fov[2]), ti = mri_intensities)
+        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :axial; fov = (fov[1], fov[2]), ti = custom_intensities)
 
         @test all(phantom_custom_2d[mask[:, :, div(nz, 2)]] .- phantom_mri_2d[mask[:, :, div(nz, 2)]] .≈ expected_intensity_diff)
 
         # Test 2D coronal as well
-        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :coronal; fovs = (fovs[1], fovs[3]), ti = mri_intensities)
-        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :coronal; fovs = (fovs[1], fovs[3]), ti = custom_intensities)
+        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :coronal; fov = (fov[1], fov[3]), ti = mri_intensities)
+        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :coronal; fov = (fov[1], fov[3]), ti = custom_intensities)
 
         @test all(phantom_custom_2d[mask[:, div(ny, 2), :]] .- phantom_mri_2d[mask[:, div(ny, 2), :]] .≈ expected_intensity_diff)
 
         # Test 2D sagittal as well
-        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :sagittal; fovs = (fovs[2], fovs[3]), ti = mri_intensities)
-        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :sagittal; fovs = (fovs[2], fovs[3]), ti = custom_intensities)
+        phantom_mri_2d = create_shepp_logan_phantom(nx, ny, :sagittal; fov = (fov[2], fov[3]), ti = mri_intensities)
+        phantom_custom_2d = create_shepp_logan_phantom(nx, ny, :sagittal; fov = (fov[2], fov[3]), ti = custom_intensities)
 
         @test all(phantom_custom_2d[mask[div(nx, 2), :, :]] .- phantom_mri_2d[mask[div(nx, 2), :, :]] .≈ expected_intensity_diff)
     end

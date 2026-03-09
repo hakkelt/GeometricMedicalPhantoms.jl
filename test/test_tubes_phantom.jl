@@ -16,7 +16,7 @@ using GeometricMedicalPhantoms
 
     @testset "3D phantom generation - custom FOV" begin
         # Test with custom FOV
-        phantom = create_tubes_phantom(64, 64, 64; fovs = (20.0, 20.0, 20.0))
+        phantom = create_tubes_phantom(64, 64, 64; fov = (20.0, 20.0, 20.0))
         @test size(phantom) == (64, 64, 64)
         @test eltype(phantom) == Float32
     end
@@ -179,13 +179,13 @@ using GeometricMedicalPhantoms
 
     @testset "Parameter ranges" begin
         # Test with various parameter combinations
-        phantom1 = create_tubes_phantom(32, 32, 32; fovs = (5.0, 5.0, 5.0))
+        phantom1 = create_tubes_phantom(32, 32, 32; fov = (5.0, 5.0, 5.0))
         @test size(phantom1) == (32, 32, 32)
 
-        phantom2 = create_tubes_phantom(32, 32, 32; fovs = (15.0, 15.0, 15.0))
+        phantom2 = create_tubes_phantom(32, 32, 32; fov = (15.0, 15.0, 15.0))
         @test size(phantom2) == (32, 32, 32)
 
-        phantom3 = create_tubes_phantom(32, 32, :axial; fovs = (10.0, 10.0))
+        phantom3 = create_tubes_phantom(32, 32, :axial; fov = (10.0, 10.0))
         @test size(phantom3) == (32, 32)
     end
 

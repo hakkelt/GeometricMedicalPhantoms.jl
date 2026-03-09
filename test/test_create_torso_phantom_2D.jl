@@ -56,8 +56,8 @@ using GeometricMedicalPhantoms
 
         @testset "2D phantom - Custom FOV" begin
             # Test with custom FOV
-            phantom_small = create_torso_phantom(64, 64, :axial; fovs = (20, 20))
-            phantom_large = create_torso_phantom(64, 64, :axial; fovs = (40, 40))
+            phantom_small = create_torso_phantom(64, 64, :axial; fov = (20, 20))
+            phantom_large = create_torso_phantom(64, 64, :axial; fov = (40, 40))
 
             @test size(phantom_small) == (64, 64, 1)
             @test size(phantom_large) == (64, 64, 1)
@@ -67,13 +67,13 @@ using GeometricMedicalPhantoms
             @test count(x -> x != 0, phantom_large[:, :, 1]) > 0
 
             # Test with very small FOV that may exclude most structures
-            phantom_tiny = create_torso_phantom(32, 32, :axial; fovs = (2, 2))
+            phantom_tiny = create_torso_phantom(32, 32, :axial; fov = (2, 2))
             @test size(phantom_tiny) == (32, 32, 1)
             # Very small FOV may have little or no content depending on centering
             @test count(x -> x != 0, phantom_tiny[:, :, 1]) >= 0
 
             # Test with very large FOV
-            phantom_huge = create_torso_phantom(64, 64, :axial; fovs = (100, 100))
+            phantom_huge = create_torso_phantom(64, 64, :axial; fov = (100, 100))
             @test size(phantom_huge) == (64, 64, 1)
             # Should have content, but phantom will appear smaller
             @test count(x -> x != 0, phantom_huge[:, :, 1]) > 0
@@ -304,9 +304,9 @@ using GeometricMedicalPhantoms
             # Test invalid axis
             @test_throws ArgumentError create_torso_phantom(64, 64, :invalid_axis)
 
-            # Test wrong fovs size
+            # Test wrong fov size
             @test_throws ArgumentError create_torso_phantom(
-                64, 64, :axial; fovs = (30, 30, 30)
+                64, 64, :axial; fov = (30, 30, 30)
             )
 
             # Test invalid dimensions

@@ -1,6 +1,6 @@
 """
-    create_shepp_logan_phantom(nx, ny, nz; fovs=(20,20,20), ti=CTSheppLoganIntensities(), eltype=Float32)
-    create_shepp_logan_phantom(nx, ny, axis; fovs=(20,20), slice_position=0.0, ti=CTSheppLoganIntensities(), eltype=Float32)
+    create_shepp_logan_phantom(nx, ny, nz; fov=(20,20,20), ti=CTSheppLoganIntensities(), eltype=Float32)
+    create_shepp_logan_phantom(nx, ny, axis; fov=(20,20), slice_position=0.0, ti=CTSheppLoganIntensities(), eltype=Float32)
 
 Generate a 3D Shepp-Logan phantom or a 2D slice of it.
 
@@ -9,14 +9,14 @@ The intensities `ti` can be specified using `CTSheppLoganIntensities()` (default
 
 # Parameters
 - `nx`, `ny`, `nz`: Number of voxels in x, y, and z dimensions for 3D phantom; for 2D slice, `nx` and `ny` are used.
-- `fovs`: Tuple specifying the field of view in each dimension (default is (20, 20, 20) for 3D and (20, 20) for 2D).
+- `fov`: Tuple specifying the field of view in each dimension (default is (20, 20, 20) for 3D and (20, 20) for 2D).
 - `ti`: Shepp-Logan intensities, defaulting to `CTSheppLoganIntensities()`, but accepts `MRISheppLoganIntensities()` or any custom `SheppLoganIntensities` struct.
 - `eltype`: Data type for the phantom array (default is `Float32`).
 """
-function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fovs::Tuple{<:Real, <:Real, <:Real} = (20.0, 20.0, 20.0), ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32)
+function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fov::Tuple{<:Real, <:Real, <:Real} = (20.0, 20.0, 20.0), ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32)
     is_mask = ti isa SheppLoganIntensities{Bool}
 
-    Δx, Δy, Δz = fovs[1] / nx, fovs[2] / ny, fovs[3] / nz
+    Δx, Δy, Δz = fov[1] / nx, fov[2] / ny, fov[3] / nz
     ax_x = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δx
     ax_y = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δy
     ax_z = range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .* Δz
@@ -38,9 +38,9 @@ function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fovs::Tuple{<:Rea
 end
 
 
-function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fovs::Tuple{<:Real, <:Real} = (20.0, 20.0), slice_position::Real = 0.0, ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32)
+function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fov::Tuple{<:Real, <:Real} = (20.0, 20.0), slice_position::Real = 0.0, ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32)
     # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
-    kw = (; fovs, slice_position, ti, eltype)
+    kw = (; fov, slice_position, ti, eltype)
     if axis === :axial
         return _create_shepp_logan_2d(nx, ny, Val(:axial); kw...)
     elseif axis === :coronal
@@ -52,10 +52,10 @@ function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fovs::Tuple{
     end
 end
 
-function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}; fovs, slice_position, ti::SheppLoganIntensities, eltype::Type) where {A}
+function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}; fov, slice_position, ti::SheppLoganIntensities, eltype::Type) where {A}
     is_mask = ti isa SheppLoganIntensities{Bool}
 
-    Δ1, Δ2 = fovs[1] / nx, fovs[2] / ny
+    Δ1, Δ2 = fov[1] / nx, fov[2] / ny
     ax_1 = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δ1
     ax_2 = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δ2
 

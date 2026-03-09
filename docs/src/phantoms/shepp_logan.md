@@ -242,10 +242,10 @@ savefig("shepp_logan_resolution.png"); nothing # hide
 
 ```@example imports
 # Smaller FOV (zoomed in)
-phantom_small_fov = create_shepp_logan_phantom(256, 256, :axial; fovs=(10.0, 10.0))
+phantom_small_fov = create_shepp_logan_phantom(256, 256, :axial; fov=(10.0, 10.0))
 
 # Larger FOV (zoomed out)
-phantom_large_fov = create_shepp_logan_phantom(256, 256, :axial; fovs=(30.0, 30.0))
+phantom_large_fov = create_shepp_logan_phantom(256, 256, :axial; fov=(30.0, 30.0))
 
 p1 = jim(phantom_small_fov; title="Small FOV (10cm)", clim=(0.95, 1.05), yflip=false)
 p2 = jim(phantom_large_fov; title="Large FOV (30cm)", clim=(0.95, 1.05), yflip=false)

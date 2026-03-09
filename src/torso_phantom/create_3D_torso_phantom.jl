@@ -1,6 +1,6 @@
 """
-    create_torso_phantom(nx::Int, ny::Int, nz::Int; fovs=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32) -> Array{eltype, 4}
-    create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs=(30, 30), slice_position=0.0, eltype=Float32) -> Array{eltype, 3}
+    create_torso_phantom(nx::Int, ny::Int, nz::Int; fov=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32) -> Array{eltype, 4}
+    create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov=(30, 30), slice_position=0.0, eltype=Float32) -> Array{eltype, 3}
 
 Generate a 3D torso phantom with anatomical structures including torso outline, lungs, heart, and vessels.
 
@@ -11,7 +11,7 @@ Generate a 3D torso phantom with anatomical structures including torso outline, 
 - `axis::Symbol`: Slice orientation for 2D phantom - `:axial`, `:coronal`, or `:sagittal` (ignored for 3D phantom)
 
 # Keywords
-- `fovs::Tuple=(30, 30, 30)`: Field of view in cm for (x, y, z) directions for 3D phantom; for 2D phantom, only first two elements are used
+- `fov::Tuple=(30, 30, 30)`: Field of view in cm for (x, y, z) directions for 3D phantom; for 2D phantom, only first two elements are used
 - `slice_position::Real=0.0`: Position of the slice in cm (in the third dimension) for 2D phantom generation; ignored for 3D phantom
 - `respiratory_signal::Union{Nothing,AbstractVector}=nothing`: Respiratory signal in liters for 4D phantom generation
 - `cardiac_volumes::Union{Nothing,NamedTuple}=nothing`: Cardiac volumes in mL for 4D phantom generation; must have fields :lv, :rv, :la, :ra
@@ -43,12 +43,12 @@ lung_mask = TissueMask(lung=true)
 phantom_mask = create_torso_phantom(128, 128, 128; ti=lung_mask)  # BitArray
 ```
 """
-function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fovs = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
+function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fov = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
     # 1) Validate inputs
     if nx <= 0 || ny <= 0 || nz <= 0
         throw(ArgumentError("nx, ny, nz must be positive integers"))
     end
-    length(fovs) == 3 || throw(ArgumentError("fovs must have 3 elements for 3D phantom"))
+    length(fov) == 3 || throw(ArgumentError("fov must have 3 elements for 3D phantom"))
 
     # 2) Allocate output phantom array
     resp_length = isnothing(respiratory_signal) ? 1 : length(respiratory_signal)
@@ -57,7 +57,7 @@ function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fovs 
     phantom4d, static_image = preallocate_phantom_array(nx, ny, nz, nt, eltype, ti)
     static_bones_mask = fill(false, nx, ny, nz)
 
-    draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fovs, ti, respiratory_signal, cardiac_volumes)
+    draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes)
     return to_bitarray_if_mask(phantom4d, ti)
 end
 
@@ -77,10 +77,10 @@ function to_bitarray_if_mask(phantom, ::AbstractTissueParameters)
     return phantom
 end
 
-function draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fovs, ti, respiratory_signal, cardiac_volumes)
+function draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes)
     # 3) Setup motion signals and parameters
     nx, ny, nz, nt = size(phantom4d)
-    ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fovs)
+    ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fov)
     respiratory_signal, cardiac_volumes, nt = setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
@@ -116,8 +116,8 @@ end
 Helper function to define coordinate axes for phantom generation.
 Returns normalized axes in the range [-1, 1].
 """
-function define_phantom_axes(nx::Int, ny::Int, nz::Int, fovs::Tuple)
-    Δx, Δy, Δz = fovs[1] / nx, fovs[2] / ny, fovs[3] / nz
+function define_phantom_axes(nx::Int, ny::Int, nz::Int, fov::Tuple)
+    Δx, Δy, Δz = fov[1] / nx, fov[2] / ny, fov[3] / nz
     ax_x = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δx
     ax_y = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δy
     ax_z = range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .* Δz

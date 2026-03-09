@@ -11,8 +11,8 @@ Generate a tubes phantom. When invoked with three dimensions, a 3D volume is ret
 - `axis::Symbol`: Slice orientation (`:axial`, `:coronal`, or `:sagittal`)
 
 # Keyword Arguments
-- `fovs::Tuple{Real,Real,Real}`: Field of view in cm for volume mode (default: (10.0, 10.0, 10.0))
-- `fovs::Tuple{Real,Real}`: Field of view in cm for slice mode (default: (10.0, 10.0))
+- `fov::Tuple{Real,Real,Real}`: Field of view in cm for volume mode (default: (10.0, 10.0, 10.0))
+- `fov::Tuple{Real,Real}`: Field of view in cm for slice mode (default: (10.0, 10.0))
 - `slice_position::Real`: Position along the perpendicular axis in cm (default: 0.0, slice mode only)
 - `tg::TubesGeometry`: Geometry parameters (default: TubesGeometry())
 - `ti::Union{TubesIntensities, Vector{<:TubesIntensities}}`: Either a single intensity set or a collection of intensity sets to produce multiple frames (default: TubesIntensities())
@@ -32,25 +32,25 @@ phantom_axial_stack = create_tubes_phantom(128, 128, :axial; ti=[TubesIntensitie
 """
 function create_tubes_phantom(
         nx::Int, ny::Int, nz::Int;
-        fovs::Tuple{<:Real, <:Real, <:Real} = (10.0, 10.0, 10.0),
+        fov::Tuple{<:Real, <:Real, <:Real} = (10.0, 10.0, 10.0),
         tg::TubesGeometry = TubesGeometry(),
         ti::Union{TubesIntensities, Vector{<:TubesIntensities}} = TubesIntensities(),
         eltype::Type = Float32
     )
     tis = ti isa Vector ? ti : (ti,)
     if length(tis) == 1
-        return _render_tubes_volume(nx, ny, nz; fovs = fovs, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false)
+        return _render_tubes_volume(nx, ny, nz; fov = fov, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false)
     end
     result = Array{eltype, 4}(undef, nx, ny, nz, length(tis))
     for (idx, intensity) in enumerate(tis)
-        result[:, :, :, idx] = _render_tubes_volume(nx, ny, nz; fovs = fovs, tg = tg, ti = intensity, eltype = eltype, force_eltype = true)
+        result[:, :, :, idx] = _render_tubes_volume(nx, ny, nz; fov = fov, tg = tg, ti = intensity, eltype = eltype, force_eltype = true)
     end
     return result
 end
 
 function create_tubes_phantom(
         nx::Int, ny::Int, axis::Symbol;
-        fovs::Tuple{<:Real, <:Real} = (10.0, 10.0),
+        fov::Tuple{<:Real, <:Real} = (10.0, 10.0),
         slice_position::Real = 0.0,
         tg::TubesGeometry = TubesGeometry(),
         ti::Union{TubesIntensities, Vector{<:TubesIntensities}} = TubesIntensities(),
@@ -58,20 +58,20 @@ function create_tubes_phantom(
     )
     tis = ti isa Vector ? ti : (ti,)
     if length(tis) == 1
-        return _render_tubes_slice(nx, ny; fovs = fovs, slice_position = slice_position, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false, axis = axis)
+        return _render_tubes_slice(nx, ny; fov = fov, slice_position = slice_position, tg = tg, ti = tis[1], eltype = eltype, force_eltype = false, axis = axis)
     end
     result = Array{eltype, 3}(undef, nx, ny, length(tis))
     for (idx, intensity) in enumerate(tis)
-        result[:, :, idx] = _render_tubes_slice(nx, ny; fovs = fovs, slice_position = slice_position, tg = tg, ti = intensity, eltype = eltype, force_eltype = true, axis = axis)
+        result[:, :, idx] = _render_tubes_slice(nx, ny; fov = fov, slice_position = slice_position, tg = tg, ti = intensity, eltype = eltype, force_eltype = true, axis = axis)
     end
     return result
 end
 
-function _render_tubes_volume(nx, ny, nz; fovs, tg, ti, eltype, force_eltype)
+function _render_tubes_volume(nx, ny, nz; fov, tg, ti, eltype, force_eltype)
     norm_factor = 10.0
-    ax_x = collect(range(-fovs[1] / 2, fovs[1] / 2, length = nx)) / norm_factor
-    ax_y = collect(range(-fovs[2] / 2, fovs[2] / 2, length = ny)) / norm_factor
-    ax_z = collect(range(-fovs[3] / 2, fovs[3] / 2, length = nz)) / norm_factor
+    ax_x = collect(range(-fov[1] / 2, fov[1] / 2, length = nx)) / norm_factor
+    ax_y = collect(range(-fov[2] / 2, fov[2] / 2, length = ny)) / norm_factor
+    ax_z = collect(range(-fov[3] / 2, fov[3] / 2, length = nz)) / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny, nz)
     ctx = DrawContext3D(phantom, ax_x, ax_y, ax_z)
@@ -79,9 +79,9 @@ function _render_tubes_volume(nx, ny, nz; fovs, tg, ti, eltype, force_eltype)
     return phantom
 end
 
-function _render_tubes_slice(nx, ny; fovs, slice_position, tg, ti, eltype, force_eltype, axis)
+function _render_tubes_slice(nx, ny; fov, slice_position, tg, ti, eltype, force_eltype, axis)
     # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
-    kw = (; fovs, slice_position, tg, ti, eltype, force_eltype)
+    kw = (; fov, slice_position, tg, ti, eltype, force_eltype)
     if axis === :axial
         return _render_tubes_slice_impl(nx, ny, Val(:axial); kw...)
     elseif axis === :coronal
@@ -93,10 +93,10 @@ function _render_tubes_slice(nx, ny; fovs, slice_position, tg, ti, eltype, force
     end
 end
 
-function _render_tubes_slice_impl(nx, ny, ::Val{A}; fovs, slice_position, tg, ti, eltype, force_eltype) where {A}
+function _render_tubes_slice_impl(nx, ny, ::Val{A}; fov, slice_position, tg, ti, eltype, force_eltype) where {A}
     norm_factor = 10.0
-    ax_1 = collect(range(-fovs[1] / 2, fovs[1] / 2, length = nx)) / norm_factor
-    ax_2 = collect(range(-fovs[2] / 2, fovs[2] / 2, length = ny)) / norm_factor
+    ax_1 = collect(range(-fov[1] / 2, fov[1] / 2, length = nx)) / norm_factor
+    ax_2 = collect(range(-fov[2] / 2, fov[2] / 2, length = ny)) / norm_factor
     slice_pos_norm = slice_position / norm_factor
     output_eltype = force_eltype ? eltype : (ti isa TubesIntensities{Bool} ? Bool : eltype)
     phantom = zeros(output_eltype, nx, ny)

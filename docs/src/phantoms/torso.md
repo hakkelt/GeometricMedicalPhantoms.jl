@@ -199,7 +199,7 @@ t, resp_liters = generate_respiratory_signal(duration, fs, rr)
 
 # Create 4D phantom with respiratory motion
 phantom_4d_resp = create_torso_phantom(128, 128, 128; 
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     respiratory_signal=resp_liters)
 
 println("4D phantom shape: $(size(phantom_4d_resp))")
@@ -305,7 +305,7 @@ Create a 4D phantom with cardiac motion:
 
 ```@example imports
 phantom_4d_cardiac = create_torso_phantom(128, 128, 128;
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     cardiac_volumes=cardiac_volumes)
 
 println("4D cardiac phantom shape: $(size(phantom_4d_cardiac))")
@@ -319,7 +319,7 @@ Real imaging scenarios include both respiratory and cardiac motion simultaneousl
 ```@example imports
 # Generate both signals
 phantom_4d_combined = create_torso_phantom(128, 128, 128;
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     respiratory_signal=resp_liters,
     cardiac_volumes=cardiac_volumes)
 

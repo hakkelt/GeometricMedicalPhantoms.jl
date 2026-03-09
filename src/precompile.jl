@@ -49,7 +49,7 @@ using PrecompileTools
     create_shepp_logan_phantom(64, 64, :sagittal)
 
     # 2D phantom creation - Float32 with custom FOV
-    create_shepp_logan_phantom(64, 64, :axial; fovs = (20.0, 20.0))
+    create_shepp_logan_phantom(64, 64, :axial; fov = (20.0, 20.0))
 
     # 2D phantom creation - Float32 with MRI intensities
     create_shepp_logan_phantom(64, 64, :axial; ti = MRISheppLoganIntensities())
@@ -73,7 +73,7 @@ using PrecompileTools
     create_shepp_logan_phantom(64, 64, 64)
 
     # 3D phantom creation - Float32 with custom FOV
-    create_shepp_logan_phantom(64, 64, 64; fovs = (20.0, 20.0, 20.0))
+    create_shepp_logan_phantom(64, 64, 64; fov = (20.0, 20.0, 20.0))
 
     # 3D phantom creation - Float32 with MRI intensities
     create_shepp_logan_phantom(64, 64, 64; ti = MRISheppLoganIntensities())
@@ -100,7 +100,7 @@ using PrecompileTools
     create_tubes_phantom(64, 64, :sagittal)
 
     # 2D phantom creation - Float32 with custom FOV
-    create_tubes_phantom(64, 64, :axial; fovs = (20.0, 20.0))
+    create_tubes_phantom(64, 64, :axial; fov = (20.0, 20.0))
 
     # 2D phantom creation - Float64
     create_tubes_phantom(64, 64, :axial; eltype = Float64)
@@ -115,7 +115,7 @@ using PrecompileTools
     create_tubes_phantom(64, 64, 64)
 
     # 3D phantom creation - Float32 with custom FOV
-    create_tubes_phantom(64, 64, 64; fovs = (20.0, 20.0, 20.0))
+    create_tubes_phantom(64, 64, 64; fov = (20.0, 20.0, 20.0))
 
     # 3D phantom creation - Float32 with custom geometry
     create_tubes_phantom(64, 64, 64; tg = TubesGeometry())

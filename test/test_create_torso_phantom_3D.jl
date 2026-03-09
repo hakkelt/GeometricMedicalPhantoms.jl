@@ -25,8 +25,8 @@ using Statistics
         @testset "3D phantom with custom FOV" begin
             # 64^3 with FOV (20, 20, 20) should equal center of 128^3 with FOV (40, 40, 40)
             # Both have same voxel size: 20/64 = 40/128 = 0.3125 cm/voxel
-            phantom_small = create_torso_phantom(64, 64, 64; fovs = (20, 20, 20))
-            phantom_large = create_torso_phantom(128, 128, 128; fovs = (40, 40, 40))
+            phantom_small = create_torso_phantom(64, 64, 64; fov = (20, 20, 20))
+            phantom_large = create_torso_phantom(128, 128, 128; fov = (40, 40, 40))
 
             @test size(phantom_small) == (64, 64, 64, 1)
             @test size(phantom_large) == (128, 128, 128, 1)
@@ -508,9 +508,9 @@ using Statistics
             # Test invalid nz (negative)
             @test_throws ArgumentError create_torso_phantom(64, 64, -10)
 
-            # Test invalid fovs (wrong size)
-            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs = (30, 30))
-            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fovs = (30, 30, 30, 30))
+            # Test invalid fov (wrong size)
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fov = (30, 30))
+            @test_throws ArgumentError create_torso_phantom(64, 64, 64; fov = (30, 30, 30, 30))
         end
     end  # Parameter Tests
 end  # 3D Phantom Tests

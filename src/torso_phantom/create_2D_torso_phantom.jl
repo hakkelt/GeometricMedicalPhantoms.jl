@@ -1,27 +1,27 @@
-function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fovs = (30, 30), slice_position::Real = 0.0, respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
+function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov = (30, 30), slice_position::Real = 0.0, respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
     # 1) Validate inputs
     if nx <= 0 || ny <= 0
         throw(ArgumentError("nx, ny must be positive integers"))
     end
-    length(fovs) == 2 || throw(ArgumentError("fovs must have 2 elements for 2D phantom"))
+    length(fov) == 2 || throw(ArgumentError("fov must have 2 elements for 2D phantom"))
     # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
     # Pass eltype as a POSITIONAL arg (not keyword) so Type{T} specialization is preserved;
     # keyword arguments are bundled into a NamedTuple at the call site, which widens
     # Type{Float32} → DataType and breaks the ::Type{T} dispatch in preallocate_phantom_array.
     if axis === :axial
-        return _create_torso_phantom_2d(nx, ny, Val(:axial), eltype; fovs = fovs, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:axial), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
     elseif axis === :coronal
-        return _create_torso_phantom_2d(nx, ny, Val(:coronal), eltype; fovs = fovs, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:coronal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
     elseif axis === :sagittal
-        return _create_torso_phantom_2d(nx, ny, Val(:sagittal), eltype; fovs = fovs, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:sagittal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
     else
         throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
     end
 end
 
-function _create_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}; fovs, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters) where {A, T}
+function _create_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}; fov, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters) where {A, T}
     # 2) Setup motion signals and parameters
-    ax_1n, ax_2n, ax_3_val = define_phantom_axes_2d(nx, ny, fovs, slice_position)
+    ax_1n, ax_2n, ax_3_val = define_phantom_axes_2d(nx, ny, fov, slice_position)
     respiratory_signal, cardiac_volumes, nt = setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
@@ -63,9 +63,9 @@ end
 Helper function to define 2D coordinate axes for phantom slice generation.
 Returns (ax_1n, ax_2n, ax_3_val) based on slice orientation.
 """
-function define_phantom_axes_2d(nx::Int, ny::Int, fovs::Tuple, slice_position::Real)
+function define_phantom_axes_2d(nx::Int, ny::Int, fov::Tuple, slice_position::Real)
     # Create axes for the two in-plane dimensions
-    Δ1, Δ2 = fovs[1] / nx, fovs[2] / ny
+    Δ1, Δ2 = fov[1] / nx, fov[2] / ny
     ax_1 = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δ1
     ax_2 = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δ2
 

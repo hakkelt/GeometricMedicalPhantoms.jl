@@ -189,7 +189,7 @@ Now create the main function that ties everything together:
 ```@example custom_setup
 function create_simple_brain_phantom(
     nx::Int, ny::Int, nz::Int;
-    fovs::NTuple{3, Float32} = (2.0f0, 2.0f0, 2.0f0),
+    fov::NTuple{3, Float32} = (2.0f0, 2.0f0, 2.0f0),
     geometry::SimpleBrainGeometry = SimpleBrainGeometry(),
     intensities = SimpleBrainIntensities(),
     eltype::Type = Float32
@@ -198,9 +198,9 @@ function create_simple_brain_phantom(
     phantom = zeros(eltype, nx, ny, nz)
     
     # Create coordinate axes in physical space
-    ax_x = collect(range(-fovs[1]/2, fovs[1]/2, length=nx))
-    ax_y = collect(range(-fovs[2]/2, fovs[2]/2, length=ny))
-    ax_z = collect(range(-fovs[3]/2, fovs[3]/2, length=nz))
+    ax_x = collect(range(-fov[1]/2, fov[1]/2, length=nx))
+    ax_y = collect(range(-fov[2]/2, fov[2]/2, length=ny))
+    ax_z = collect(range(-fov[3]/2, fov[3]/2, length=nz))
     
     # Create drawing context and draw all shapes onto the phantom
     ctx = GeometricMedicalPhantoms.DrawContext3D(phantom, ax_x, ax_y, ax_z)
@@ -264,7 +264,7 @@ When building custom phantoms, follow these practices:
 Always work in physical space (cm), not voxel indices:
 
 ```julia
-x_coords = range(-fovs[1]/2, fovs[1]/2, length=nx)
+x_coords = range(-fov[1]/2, fov[1]/2, length=nx)
 # Avoids confusion and makes phantoms independent of resolution
 ```
 
@@ -286,13 +286,13 @@ Example:
 
 ```julia
 """
-    create_custom_phantom(nx, ny, nz; fovs=(20,20,20), geometry=..., intensities=...)
+    create_custom_phantom(nx, ny, nz; fov=(20,20,20), geometry=..., intensities=...)
 
 Create a custom phantom.
 
 # Arguments
 - `nx, ny, nz`: Grid dimensions
-- `fovs`: Field of view in cm (default: (20, 20, 20))
+- `fov`: Field of view in cm (default: (20, 20, 20))
 - `geometry`: Geometry structure with shape parameters
 - `intensities`: Intensity structure with tissue values
 
