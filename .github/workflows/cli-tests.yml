@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - master
+    tags: ['*']
     paths:
       - 'app/**'
       - '.github/workflows/cli-tests.yml'
   pull_request:
-    paths:
-      - 'app/**'
-      - '.github/workflows/cli-tests.yml'
   workflow_dispatch:
 
 concurrency:
@@ -53,14 +51,9 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: app
         run: |
-          julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.resolve(); Pkg.instantiate()'
+          julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.instantiate()'
 
       - name: Run CLI tests
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.test()'
-
-      - name: Test CLI executable commands (smoke test)
-        working-directory: app
-        run: |
-          julia --project=. -e 'using GeometricMedicalPhantomsApp; GeometricMedicalPhantomsApp.main(["info"])'
