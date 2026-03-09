@@ -44,6 +44,7 @@ The executable will be in `app/build/bin/geomphantoms`.
 ```bash
 geomphantoms info
 geomphantoms phantom shepp-logan --size 256,256 --plane axial --out shepp.npy
+geomphantoms phantom shepp-logan --size 256,256 --fov 24,24 --plane axial --out shepp_zoomed.npy
 ```
 
 ## Phantom Generation
@@ -54,6 +55,9 @@ geomphantoms phantom shepp-logan --size 256,256 --plane axial --out shepp.npy
 
 # 3D Torso volume
 geomphantoms phantom torso --size 128,128,128 --out torso.mat
+
+# 2D Shepp-Logan with explicit field of view (cm)
+geomphantoms phantom shepp-logan --size 256,256 --fov 24,24 --plane axial --out shepp_zoomed.npy
 
 # Tubes with custom intensities
 geomphantoms phantom tubes --size 256,256,256 \
@@ -137,10 +141,13 @@ geomphantoms phantom <type> --size <dimensions> --out <path> [options]
 | `--size` | Voxel dimensions | Comma-separated integers: `nx,ny` (2D) or `nx,ny,nz` (3D) |
 | `--out` | Output file path | File path with extension |
 
+`--size` controls the matrix size, while `--fov` (below) controls the physical extent in centimeters.
+
 #### Optional Arguments
 
 | Option | Description | Type | Default | Notes |
 |--------|-------------|------|---------|-------|
+| `--fov` | Field of view in cm | String | Phantom-specific default | Comma-separated numbers: `fx,fy` (2D) or `fx,fy,fz` (3D). Dimensionality must match `--size`. |
 | `--plane` | Slice plane for 2D output and TIFF frame orientation for 3D/4D output | String | `axial` for 2D; `axial` for TIFF if omitted | One of: `axial`, `coronal`, `sagittal` |
 | `--slice-position` | Slice position in cm | Float | `0.0` | Position along the slice axis |
 | `--format` | Output format | String | Inferred from extension | One of: `npy`, `mat`, `cfl`, `nifti`, `png`, `tiff`, `gif` (`gif` is not available on Windows) |

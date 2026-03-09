@@ -5,6 +5,7 @@ export main
 using ArgParse
 using BartIO
 using GeometricMedicalPhantoms
+using PrecompileTools
 @static if !Sys.iswindows()
     using GIFImages
 end
@@ -25,5 +26,6 @@ include("signals.jl")
 include("io.jl")
 include("phantoms.jl")
 include("cli.jl")
+include("precompile.jl")
 
 end

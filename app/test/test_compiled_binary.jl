@@ -21,9 +21,11 @@ function main(exe::String)
             out_tiff = joinpath(dir, "torso.tif")
             out_tiff_cor = joinpath(dir, "torso_coronal.tif")
             out_tiff_sag = joinpath(dir, "torso_sagittal.tif")
+            out_fov = joinpath(dir, "shepp_fov.npy")
             out_resp = joinpath(dir, "resp.csv")
             out_card = joinpath(dir, "cardiac.json")
             out_gif = joinpath(dir, "torso_dynamic.gif")
+            out_bad_fov = joinpath(dir, "bad_fov.npy")
 
             @test run_cmd(exe, ["info"])
 
@@ -59,6 +61,14 @@ function main(exe::String)
             @test isfile(out_tiff_sag)
             img_sagittal = TiffImages.load(out_tiff_sag)
             @test size(img_sagittal) == (6, 4, 8)
+
+            @test run_cmd(exe, ["phantom", "shepp-logan", "--size", "32,32", "--fov", "40,40", "--plane", "axial", "--out", out_fov])
+            @test isfile(out_fov)
+            meta = JSON3.read(read(out_fov * ".json", String))
+            @test collect(meta["fov"]) == [40.0, 40.0]
+
+            @test !run_cmd(exe, ["phantom", "torso", "--size", "16,16", "--fov", "30,30,30", "--out", out_bad_fov])
+            @test !isfile(out_bad_fov)
 
             @test run_cmd(exe, ["signals", "respiratory", "--duration", "10", "--fs", "24", "--rate", "15", "--out", out_resp])
             @test isfile(out_resp)

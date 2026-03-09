@@ -1,4 +1,4 @@
-function build_shepp_logan(size_vec; plane, slice_position, intensity, mask)
+function build_shepp_logan(size_vec; plane, slice_position, intensity, mask, fov)
     ti = if mask !== nothing
         SheppLoganMask(; json_kwargs(mask)...)
     elseif intensity === nothing
@@ -18,13 +18,15 @@ function build_shepp_logan(size_vec; plane, slice_position, intensity, mask)
 
     if length(size_vec) == 2
         plane = plane === nothing ? :axial : plane
-        return create_shepp_logan_phantom(size_vec[1], size_vec[2], plane; slice_position = slice_position, ti = ti)
+        kwargs = fov === nothing ? (; slice_position = slice_position, ti = ti) : (; fov = Tuple(fov), slice_position = slice_position, ti = ti)
+        return create_shepp_logan_phantom(size_vec[1], size_vec[2], plane; kwargs...)
     end
 
-    return create_shepp_logan_phantom(size_vec[1], size_vec[2], size_vec[3]; ti = ti)
+    kwargs = fov === nothing ? (; ti = ti) : (; fov = Tuple(fov), ti = ti)
+    return create_shepp_logan_phantom(size_vec[1], size_vec[2], size_vec[3]; kwargs...)
 end
 
-function build_torso(size_vec; plane, slice_position, intensity, mask, resp_signal, cardiac_signal)
+function build_torso(size_vec; plane, slice_position, intensity, mask, resp_signal, cardiac_signal, fov)
     ti = if mask !== nothing
         TissueMask(; json_kwargs(mask)...)
     elseif intensity !== nothing
@@ -38,13 +40,15 @@ function build_torso(size_vec; plane, slice_position, intensity, mask, resp_sign
 
     if length(size_vec) == 2
         plane = plane === nothing ? :axial : plane
-        return create_torso_phantom(size_vec[1], size_vec[2], plane; slice_position = slice_position, respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti)
+        kwargs = fov === nothing ? (; slice_position = slice_position, respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti) : (; fov = Tuple(fov), slice_position = slice_position, respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti)
+        return create_torso_phantom(size_vec[1], size_vec[2], plane; kwargs...)
     end
 
-    return create_torso_phantom(size_vec[1], size_vec[2], size_vec[3]; respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti)
+    kwargs = fov === nothing ? (; respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti) : (; fov = Tuple(fov), respiratory_signal = resp, cardiac_volumes = cardiac, ti = ti)
+    return create_torso_phantom(size_vec[1], size_vec[2], size_vec[3]; kwargs...)
 end
 
-function build_tubes(size_vec; plane, slice_position, intensity, geometry, stack)
+function build_tubes(size_vec; plane, slice_position, intensity, geometry, stack, fov)
     tg = geometry === nothing ? TubesGeometry() : TubesGeometry(; json_kwargs(geometry)...)
 
     if stack !== nothing
@@ -61,8 +65,10 @@ function build_tubes(size_vec; plane, slice_position, intensity, geometry, stack
 
     if length(size_vec) == 2
         plane = plane === nothing ? :axial : plane
-        return create_tubes_phantom(size_vec[1], size_vec[2], plane; slice_position = slice_position, tg = tg, ti = ti)
+        kwargs = fov === nothing ? (; slice_position = slice_position, tg = tg, ti = ti) : (; fov = Tuple(fov), slice_position = slice_position, tg = tg, ti = ti)
+        return create_tubes_phantom(size_vec[1], size_vec[2], plane; kwargs...)
     end
 
-    return create_tubes_phantom(size_vec[1], size_vec[2], size_vec[3]; tg = tg, ti = ti)
+    kwargs = fov === nothing ? (; tg = tg, ti = ti) : (; fov = Tuple(fov), tg = tg, ti = ti)
+    return create_tubes_phantom(size_vec[1], size_vec[2], size_vec[3]; kwargs...)
 end

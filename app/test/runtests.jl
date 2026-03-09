@@ -3,7 +3,6 @@ using JSON3
 using MAT
 using NPZ
 using NIfTI
-using FileIO
 using DelimitedFiles
 
 using GeometricMedicalPhantomsApp
@@ -33,6 +32,28 @@ end
             @test isfile(out_path)
             data = NPZ.npzread(out_path)
             @test size(data["phantom"]) == (8, 8)
+        end
+
+        @testset "fov is accepted and affects shepp-logan geometry" begin
+            out_default = joinpath(dir, "shepp_default_fov.npy")
+            out_large = joinpath(dir, "shepp_large_fov.npy")
+
+            @test run_cli(["phantom", "shepp-logan", "--size", "64,64", "--plane", "axial", "--out", out_default]) == 0
+            @test run_cli(["phantom", "shepp-logan", "--size", "64,64", "--fov", "40,40", "--plane", "axial", "--out", out_large]) == 0
+
+            default_data = NPZ.npzread(out_default)["phantom"]
+            large_data = NPZ.npzread(out_large)["phantom"]
+
+            @test sum(abs.(large_data)) < sum(abs.(default_data))
+
+            meta = JSON3.read(read(out_large * ".json", String))
+            @test collect(meta["fov"]) == [40.0, 40.0]
+        end
+
+        @testset "fov dimensionality must match size" begin
+            out_path = joinpath(dir, "bad_fov.npy")
+            @test run_cli(["phantom", "torso", "--size", "16,16", "--fov", "30,30,30", "--out", out_path]) == 1
+            @test !isfile(out_path)
         end
 
         @testset "torso mat" begin

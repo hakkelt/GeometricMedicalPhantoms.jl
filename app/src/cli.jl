@@ -54,6 +54,9 @@ function run_phantom(args::Vector{String})
         help = "Voxel size, e.g. 256,256,128"
         arg_type = String
         required = true
+        "--fov"
+        help = "Field of view in cm, e.g. 30,30 or 30,30,30"
+        arg_type = String
         "--plane"
         help = "Slice plane for 2D output and TIFF frame orientation for 3D/4D output: axial, coronal, sagittal"
         arg_type = String
@@ -101,16 +104,20 @@ function run_phantom(args::Vector{String})
     end
 
     size_vec = parse_size(parsed[:size])
+    fov_vec = parse_fov(get(parsed, :fov, nothing))
+    if fov_vec !== nothing && length(fov_vec) != length(size_vec)
+        error("--fov dimensionality must match --size dimensionality")
+    end
     plane = parse_plane(get(parsed, :plane, nothing))
     out_path = parsed[:out]
     format = resolve_format(get(parsed, :format, nothing), out_path)
 
     data = if phantom_type == "shepp-logan"
-        build_shepp_logan(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], mask = parsed[:mask])
+        build_shepp_logan(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], mask = parsed[:mask], fov = fov_vec)
     elseif phantom_type == "torso"
-        build_torso(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], mask = parsed[:mask], resp_signal = parsed[:resp_signal], cardiac_signal = parsed[:cardiac_signal])
+        build_torso(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], mask = parsed[:mask], resp_signal = parsed[:resp_signal], cardiac_signal = parsed[:cardiac_signal], fov = fov_vec)
     elseif phantom_type == "tubes"
-        build_tubes(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], geometry = parsed[:geometry], stack = parsed[:stack])
+        build_tubes(size_vec; plane = plane, slice_position = parsed[:slice_position], intensity = parsed[:intensity], geometry = parsed[:geometry], stack = parsed[:stack], fov = fov_vec)
     else
         error("Unsupported phantom type: $phantom_type")
     end
@@ -127,6 +134,7 @@ function run_phantom(args::Vector{String})
                 "command" => "phantom",
                 "type" => phantom_type,
                 "size" => size_vec,
+                "fov" => fov_vec,
                 "plane" => plane === nothing ? nothing : String(plane),
                 "slice_position" => parsed[:slice_position],
                 "format" => format,

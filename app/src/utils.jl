@@ -7,6 +7,22 @@ function parse_size(value::String)
     return dims
 end
 
+function parse_fov(value::Union{Nothing, String})
+    if value === nothing
+        return nothing
+    end
+
+    parts = split(value, ",")
+    dims = [parse(Float64, strip(p)) for p in parts if !isempty(strip(p))]
+    if length(dims) < 2 || length(dims) > 3
+        error("--fov must have 2 or 3 numbers")
+    end
+    if any(d -> d <= 0, dims)
+        error("--fov values must be positive")
+    end
+    return dims
+end
+
 function parse_plane(value::Union{Nothing, String})
     if value === nothing
         return nothing
