@@ -74,7 +74,7 @@ t, resp_liters = generate_respiratory_signal(duration, fs, rr)
 
 # Create 4D phantom with respiratory motion
 phantom_4d_resp = create_torso_phantom(128, 128, 128;
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     respiratory_signal=resp_liters)
 
 println(&quot;4D phantom shape: $(size(phantom_4d_resp))&quot;)
@@ -123,12 +123,12 @@ Left atrium (LA) volume range: 27.1 - 60.3 mL
 Left ventricle (LV) volume range: 55.0 - 130.1 mL
 Right atrium (RA) volume range: 27.5 - 60.3 mL
 Right ventricle (RV) volume range: 65.0 - 140.3 mL</code></pre><p><img src="../torso_cardiac_signals.png" alt="torso_cardiac_signals.png"/></p><p>Create a 4D phantom with cardiac motion:</p><pre><code class="language-julia hljs">phantom_4d_cardiac = create_torso_phantom(128, 128, 128;
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     cardiac_volumes=cardiac_volumes)
 
 println(&quot;4D cardiac phantom shape: $(size(phantom_4d_cardiac))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4D cardiac phantom shape: (128, 128, 128, 240)</code></pre><h3 id="Combined-Respiratory-and-Cardiac-Motion"><a class="docs-heading-anchor" href="#Combined-Respiratory-and-Cardiac-Motion">Combined Respiratory and Cardiac Motion</a><a id="Combined-Respiratory-and-Cardiac-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Combined-Respiratory-and-Cardiac-Motion" title="Permalink"></a></h3><p>Real imaging scenarios include both respiratory and cardiac motion simultaneously:</p><pre><code class="language-julia hljs"># Generate both signals
 phantom_4d_combined = create_torso_phantom(128, 128, 128;
-    fovs=(35.0, 35.0, 35.0),
+    fov=(35.0, 35.0, 35.0),
     respiratory_signal=resp_liters,
     cardiac_volumes=cardiac_volumes)
 
@@ -165,4 +165,4 @@ for m in 1:length(resp)
 end
 
 plot(t, resp, label=&quot;expected&quot;, title=&quot;Lung volumes&quot;)
-plot!(t,lung_vol_L, label=&quot;measured&quot;, xlabel=&quot;time (s)&quot;, ylabel=&quot;volume (L)&quot;)</code></pre><p><img src="../torso_lung_volume_validation.png" alt="torso_lung_volume_validation.png"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shepp_logan/">« Shepp-Logan Phantom</a><a class="docs-footer-nextpage" href="../phantom_specification/">Torso Phantom Specification »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Sunday 8 March 2026 16:30">Sunday 8 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plot!(t,lung_vol_L, label=&quot;measured&quot;, xlabel=&quot;time (s)&quot;, ylabel=&quot;volume (L)&quot;)</code></pre><p><img src="../torso_lung_volume_validation.png" alt="torso_lung_volume_validation.png"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shepp_logan/">« Shepp-Logan Phantom</a><a class="docs-footer-nextpage" href="../phantom_specification/">Torso Phantom Specification »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 9 March 2026 09:20">Monday 9 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
