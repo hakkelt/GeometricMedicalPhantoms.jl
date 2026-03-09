@@ -123,6 +123,7 @@ function run_phantom(args::Vector{String})
     end
 
     save_output(out_path, format, data; plane = plane)
+    println("Saved phantom to $out_path")
 
     if !parsed[:no_meta]
         meta_path = get(parsed, :meta, nothing)
@@ -144,6 +145,7 @@ function run_phantom(args::Vector{String})
                 "julia_version" => string(VERSION),
             )
         )
+        println("Saved metadata to $meta_path")
     end
 
     return 0
@@ -203,9 +205,7 @@ function run_signals(args::Vector{String})
         save_signal(out_path, format, Dict("t" => t, "lv" => vols.lv, "rv" => vols.rv, "la" => vols.la, "ra" => vols.ra))
     end
 
-    if get(parsed, :format, nothing) === nothing && format == "csv"
-        println("Saved signal data as CSV: $out_path")
-    end
+    println("Saved signal to $out_path")
 
     return 0
 end
