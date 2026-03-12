@@ -22,7 +22,7 @@ jobs:
         with:
           version: '1'
           show-versioninfo: true               # this causes versioninfo to be printed to the action log
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1  # if package requires Pkg.build()
       - uses: julia-actions/julia-docdeploy@v1
         env:

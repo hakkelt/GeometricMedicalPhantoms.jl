@@ -39,7 +39,7 @@ jobs:
           version: ${{ matrix.julia-version }}
 
       - name: Cache Julia packages
-        uses: julia-actions/cache@v2
+        uses: julia-actions/cache@v3
 
       - name: Install CLI app dependencies (non-Windows)
         if: runner.os != 'Windows'
