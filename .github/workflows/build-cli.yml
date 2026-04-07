@@ -87,16 +87,16 @@ jobs:
 
       - name: Package artifact (Unix)
         if: runner.os != 'Windows'
-        working-directory: app/build
+        working-directory: app
         run: |
-          tar -cjf ../../${{ matrix.artifact-name }} .
+          tar -cjf ../${{ matrix.artifact-name }} build 
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
-        working-directory: app/build
+        working-directory: app
         shell: pwsh
         run: |
-          Compress-Archive -Path * -DestinationPath ../../${{ matrix.artifact-name }}
+          Compress-Archive -Path * -DestinationPath ../${{ matrix.artifact-name }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
