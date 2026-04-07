@@ -10,8 +10,5 @@ NIfTI = "a3a9e032-41b5-5fc4-967a-a6b7a19844d3"
 NPZ = "15e1cf62-19b3-5cfa-8e77-841668bca605"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[sources]
-GeometricMedicalPhantomsApp = {path = ".."}
-
 [compat]
 julia = "1.12"

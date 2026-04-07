@@ -3,9 +3,6 @@ uuid = "f7355b9c-06a5-11f1-a496-717a9f746fdc"
 version = "1.0.0"
 authors = ["Tamas Hakkel <hakkelt@gmail.com>"]
 
-[workspace]
-projects = ["test"]
-
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 BartIO = "8b90e6a2-6e4d-4906-89ae-b5f72ca4a65b"
@@ -23,9 +20,6 @@ PNGFiles = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 TiffImages = "731e570b-9d59-4bfa-96dc-6df516fadf69"
 
-[sources]
-GeometricMedicalPhantoms = {path = ".."}
-
 [compat]
 ArgParse = "1"
 BartIO = "0.2, 0.3"
@@ -34,7 +28,7 @@ Dates = "1"
 DelimitedFiles = "1"
 FixedPointNumbers = "0.8, 0.9"
 GIFImages = "0.1.0"
-GeometricMedicalPhantoms = "1"
+GeometricMedicalPhantoms = "1.0.2"
 JSON3 = "1"
 MAT = "0.10"
 NIfTI = "0.5, 0.6"
