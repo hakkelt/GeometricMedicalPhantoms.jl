@@ -74,11 +74,22 @@ For comprehensive guides, API reference, and advanced examples, see the [full do
 If you use this package in your research, please cite:
 
 ```bibtex
-@software{geometricmedicalphantoms2024,
-  author = {Hakkelt, Tibor},
-  title = {GeometricMedicalPhantoms.jl: Digital Phantoms for Medical Imaging},
-  year = {2024},
-  url = {https://github.com/hakkelt/GeometricMedicalPhantoms.jl}
+@software{tamas_hakkel_2026_19461972,
+  author       = {Tamás Hakkel},
+  title        = {hakkelt/GeometricMedicalPhantoms.jl: v1.0.2-1},
+  month        = apr,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v1.0.2-1},
+  doi          = {10.5281/zenodo.19461972},
+  url          = {https://doi.org/10.5281/zenodo.19461972},
+  swhid        = {swh:1:dir:4402e23a71319a2854f1e93eafd05df4a75e8b4c
+                   ;origin=https://doi.org/10.5281/zenodo.19339656;vi
+                   sit=swh:1:snp:ad70034e91f38ca8087ebe3bc72a2689ed2a
+                   ba74;anchor=swh:1:rel:a58ceac174b8e70a21543b52ae62
+                   7327cbd4497e;path=hakkelt-
+                   GeometricMedicalPhantoms.jl-65388a8
+                  },
 }
 ```
 
