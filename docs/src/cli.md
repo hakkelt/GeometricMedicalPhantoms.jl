@@ -6,13 +6,18 @@ GeometricMedicalPhantoms includes a command-line interface for generating phanto
 
 ### Download Pre-built Binary (Recommended for CLI Usage)
 
-Download the latest release for your platform from the [Releases page](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases):
+Download the latest release for your platform from the
+[Releases page](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest):
 
-- **Linux**: `geomphantoms-linux-x64-x86_64.zip` or `geomphantoms-linux-x64-aarch64.zip`
-- **macOS**: `geomphantoms-macos-x64-x86_64.zip` or `geomphantoms-macos-aarch64.zip`
-- **Windows**: `geomphantoms-windows-x64-x86_64.zip`
+| Platform | Download |
+|---|---|
+| Linux x86-64 | [geomphantoms-linux-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-x86_64.tar.xz) |
+| Linux aarch64 | [geomphantoms-linux-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-aarch64.tar.xz) |
+| macOS x86-64 | [geomphantoms-macos-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-x86_64.tar.xz) |
+| macOS aarch64 | [geomphantoms-macos-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-aarch64.tar.xz) |
+| Windows x86-64 | [geomphantoms-windows-x86_64.zip](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-windows-x86_64.zip) |
 
-*Note: You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. If unsure, check your CPU architecture. ARM-based Windows is not currently supported.*
+*Note: You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. ARM-based Windows is not currently supported.*
 
 Extract and run directly:
 

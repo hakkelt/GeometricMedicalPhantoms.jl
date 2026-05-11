@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "geometric-medical-phantoms"
+version = "1.0.2"
+description = "Python bindings for the GeometricMedicalPhantoms shared library — synthetic MRI/CT phantoms (Shepp-Logan, Tubes, Torso) with physiological motion signals"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+keywords = ["mri", "ct", "phantom", "medical", "imaging", "simulation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "numpy>=1.20",
+]
+
+[project.optional-dependencies]
+examples = [
+    "matplotlib>=3.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/hakkelt/GeometricMedicalPhantoms.jl"
+Documentation = "https://hakkelt.github.io/GeometricMedicalPhantoms.jl"
+"Bug Tracker" = "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/geometric_medical_phantoms"]
+
+[tool.hatch.build.hooks.custom]
+# hatch_build.py is auto-detected when this section exists.
+# Set GMP_LIB_DIR=<path-to-build/lib> before running `python -m build --wheel`
+# to include the compiled library and tag the wheel as platform-specific.
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "src/geometric_medical_phantoms/libs",
+]

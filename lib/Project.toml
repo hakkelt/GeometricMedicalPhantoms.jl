@@ -1,0 +1,10 @@
+name = "GeometricMedicalPhantomsLib"
+uuid = "4a8e5c12-3b7d-4e2f-a1c9-8d6b0f5e3a17"
+version = "0.1.0"
+
+[deps]
+GeometricMedicalPhantoms = "c297bd51-60f5-42e7-80e4-f985777cb71a"
+
+[compat]
+GeometricMedicalPhantoms = "1"
+julia = "1.12"

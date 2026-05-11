@@ -20,6 +20,11 @@ makedocs(
             "Custom Phantoms" => "advanced/custom_phantoms.md",
         ],
         "Command-line Interface" => "cli.md",
+        "Language Bindings" => [
+            "C / C++" => "bindings/c_cpp.md",
+            "Python" => "bindings/python.md",
+            "MATLAB" => "bindings/matlab.md",
+        ],
         "API Reference" => "api.md",
     ],
     modules = [GeometricMedicalPhantoms],

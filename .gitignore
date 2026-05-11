@@ -2,3 +2,21 @@
 docs/build
 app/build
 !app/Manifest.toml
+
+# C library build outputs
+lib/build/
+lib/test/smoke_test
+lib/test/__pycache__/
+
+# Python packaging
+*.pyc
+lib/python/dist/
+lib/python/src/geometric_medical_phantoms/libs/
+lib/python/src/geometric_medical_phantoms/__pycache__/
+lib/python/.venv/
+lib/python/uv.lock
+lib/python/temp
+
+# MATLAB toolbox — bundled binary (populated by CI)
+lib/matlab/toolbox/bin/lib/
+*.mltbx

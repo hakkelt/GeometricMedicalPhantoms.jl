@@ -71,3 +71,50 @@ savefig("index_tubes.png"); nothing # hide
 - Check out standalone [CLI interface](cli.md) for rendering phantoms without installing Julia
 - Understand [geometry primitives](advanced/primitives.md) for building custom phantoms
 - Create your own phantom by following the [custom phantoms guide](advanced/custom_phantoms.md)
+
+## Downloads
+
+Pre-built binaries are published to each
+[GitHub release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest)
+for all major platforms.  No Julia installation is required.
+
+### CLI app
+
+| Platform | Download |
+|---|---|
+| Linux x86-64 | [geomphantoms-linux-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-x86_64.tar.xz) |
+| Linux aarch64 | [geomphantoms-linux-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-aarch64.tar.xz) |
+| macOS x86-64 | [geomphantoms-macos-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-x86_64.tar.xz) |
+| macOS aarch64 | [geomphantoms-macos-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-aarch64.tar.xz) |
+| Windows x86-64 | [geomphantoms-windows-x86_64.zip](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-windows-x86_64.zip) |
+
+### Shared library (C / Python)
+
+| Platform | Download |
+|---|---|
+| Linux x86-64 | [geomphantoms-lib-linux-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-lib-linux-x86_64.tar.xz) |
+| Linux aarch64 | [geomphantoms-lib-linux-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-lib-linux-aarch64.tar.xz) |
+| macOS x86-64 | [geomphantoms-lib-macos-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-lib-macos-x86_64.tar.xz) |
+| macOS aarch64 | [geomphantoms-lib-macos-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-lib-macos-aarch64.tar.xz) |
+| Windows x86-64 | [geomphantoms-lib-windows-x86_64.zip](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-lib-windows-x86_64.zip) |
+
+### Python wheels
+
+Binary wheels embed the shared library and its Julia runtime.  Install
+directly with pip (see [Python bindings](bindings/python.md) for per-platform
+commands), or browse the
+[latest release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest)
+for the exact filenames.  A pure-Python stub is also on
+[PyPI](https://pypi.org/project/geometric-medical-phantoms/).
+
+### MATLAB toolbox
+
+The MATLAB toolbox uses Julia via Mex.jl and requires Julia to be installed on
+the system. It does not depend on the shared library above.
+
+| Platform | Download |
+|---|---|
+| Linux x86-64 | [GeometricMedicalPhantoms-matlab-glnxa64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-glnxa64.mltbx) |
+| macOS Intel | [GeometricMedicalPhantoms-matlab-maci64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-maci64.mltbx) |
+| macOS Apple Silicon | [GeometricMedicalPhantoms-matlab-maca64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-maca64.mltbx) |
+| Windows x86-64 | [GeometricMedicalPhantoms-matlab-win64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-win64.mltbx) |

@@ -1,0 +1,313 @@
+name: Build Shared Library
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Lib - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+            artifact-name: geomphantoms-lib-linux-x86_64.tar.xz
+            lib-name: libgeomphantoms.so
+            cc: gcc
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
+          - os: ubuntu-24.04-arm64
+            arch: aarch64
+            artifact-name: geomphantoms-lib-linux-aarch64.tar.xz
+            lib-name: libgeomphantoms.so
+            cc: gcc
+            julia-cpu-target: "generic;cortex-a57;thunderx2t99;carmel,clone_all;apple-m1,base(3);neoverse-512tvb,base(3)"
+          - os: macos-15-intel
+            arch: x86_64
+            artifact-name: geomphantoms-lib-macos-x86_64.tar.xz
+            lib-name: libgeomphantoms.dylib
+            cc: clang
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
+          - os: macos-latest
+            arch: aarch64
+            artifact-name: geomphantoms-lib-macos-aarch64.tar.xz
+            lib-name: libgeomphantoms.dylib
+            cc: clang
+            julia-cpu-target: "generic;apple-m1,clone_all"
+          - os: windows-latest
+            arch: x86_64
+            artifact-name: geomphantoms-lib-windows-x86_64.zip
+            lib-name: geomphantoms.dll
+            cc: cl
+            julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
+
+    env:
+      JULIA_CPU_TARGET: ${{ matrix.julia-cpu-target }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Extract semver from the tag (v1.2.3 → 1.2.3) for use in artifact names.
+      - name: Set version string
+        id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.12'
+
+      - name: Install JuliaC
+        run: |
+          julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", version="0.3.1"))'
+
+      - name: Instantiate lib project
+        working-directory: lib
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Build shared library
+        working-directory: lib
+        run: |
+          julia --project=. build.jl
+
+      - name: Verify library file exists (Unix)
+        if: runner.os != 'Windows'
+        working-directory: lib
+        run: |
+          ls -lh build/lib/${{ matrix.lib-name }}
+
+      - name: Verify library file exists (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib
+        shell: pwsh
+        run: |
+          Get-Item build\lib\${{ matrix.lib-name }}
+
+      # ----------------------------------------------------------------
+      # Smoke test — compile and run the C smoke test
+      # ----------------------------------------------------------------
+
+      - name: Compile smoke test (Linux / macOS)
+        if: runner.os != 'Windows'
+        working-directory: lib/test
+        run: |
+          ${{ matrix.cc }} \
+            -I ../include \
+            smoke_test.c \
+            -L ../build/lib \
+            -lgeomphantoms \
+            -Wl,-rpath,"$PWD/../build/lib" \
+            -lm \
+            -o smoke_test
+
+      - name: Run smoke test (Linux / macOS)
+        if: runner.os != 'Windows'
+        working-directory: lib/test
+        run: |
+          ./smoke_test
+
+      - name: Compile smoke test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib/test
+        shell: cmd
+        run: |
+          cl smoke_test.c /I ..\include /Fe:smoke_test.exe /link /LIBPATH:..\build\lib geomphantoms.lib
+
+      - name: Run smoke test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib/test
+        shell: cmd
+        run: |
+          set PATH=%CD%\..\build\lib;%PATH%
+          smoke_test.exe
+
+      # ----------------------------------------------------------------
+      # Python smoke test
+      # ----------------------------------------------------------------
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python wrapper
+        run: pip install --quiet numpy
+
+      - name: Run Python smoke test (Unix)
+        if: runner.os != 'Windows'
+        working-directory: lib/test
+        run: |
+          python smoke_test_python.py "${{ github.workspace }}/lib/build/lib"
+
+      - name: Run Python smoke test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib/test
+        shell: pwsh
+        run: |
+          python smoke_test_python.py "${{ github.workspace }}\lib\build\lib"
+
+      # ----------------------------------------------------------------
+      # Python binary wheel (built after smoke test passes)
+      # ----------------------------------------------------------------
+
+      - name: Build Python wheel (Unix)
+        if: runner.os != 'Windows'
+        working-directory: lib/python
+        env:
+          GMP_LIB_DIR: ${{ github.workspace }}/lib/build/lib
+        run: |
+          pip install --quiet build hatchling
+          python -m build --wheel --outdir dist/
+
+      - name: Build Python wheel (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib/python
+        env:
+          GMP_LIB_DIR: ${{ github.workspace }}\lib\build\lib
+        shell: pwsh
+        run: |
+          pip install --quiet build hatchling
+          python -m build --wheel --outdir dist/
+
+      - name: Upload Python wheel as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-wheel-${{ matrix.os }}
+          path: lib/python/dist/*.whl
+
+      - name: Upload Python wheel to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: lib/python/dist/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------------------------------------------
+      # MATLAB toolbox
+      #
+      # The toolbox contains only platform-independent .m and .jl files;
+      # no compiled binary is bundled.  Build it exactly once (Linux
+      # x86-64) and upload a single artifact / release asset.
+      # ----------------------------------------------------------------
+
+      - name: Setup MATLAB
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/setup-matlab@v2
+
+      - name: Install Julia packages for MATLAB bridge
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          julia -e 'import Pkg; Pkg.add("MATLAB"); Pkg.add("GeometricMedicalPhantoms"); Pkg.add("Mex")'
+
+      - name: Run MATLAB smoke test
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/run-command@v3
+        with:
+          command: >
+            addpath('lib/test');
+            smoke_test_matlab();
+
+      - name: Build MATLAB toolbox
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/run-command@v3
+        with:
+          command: >
+            addpath('lib/matlab');
+            build_toolbox('${{ steps.version.outputs.version }}', '.');
+
+      - name: Upload MATLAB toolbox as artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: matlab-toolbox
+          path: GeometricMedicalPhantoms-matlab.mltbx
+
+      - name: Upload MATLAB toolbox to release
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GeometricMedicalPhantoms-matlab.mltbx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------------------------------------------
+      # Package artifact
+      # ----------------------------------------------------------------
+
+      - name: Package artifact (Unix)
+        if: runner.os != 'Windows'
+        working-directory: lib
+        run: |
+          tar -cJf ../${{ matrix.artifact-name }} build include python matlab
+
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        working-directory: lib
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build, include, python, matlab `
+                           -DestinationPath ..\${{ matrix.artifact-name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-name }}
+
+      - name: Upload release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact-name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ======================================================================
+  # Publish pure-Python sdist to PyPI
+  # (Binary wheels are uploaded to GitHub Releases above; they exceed
+  #  PyPI's 100 MB per-file limit and cannot be hosted there.)
+  # ======================================================================
+  publish-pypi:
+    name: Publish sdist to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      id-token: write   # required for OIDC trusted publishing
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build sdist
+        working-directory: lib/python
+        run: |
+          pip install --quiet build
+          python -m build --sdist --outdir dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: lib/python/dist/
+          # Uses OIDC trusted publishing — no API token needed when the PyPI
+          # project is configured with this repository as a trusted publisher.
+          # Alternatively set:  password: ${{ secrets.PYPI_API_TOKEN }}
