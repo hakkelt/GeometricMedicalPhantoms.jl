@@ -22,8 +22,14 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: ['lts', '1']
-        julia-arch: [x64]
         os: [ubuntu-latest, windows-latest, macOS-latest]
+        include:
+          - os: ubuntu-latest
+            julia-arch: x64
+          - os: windows-latest
+            julia-arch: x64
+          - os: macOS-latest
+            julia-arch: default
     steps:
       - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
