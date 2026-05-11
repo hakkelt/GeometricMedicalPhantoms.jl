@@ -17,7 +17,15 @@ Download the latest release for your platform from the
 | macOS aarch64 | [geomphantoms-macos-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-aarch64.tar.xz) |
 | Windows x86-64 | [geomphantoms-windows-x86_64.zip](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-windows-x86_64.zip) |
 
-*Note: You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. ARM-based Windows is not currently supported.*
+!!! info "CPU architecture"
+    You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. ARM-based Windows is not currently supported.
+
+!!! tip "Quarantined binary on MacOS"
+    Antivirus softwares may quarantine the downloaded binary on macOS. If you encounter a "damaged" error when running the CLI (e.g. `“libgifextra.dylib” is damaged and can’t be opened. You should move it to the Bin.`), you can unquarantine it with:
+    ```bash
+    chmod -R u+w <some-path>/geomphantoms-macos-aarch64 && xattr -dr com.apple.quarantine <some-path>/geomphantoms-macos-aarch64
+    ```
+    For more info, see [this issue](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/issues/30)
 
 Extract and run directly:
 
