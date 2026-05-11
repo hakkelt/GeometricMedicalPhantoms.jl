@@ -44,14 +44,29 @@ savefig("index_shepp_logan.png"); nothing # hide
 ![index_shepp_logan.png](index_shepp_logan.png)
 
 ```@example imports
-# Create a Torso phantom with anatomical details
-torso = create_torso_phantom(128, 128, :coronal)
+# Create a Torso phantom animation with respiratory motion
+using FileIO
 
-jim(torso; title="Torso (Coronal)", yflip=false)
-savefig("index_torso.png"); nothing # hide
+duration = 2.0
+fs = 12.0
+_, resp_liters = generate_respiratory_signal(duration, fs, 12.0)
+
+torso_4d = create_torso_phantom(64, 64, 64; respiratory_signal=resp_liters)
+mid_y = cld(size(torso_4d, 2), 2)
+nt = size(torso_4d, 4)
+max_val = maximum(abs.(torso_4d))
+
+frames_coronal_temporal = zeros(UInt8, 64, 64, nt)
+for i in 1:nt
+    slice = reverse(abs.(torso_4d[:, mid_y, :, i])', dims=1)
+    frames_coronal_temporal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save("index_torso.gif", frames_coronal_temporal, fps=12)
+nothing # hide
 ```
 
-![index_torso.png](index_torso.png)
+![index_torso.gif](index_torso.gif)
 
 ```@example imports
 # Create a validation phantom
