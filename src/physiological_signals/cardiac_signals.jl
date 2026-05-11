@@ -15,6 +15,12 @@ Fields
 - `a_amp_amp`, `a_amp_freq`: Atrial amplitude modulation amplitude (fraction) and frequency (Hz)
 - `bw_amp`, `bw_freq`: Baseline wander amplitude (mL) and frequency (Hz)
 - `s_frac_base`: Base systole fraction (0..1)
+- `s_frac_mod_amp`, `s_frac_mod_freq`: Slow systole-fraction modulation amplitude (fraction) and frequency (Hz)
+- `ventricular_ejection_power`: Shape exponent for ventricular ejection during systole
+- `lv_filling_power`, `rv_filling_power`: Shape exponents for ventricular filling during diastole
+- `atrial_fill_power`, `atrial_emptying_power`: Shape exponents for atrial filling and emptying
+- `atrial_phase_shift`: Phase offset (rad) used for atrial amplitude modulation
+- `atrial_bw_coupling`: Fraction of baseline wander coupled into atrial volumes
 - `lv_kick_amp_frac`, `lv_kick_center`, `lv_kick_width`: Left ventricle atrial kick amplitude fraction, center, and width
 - `rv_kick_amp_frac`, `rv_kick_center`, `rv_kick_width`: Right ventricle atrial kick amplitude fraction, center, and width
 - `la_contr_amp_frac`, `la_contr_center`, `la_contr_width`: Left atrium contraction amplitude fraction, center, and width
@@ -48,6 +54,15 @@ Base.@kwdef struct CardiacPhysiology
     bw_amp::Float64 = 0.0
     bw_freq::Float64 = 0.03
     s_frac_base::Float64 = 0.35
+    s_frac_mod_amp::Float64 = 0.08
+    s_frac_mod_freq::Float64 = 0.1
+    ventricular_ejection_power::Float64 = 3.0
+    lv_filling_power::Float64 = 2.2
+    rv_filling_power::Float64 = 2.0
+    atrial_fill_power::Float64 = 1.5
+    atrial_emptying_power::Float64 = 3.0
+    atrial_phase_shift::Float64 = 0.7
+    atrial_bw_coupling::Float64 = 0.8
     # Ventricular atrial kick parameters (fractions relative to stroke/amplitude)
     lv_kick_amp_frac::Float64 = 0.07
     lv_kick_center::Float64 = 0.92
@@ -107,7 +122,7 @@ function generate_cardiac_signals(
 
     # Systole fraction (approximate)
     s_frac_base = physiology.s_frac_base
-    s_frac_t = s_frac_base .* (1 .+ 0.08 .* sin.(2π .* 0.1 .* t))
+    s_frac_t = s_frac_base .* (1 .+ physiology.s_frac_mod_amp .* sin.(2π .* physiology.s_frac_mod_freq .* t))
     mask_s = ϕ .< s_frac_t
     x_s = clamp.(ϕ ./ s_frac_t, 0.0, 1.0)
     x_d = clamp.((ϕ .- s_frac_t) ./ (1 .- s_frac_t), 0.0, 1.0)
@@ -119,11 +134,11 @@ function generate_cardiac_signals(
     lv_range = physiology.lv_edv - physiology.lv_esv
     rv_range = physiology.rv_edv - physiology.rv_esv
 
-    lv_s = physiology.lv_edv .- lv_range .* (1 .- (1 .- x_s) .^ 3)
-    rv_s = physiology.rv_edv .- rv_range .* (1 .- (1 .- x_s) .^ 3)
+    lv_s = physiology.lv_edv .- lv_range .* (1 .- (1 .- x_s) .^ physiology.ventricular_ejection_power)
+    rv_s = physiology.rv_edv .- rv_range .* (1 .- (1 .- x_s) .^ physiology.ventricular_ejection_power)
 
-    lv_d_base = physiology.lv_esv .+ lv_range .* (x_d .^ 2.2)
-    rv_d_base = physiology.rv_esv .+ rv_range .* (x_d .^ 2.0)
+    lv_d_base = physiology.lv_esv .+ lv_range .* (x_d .^ physiology.lv_filling_power)
+    rv_d_base = physiology.rv_esv .+ rv_range .* (x_d .^ physiology.rv_filling_power)
     lv_kick = physiology.lv_kick_amp_frac .* lv_range .* exp.(-((x_d .- physiology.lv_kick_center) ./ physiology.lv_kick_width) .^ 2)
     rv_kick = physiology.rv_kick_amp_frac .* rv_range .* exp.(-((x_d .- physiology.rv_kick_center) ./ physiology.rv_kick_width) .^ 2)
 
@@ -143,11 +158,11 @@ function generate_cardiac_signals(
     la_range = physiology.la_max - physiology.la_min
     ra_range = physiology.ra_max - physiology.ra_min
 
-    la_s = physiology.la_min .+ la_range .* (x_s .^ 1.5)
-    ra_s = physiology.ra_min .+ ra_range .* (x_s .^ 1.5)
+    la_s = physiology.la_min .+ la_range .* (x_s .^ physiology.atrial_fill_power)
+    ra_s = physiology.ra_min .+ ra_range .* (x_s .^ physiology.atrial_fill_power)
 
-    la_d_base = physiology.la_max .- la_range .* (1 .- (1 .- x_d) .^ 3)
-    ra_d_base = physiology.ra_max .- ra_range .* (1 .- (1 .- x_d) .^ 3)
+    la_d_base = physiology.la_max .- la_range .* (1 .- (1 .- x_d) .^ physiology.atrial_emptying_power)
+    ra_d_base = physiology.ra_max .- ra_range .* (1 .- (1 .- x_d) .^ physiology.atrial_emptying_power)
     la_contr = physiology.la_contr_amp_frac .* la_range .* exp.(-((x_d .- physiology.la_contr_center) ./ physiology.la_contr_width) .^ 2)
     ra_contr = physiology.ra_contr_amp_frac .* ra_range .* exp.(-((x_d .- physiology.ra_contr_center) ./ physiology.ra_contr_width) .^ 2)
 
@@ -162,12 +177,12 @@ function generate_cardiac_signals(
 
     # Slow amplitude modulation and baseline wander
     v_amp = 1 .+ physiology.v_amp_amp .* sin.(2π .* physiology.v_amp_freq .* t)
-    a_amp = 1 .+ physiology.a_amp_amp .* sin.(2π .* physiology.a_amp_freq .* t .+ 0.7)
+    a_amp = 1 .+ physiology.a_amp_amp .* sin.(2π .* physiology.a_amp_freq .* t .+ physiology.atrial_phase_shift)
     bw = physiology.bw_amp .* sin.(2π .* physiology.bw_freq .* t)
     lv .= lv .* v_amp .+ bw
     rv .= rv .* v_amp .+ bw
-    la .= la .* a_amp .+ 0.8 .* bw
-    ra .= ra .* a_amp .+ 0.8 .* bw
+    la .= la .* a_amp .+ physiology.atrial_bw_coupling .* bw
+    ra .= ra .* a_amp .+ physiology.atrial_bw_coupling .* bw
 
     return t, (lv = lv, rv = rv, la = la, ra = ra)
 end

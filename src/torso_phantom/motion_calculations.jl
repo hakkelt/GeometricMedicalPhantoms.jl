@@ -5,23 +5,53 @@ struct CardiacScales
     ra::Float64
 end
 
+Base.@kwdef struct TorsoMotionModel
+    static_lung_volume::Float64 = 2.7
+    static_lv_volume::Float64 = 140.0
+    static_rv_volume::Float64 = 140.0
+    static_la_volume::Float64 = 60.0
+    static_ra_volume::Float64 = 60.0
+    lung_scale_poly::NTuple{4, Float64} = (0.598, 0.842, -0.175, -0.0320625)
+    diaphragm_scale_poly::NTuple{4, Float64} = (1.819140625, 0.831375, -1.7111875, 1.24575)
+    normal_resp_min::Float64 = 1.2
+    normal_resp_max::Float64 = 6.0
+    y_offset_base::Float64 = -0.4
+    body_scale_offset::Float64 = 0.4
+    body_scale_gain::Float64 = 0.63
+    diaphragm_motion_gain::Float64 = -0.5
+    y_offset_body_scale::Float64 = 0.45
+    viscera_y_offset_scale::Float64 = 0.8
+    viscera_xy_resp_gain::Float64 = 0.04
+end
+
+const DEFAULT_TORSO_MOTION_MODEL = TorsoMotionModel()
+const TORSO_REFERENCE_FOV_CM = 30.0
+
 """
 Helper function to set default motion signals and validate inputs.
 Returns validated (respiratory_signal, cardiac_volumes, nt).
 """
-function setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
+function setup_and_validate_motion_signals(
+        respiratory_signal, cardiac_volumes;
+        motion_model::TorsoMotionModel = DEFAULT_TORSO_MOTION_MODEL
+    )
     # Set default motion signals if not provided
     if isnothing(respiratory_signal) && isnothing(cardiac_volumes)
-        respiratory_signal = [2.7] # Single static frame with nominal lung volume
-        cardiac_volumes = (lv = [140.0], rv = [140.0], la = [60.0], ra = [60.0]) # Single static frame with nominal volumes
+        respiratory_signal = [motion_model.static_lung_volume] # Single static frame with nominal lung volume
+        cardiac_volumes = (
+            lv = [motion_model.static_lv_volume],
+            rv = [motion_model.static_rv_volume],
+            la = [motion_model.static_la_volume],
+            ra = [motion_model.static_ra_volume],
+        ) # Single static frame with nominal volumes
     elseif isnothing(respiratory_signal)
-        respiratory_signal = fill(2.7, length(cardiac_volumes.lv)) # Default nominal lung volume
+        respiratory_signal = fill(motion_model.static_lung_volume, length(cardiac_volumes.lv)) # Default nominal lung volume
     elseif isnothing(cardiac_volumes)
         cardiac_volumes = (
-            lv = fill(140.0, length(respiratory_signal)),
-            rv = fill(140.0, length(respiratory_signal)),
-            la = fill(60.0, length(respiratory_signal)),
-            ra = fill(60.0, length(respiratory_signal)),
+            lv = fill(motion_model.static_lv_volume, length(respiratory_signal)),
+            rv = fill(motion_model.static_rv_volume, length(respiratory_signal)),
+            la = fill(motion_model.static_la_volume, length(respiratory_signal)),
+            ra = fill(motion_model.static_ra_volume, length(respiratory_signal)),
         ) # Default nominal volumes
     end
 
@@ -61,25 +91,26 @@ end
 Helper function to calculate motion parameters for a given time frame.
 Returns a NamedTuple with all motion-related parameters.
 """
-function calculate_motion_parameters(respiratory_signal_val::Real, cardiac_scales, cardiac_scales_max)
-    # Cubic coefficients for lung scaling (tuned to minimize volume offset)
-    a0, a1, a2, a3 = (0.598, 0.842, -0.175, -0.0320625)
-    b0, b1, b2, b3 = (1.819140625, 0.831375, -1.7111875, 1.24575)
-    normal_resp_min, normal_resp_max = 1.2, 6.0
-    resp_normal_range = normal_resp_max - normal_resp_min
-    y_offset_base = -0.4  # Base y-offset for torso position
+function calculate_motion_parameters(
+        respiratory_signal_val::Real, cardiac_scales, cardiac_scales_max;
+        motion_model::TorsoMotionModel = DEFAULT_TORSO_MOTION_MODEL
+    )
+    # Cubic coefficients are tuned to match the phantom's lung and diaphragm motion.
+    a0, a1, a2, a3 = motion_model.lung_scale_poly
+    b0, b1, b2, b3 = motion_model.diaphragm_scale_poly
+    resp_normal_range = motion_model.normal_resp_max - motion_model.normal_resp_min
 
-    resp_norm = (respiratory_signal_val - normal_resp_min) / resp_normal_range
+    resp_norm = (respiratory_signal_val - motion_model.normal_resp_min) / resp_normal_range
     rn = resp_norm
     scale = a0 + a1 * rn + a2 * rn^2 + a3 * rn^3
     lower_rz_scale = b0 + b1 * rn + b2 * rn^2 + b3 * rn^3
 
-    body_scale = 0.4 + 0.63 * scale
-    diaphragm_up = -0.5 * (lower_rz_scale - 1.0)
+    body_scale = motion_model.body_scale_offset + motion_model.body_scale_gain * scale
+    diaphragm_up = motion_model.diaphragm_motion_gain * (lower_rz_scale - 1.0)
     diaphragm_rscale = lower_rz_scale
-    y_offset = y_offset_base + body_scale * 0.45
-    y_offset_visc = y_offset * 0.8
-    xy_visc_scale = 1.0 + 0.04 * resp_norm
+    y_offset = motion_model.y_offset_base + body_scale * motion_model.y_offset_body_scale
+    y_offset_visc = y_offset * motion_model.viscera_y_offset_scale
+    xy_visc_scale = 1.0 + motion_model.viscera_xy_resp_gain * resp_norm
 
     return (
         scale = scale,

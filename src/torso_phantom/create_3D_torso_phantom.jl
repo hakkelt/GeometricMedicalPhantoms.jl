@@ -123,9 +123,9 @@ function define_phantom_axes(nx::Int, ny::Int, nz::Int, fov::Tuple)
     ax_z = range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .* Δz
 
     # Normalize to [-1, 1] range for easier ellipsoid definitions
-    ax_xn = @. 2 * ax_x / 30
-    ax_yn = @. 2 * ax_y / 30
-    ax_zn = @. 2 * ax_z / 30
+    ax_xn = @. 2 * ax_x / TORSO_REFERENCE_FOV_CM
+    ax_yn = @. 2 * ax_y / TORSO_REFERENCE_FOV_CM
+    ax_zn = @. 2 * ax_z / TORSO_REFERENCE_FOV_CM
 
     return (ax_xn, ax_yn, ax_zn)
 end

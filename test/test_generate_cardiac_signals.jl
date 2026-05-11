@@ -178,4 +178,26 @@ end
         @test all(isfinite.(vols.la))
         @test all(isfinite.(vols.ra))
     end
+
+    @testset "Named waveform-shaping parameters" begin
+        duration = 10.0
+        fs = 500.0
+        hr = 70.0
+
+        t_default, vols_default = generate_cardiac_signals(duration, fs, hr)
+        phys_shaped = CardiacPhysiology(
+            s_frac_mod_amp = 0.0,
+            lv_filling_power = 1.4,
+            rv_filling_power = 1.3,
+            atrial_fill_power = 1.1,
+            atrial_emptying_power = 2.2,
+            atrial_phase_shift = 0.0,
+            atrial_bw_coupling = 0.3,
+        )
+        t_shaped, vols_shaped = generate_cardiac_signals(duration, fs, hr; physiology = phys_shaped)
+
+        @test t_default == t_shaped
+        @test !isapprox(std(vols_default.lv), std(vols_shaped.lv), rtol = 1e-3)
+        @test !isapprox(std(vols_default.la), std(vols_shaped.la), rtol = 1e-3)
+    end
 end

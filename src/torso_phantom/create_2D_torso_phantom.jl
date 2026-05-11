@@ -70,9 +70,9 @@ function define_phantom_axes_2d(nx::Int, ny::Int, fov::Tuple, slice_position::Re
     ax_2 = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δ2
 
     # Normalize to [-1, 1] range
-    ax_1n = @. 2 * ax_1 / 30
-    ax_2n = @. 2 * ax_2 / 30
-    ax_3_val = 2 * slice_position / 30  # Normalized slice position
+    ax_1n = @. 2 * ax_1 / TORSO_REFERENCE_FOV_CM
+    ax_2n = @. 2 * ax_2 / TORSO_REFERENCE_FOV_CM
+    ax_3_val = 2 * slice_position / TORSO_REFERENCE_FOV_CM  # Normalized slice position
 
     return (ax_1n, ax_2n, ax_3_val)
 end
