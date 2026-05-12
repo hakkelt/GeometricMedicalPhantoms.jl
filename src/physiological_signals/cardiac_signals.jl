@@ -45,7 +45,7 @@ Base.@kwdef struct CardiacPhysiology
     ra_min::Float64 = 30.0
     ra_max::Float64 = 60.0
     # Modulation and wander parameters
-    hr_var_amp::Float64 = 0.0
+    hr_var_amp::Float64 = 0.03
     hr_var_freq::Float64 = 0.1
     v_amp_amp::Float64 = 0.0
     v_amp_freq::Float64 = 0.08

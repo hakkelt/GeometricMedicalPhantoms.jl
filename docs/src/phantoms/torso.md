@@ -190,6 +190,9 @@ Output:
 - time vector
 - lung volume in liters over time
 
+!!! note "Variation in respiratory rate"
+    The phantom can simulate changes in respiratory rate over time by allowing the input signal to have variable frequency. This small perturbation is enabled by default to create a more realistic breathing pattern, but you can also generate perfectly regular signals if desired by setting the appropriate parameters in the physiology struct. See the documentation for [RespiratoryPhysiology](@ref GeometricMedicalPhantoms.RespiratoryPhysiology) for details on how to control this aspect of the signal generation.
+
 ```@example imports
 duration = 10.0  # seconds
 fs = 24.0  # frames per second
@@ -270,6 +273,9 @@ Arguments:
 Output:
 - t: time vector
 - cardiac_volumes: NamedTuple with fields `lv`, `rv`, `la`, `ra` containing volume signals in mL for each chamber.
+
+!!! note "Heart rate variability"
+    The phantom can simulate heart rate variability by allowing the input cardiac signals to have variable frequency. This small perturbation is enabled by default to create a more realistic cardiac pattern, but you can also generate perfectly regular signals if desired by setting the appropriate parameters in the physiology struct. See the documentation for [CardiacPhysiology](@ref GeometricMedicalPhantoms.CardiacPhysiology) for details on how to control this aspect of the signal generation.
 
 ```@example imports
 # Generate cardiac signals for four heart chambers

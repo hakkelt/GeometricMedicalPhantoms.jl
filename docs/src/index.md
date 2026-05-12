@@ -47,22 +47,25 @@ savefig("index_shepp_logan.png"); nothing # hide
 # Create a Torso phantom animation with respiratory motion
 using FileIO
 
-duration = 2.0
-fs = 12.0
-_, resp_liters = generate_respiratory_signal(duration, fs, 12.0)
+duration = 2.0           # seconds
+fs = 12.0                # frames per second
+respiration_rate = 12.0  # breaths per minute
+heart_rate = 72.0        # beats per minute
 
-torso_4d = create_torso_phantom(64, 64, 64; respiratory_signal=resp_liters)
-mid_y = cld(size(torso_4d, 2), 2)
-nt = size(torso_4d, 4)
+_, resp_liters = generate_respiratory_signal(duration, fs, respiration_rate)
+_, cardiac_liters = generate_cardiac_signals(duration, fs, heart_rate)
+
+torso_4d = create_torso_phantom(350, 350, :coronal; respiratory_signal=resp_liters, cardiac_volumes=cardiac_liters)
+nt = length(resp_liters)
 max_val = maximum(abs.(torso_4d))
 
-frames_coronal_temporal = zeros(UInt8, 64, 64, nt)
+frames_coronal_temporal = zeros(UInt8, 350, 350, nt)
 for i in 1:nt
-    slice = reverse(abs.(torso_4d[:, mid_y, :, i])', dims=1)
+    slice = reverse(abs.(torso_4d[:, :, i])', dims=1)
     frames_coronal_temporal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
 end
 
-save("index_torso.gif", frames_coronal_temporal, fps=12)
+save("index_torso.gif", frames_coronal_temporal, fps=fs)
 nothing # hide
 ```
 
@@ -83,15 +86,14 @@ savefig("index_tubes.png"); nothing # hide
 - Learn about the [Shepp-Logan phantom](phantoms/shepp_logan.md) and its intensity variants
 - Explore the [Torso phantom](phantoms/torso.md) with physiological motion
 - Use the [Tubes phantom](phantoms/tubes.md) for validation
-- Check out standalone [CLI interface](cli.md) for rendering phantoms without installing Julia
+- Check out standalone [CLI interface](cli.md) for rendering phantoms without installing Julia, or use the [C/C++](bindings/c_cpp.md) interface, [Python bindings](bindings/python.md), and [MATLAB toolbox](bindings/matlab.md).
 - Understand [geometry primitives](advanced/primitives.md) for building custom phantoms
 - Create your own phantom by following the [custom phantoms guide](advanced/custom_phantoms.md)
 
 ## Downloads
 
-Pre-built binaries are published to each
-[GitHub release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest)
-for all major platforms.  No Julia installation is required.
+Besides the Julia package which can be installed via the Julia package manager, pre-built binaries are published to each
+[GitHub release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest) for all major platforms.  No Julia installation is required to use these.
 
 ### CLI app
 
@@ -120,7 +122,7 @@ directly with pip (see [Python bindings](bindings/python.md) for per-platform
 commands), or browse the
 [latest release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest)
 for the exact filenames.  A pure-Python stub is also on
-[PyPI](https://pypi.org/project/geometric-medical-phantoms/).
+[PyPI](https://pypi.org/project/geometric-medical-phantoms/). This provides the same API but requires a separate shared library installation.
 
 ### MATLAB toolbox
 
