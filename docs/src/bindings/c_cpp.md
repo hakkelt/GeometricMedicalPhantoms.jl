@@ -13,7 +13,6 @@ Pre-built bundles are attached to every
 | Platform | Archive |
 |---|---|
 | Linux x86-64  | `geomphantoms-lib-linux-x86_64.tar.xz` |
-| Linux aarch64 | `geomphantoms-lib-linux-aarch64.tar.xz` |
 | macOS x86-64  | `geomphantoms-lib-macos-x86_64.tar.xz` |
 | macOS arm64   | `geomphantoms-lib-macos-aarch64.tar.xz` |
 | Windows x86-64| `geomphantoms-lib-windows-x86_64.zip` |

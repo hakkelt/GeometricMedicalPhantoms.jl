@@ -22,11 +22,6 @@ jobs:
             artifact-name: geomphantoms-linux-x86_64.tar.xz
             exe-name: geomphantoms
             julia-cpu-target: "generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);x86-64-v4,-rdrnd,base(1)"
-          - os: ubuntu-24.04-arm64
-            arch: aarch64
-            artifact-name: geomphantoms-linux-aarch64.tar.xz
-            exe-name: geomphantoms
-            julia-cpu-target: "generic;cortex-a57;thunderx2t99;carmel,clone_all;apple-m1,base(3);neoverse-512tvb,base(3)"
           - os: macos-15-intel
             arch: x86_64
             artifact-name: geomphantoms-macos-x86_64.tar.xz

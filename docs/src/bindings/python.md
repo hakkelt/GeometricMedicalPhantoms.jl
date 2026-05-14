@@ -10,22 +10,7 @@ provided by the `geometric-medical-phantoms` PyPI package.  It requires
 
 Pre-built wheels containing the compiled shared library are published to each
 [GitHub release](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest).
-Install the wheel for your platform directly with `pip`:
-
-| Platform | Install command |
-|---|---|
-| Linux x86-64 | `pip install "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geometric_medical_phantoms-linux-x86_64.whl"` |
-| Linux aarch64 | `pip install "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geometric_medical_phantoms-linux-aarch64.whl"` |
-| macOS x86-64 | `pip install "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geometric_medical_phantoms-macos-x86_64.whl"` |
-| macOS aarch64 | `pip install "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geometric_medical_phantoms-macos-aarch64.whl"` |
-| Windows x86-64 | `pip install "https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geometric_medical_phantoms-windows-x86_64.whl"` |
-
-!!! note "Wheel filenames include a version number"
-    The exact wheel filename contains the package version (e.g.
-    `geometric_medical_phantoms-1.0.2-py3-none-linux_x86_64.whl`).  The
-    table above uses simplified names for clarity; follow the
-    [latest release page](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest)
-    for the current filenames.
+Install the wheel for your platform directly with `pip`: `pip install "<path of *.whl>"`.
 
 ### Pure-Python stub from PyPI
 

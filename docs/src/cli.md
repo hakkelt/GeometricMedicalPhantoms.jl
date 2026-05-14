@@ -12,7 +12,6 @@ Download the latest release for your platform from the
 | Platform | Download |
 |---|---|
 | Linux x86-64 | [geomphantoms-linux-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-x86_64.tar.xz) |
-| Linux aarch64 | [geomphantoms-linux-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-linux-aarch64.tar.xz) |
 | macOS x86-64 | [geomphantoms-macos-x86_64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-x86_64.tar.xz) |
 | macOS aarch64 | [geomphantoms-macos-aarch64.tar.xz](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-macos-aarch64.tar.xz) |
 | Windows x86-64 | [geomphantoms-windows-x86_64.zip](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/geomphantoms-windows-x86_64.zip) |
