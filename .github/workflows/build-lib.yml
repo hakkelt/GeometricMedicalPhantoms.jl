@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload Python wheel to release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: lib/python/dist/*.whl
         env:
@@ -241,7 +241,7 @@ jobs:
 
       - name: Upload MATLAB toolbox to release
         if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: GeometricMedicalPhantoms-matlab.mltbx
         env:
@@ -273,7 +273,7 @@ jobs:
 
       - name: Upload release asset
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ matrix.artifact-name }}
         env:
