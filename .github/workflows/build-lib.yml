@@ -202,7 +202,7 @@ jobs:
 
       - name: Setup MATLAB
         if: matrix.os == 'ubuntu-latest'
-        uses: matlab-actions/setup-matlab@v2
+        uses: matlab-actions/setup-matlab@v3
 
       - name: Install Julia packages for MATLAB bridge
         if: matrix.os == 'ubuntu-latest'
