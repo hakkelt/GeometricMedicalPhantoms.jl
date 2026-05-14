@@ -89,7 +89,7 @@ jobs:
         working-directory: lib
         shell: pwsh
         run: |
-          Get-Item build\lib\${{ matrix.lib-name }}
+          Get-Item build\bin\${{ matrix.lib-name }}
 
       # ----------------------------------------------------------------
       # Smoke test — compile and run the C smoke test
@@ -117,17 +117,18 @@ jobs:
       - name: Compile smoke test (Windows)
         if: runner.os == 'Windows'
         working-directory: lib/test
-        shell: cmd
+        shell: pwsh
         run: |
-          cl smoke_test.c /I ..\include /Fe:smoke_test.exe /link /LIBPATH:..\build\lib geomphantoms.lib
+          $gcc = julia -e 'using JuliaC; print(JuliaC.get_compiler_cmd().exec[1])'
+          & "$gcc" smoke_test.c -I ..\include ..\build\lib\geomphantoms.dll.a -lm -static-libgcc -o smoke_test.exe
 
       - name: Run smoke test (Windows)
         if: runner.os == 'Windows'
         working-directory: lib/test
-        shell: cmd
+        shell: pwsh
         run: |
-          set PATH=%CD%\..\build\lib;%PATH%
-          smoke_test.exe
+          $env:PATH = (Resolve-Path ..\build\bin).Path + ";" + $env:PATH
+          .\smoke_test.exe
 
       # ----------------------------------------------------------------
       # Python smoke test
@@ -152,7 +153,7 @@ jobs:
         working-directory: lib/test
         shell: pwsh
         run: |
-          python smoke_test_python.py "${{ github.workspace }}\lib\build\lib"
+          python smoke_test_python.py "${{ github.workspace }}\lib\build\bin"
 
       # ----------------------------------------------------------------
       # Python binary wheel (built after smoke test passes)
@@ -171,7 +172,7 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: lib/python
         env:
-          GMP_LIB_DIR: ${{ github.workspace }}\lib\build\lib
+          GMP_LIB_DIR: ${{ github.workspace }}\lib\build\bin
         shell: pwsh
         run: |
           pip install --quiet build hatchling
@@ -208,11 +209,18 @@ jobs:
         run: |
           julia -e 'import Pkg; Pkg.add("MATLAB"); Pkg.add("GeometricMedicalPhantoms"); Pkg.add("Mex")'
 
+      - name: Get Mex.jl mexjulia path
+        if: matrix.os == 'ubuntu-latest'
+        id: mex-path
+        run: |
+          echo "path=$(julia -e 'using Pkg; d=Pkg.dependencies(); mex=first(v for (_,v) in d if v.name=="Mex"); print(joinpath(mex.source,"mexjulia"))')" >> "$GITHUB_OUTPUT"
+
       - name: Run MATLAB smoke test
         if: matrix.os == 'ubuntu-latest'
         uses: matlab-actions/run-command@v3
         with:
           command: >
+            addpath('${{ steps.mex-path.outputs.path }}');
             addpath('lib/test');
             smoke_test_matlab();
 
