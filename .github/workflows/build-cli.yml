@@ -59,7 +59,19 @@ jobs:
         with:
           version: '1.12'
 
-      - name: Install JuliaC
+      - name: Install JuliaC (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          JULIA_NUM_THREADS: '1'
+          JULIA_IMAGE_THREADS: '1'
+          JULIA_NUM_PRECOMPILE_TASKS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: |
+          julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", version="0.3.1"))'
+
+      - name: Install JuliaC (non-Ubuntu)
+        if: matrix.os != 'ubuntu-latest'
         run: |
           julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", version="0.3.1"))'
 
@@ -80,16 +92,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo fallocate -l 8G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          swap_path=/mnt/gmp-swapfile
+          current_swap_mb=$(free -m | awk '/^Swap:/ {print $2}')
+          target_swap_mb=11000
+          if [[ "$current_swap_mb" -lt "$target_swap_mb" ]]; then
+            sudo rm -f "$swap_path"
+            sudo fallocate -l 8G "$swap_path"
+            sudo chmod 600 "$swap_path"
+            sudo mkswap "$swap_path"
+            sudo swapon "$swap_path"
+          else
+            echo "Existing swap is already sufficient; skipping extra swap allocation."
+          fi
           echo "=== Swap enabled ==="
           swapon --show
           free -h
 
-      - name: Prepare CLI app dependencies (non-Windows)
-        if: runner.os != 'Windows'
+      - name: Prepare CLI app dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: app
+        env:
+          JULIA_NUM_THREADS: '1'
+          JULIA_IMAGE_THREADS: '1'
+          JULIA_NUM_PRECOMPILE_TASKS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Prepare CLI app dependencies (non-Ubuntu, non-Windows)
+        if: runner.os != 'Windows' && matrix.os != 'ubuntu-latest'
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
