@@ -3,17 +3,16 @@
 % Usage (from lib/test/):
 %   matlab -batch "smoke_test_matlab"
 %
-% Usage with explicit Julia project path:
-%   matlab -batch "smoke_test_matlab('/path/to/GeometricMedicalPhantoms')"
+% Usage with explicit CLI path or bundle root:
+%   matlab -batch "smoke_test_matlab('/path/to/geomphantoms')"
 %
 % Prerequisites:
-%   - Julia installed and on PATH
-%   - GeometricMedicalPhantoms.jl installed in the Julia environment
-%   - Mex.jl installed (run lib/matlab/setup.jl once)
+%   - The geomphantoms CLI executable is installed or built
+%   - The executable is on PATH, in app/build/bin, or passed explicitly
 
-function smoke_test_matlab(julia_project)
+function smoke_test_matlab(cli_location)
 
-    if nargin < 1; julia_project = []; end
+    if nargin < 1; cli_location = []; end
 
     % Locate the MATLAB toolbox relative to this file.
     test_dir    = fileparts(mfilename('fullpath'));
@@ -42,7 +41,7 @@ function smoke_test_matlab(julia_project)
     % Construct wrapper
     % ----------------------------------------------------------------
     try
-        lib = GeometricMedicalPhantoms(julia_project);
+        lib = GeometricMedicalPhantoms(cli_location);
     catch ME
         fprintf(2, '[FAIL] GeometricMedicalPhantoms constructor: %s\n', ME.message);
         error('Constructor failed — cannot continue smoke tests.');

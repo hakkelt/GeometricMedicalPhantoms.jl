@@ -197,7 +197,7 @@ end
         t_shaped, vols_shaped = generate_cardiac_signals(duration, fs, hr; physiology = phys_shaped)
 
         @test t_default == t_shaped
-        @test !isapprox(std(vols_default.lv), std(vols_shaped.lv), rtol = 1e-3)
-        @test !isapprox(std(vols_default.la), std(vols_shaped.la), rtol = 1e-3)
+        @test !isapprox(std(vols_default.lv), std(vols_shaped.lv), rtol = 1.0e-3)
+        @test !isapprox(std(vols_default.la), std(vols_shaped.la), rtol = 1.0e-3)
     end
 end

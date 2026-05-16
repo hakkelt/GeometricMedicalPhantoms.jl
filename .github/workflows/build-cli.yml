@@ -44,6 +44,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Set version string
+        id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Julia
         uses: julia-actions/setup-julia@v3
         with:
@@ -79,6 +89,41 @@ jobs:
         working-directory: app
         run: |
           julia --project=. test/test_compiled_binary.jl ./build/bin/${{ matrix.exe-name }}
+
+      - name: Setup MATLAB
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/setup-matlab@v3
+
+      - name: Run MATLAB smoke test
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/run-command@v3
+        with:
+          command: >
+            addpath('lib/test');
+            smoke_test_matlab('${{ github.workspace }}/app/build/bin/${{ matrix.exe-name }}');
+
+      - name: Build MATLAB toolbox
+        if: matrix.os == 'ubuntu-latest'
+        uses: matlab-actions/run-command@v3
+        with:
+          command: >
+            addpath('lib/matlab');
+            build_toolbox('${{ steps.version.outputs.version }}', '.');
+
+      - name: Upload MATLAB toolbox as artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: matlab-toolbox
+          path: GeometricMedicalPhantoms-matlab.mltbx
+
+      - name: Upload MATLAB toolbox to release
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: GeometricMedicalPhantoms-matlab.mltbx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package artifact (Unix)
         if: runner.os != 'Windows'

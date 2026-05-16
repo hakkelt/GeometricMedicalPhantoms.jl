@@ -143,6 +143,15 @@ class _CardiacPhysiology(ctypes.Structure):
         ("bw_amp",            c_double),
         ("bw_freq",           c_double),
         ("s_frac_base",       c_double),
+        ("s_frac_mod_amp",    c_double),
+        ("s_frac_mod_freq",   c_double),
+        ("ventricular_ejection_power", c_double),
+        ("lv_filling_power",  c_double),
+        ("rv_filling_power",  c_double),
+        ("atrial_fill_power", c_double),
+        ("atrial_emptying_power", c_double),
+        ("atrial_phase_shift", c_double),
+        ("atrial_bw_coupling", c_double),
         ("lv_kick_amp_frac",  c_double),
         ("lv_kick_center",    c_double),
         ("lv_kick_width",     c_double),
@@ -242,7 +251,7 @@ class CardiacPhysiology:
     la_max: float = 60.0
     ra_min: float = 30.0
     ra_max: float = 60.0
-    hr_var_amp: float = 0.0
+    hr_var_amp: float = 0.03
     hr_var_freq: float = 0.1
     v_amp_amp: float = 0.0
     v_amp_freq: float = 0.08
@@ -251,6 +260,15 @@ class CardiacPhysiology:
     bw_amp: float = 0.0
     bw_freq: float = 0.03
     s_frac_base: float = 0.35
+    s_frac_mod_amp: float = 0.08
+    s_frac_mod_freq: float = 0.1
+    ventricular_ejection_power: float = 3.0
+    lv_filling_power: float = 2.2
+    rv_filling_power: float = 2.0
+    atrial_fill_power: float = 1.5
+    atrial_emptying_power: float = 3.0
+    atrial_phase_shift: float = 0.7
+    atrial_bw_coupling: float = 0.8
     lv_kick_amp_frac: float = 0.07
     lv_kick_center: float = 0.92
     lv_kick_width: float = 0.04
@@ -273,6 +291,11 @@ class CardiacPhysiology:
             self.a_amp_amp, self.a_amp_freq,
             self.bw_amp, self.bw_freq,
             self.s_frac_base,
+            self.s_frac_mod_amp, self.s_frac_mod_freq,
+            self.ventricular_ejection_power,
+            self.lv_filling_power, self.rv_filling_power,
+            self.atrial_fill_power, self.atrial_emptying_power,
+            self.atrial_phase_shift, self.atrial_bw_coupling,
             self.lv_kick_amp_frac, self.lv_kick_center, self.lv_kick_width,
             self.rv_kick_amp_frac, self.rv_kick_center, self.rv_kick_width,
             self.la_contr_amp_frac, self.la_contr_center, self.la_contr_width,
@@ -545,6 +568,11 @@ class GMPLib:
             s.a_amp_amp, s.a_amp_freq,
             s.bw_amp, s.bw_freq,
             s.s_frac_base,
+            s.s_frac_mod_amp, s.s_frac_mod_freq,
+            s.ventricular_ejection_power,
+            s.lv_filling_power, s.rv_filling_power,
+            s.atrial_fill_power, s.atrial_emptying_power,
+            s.atrial_phase_shift, s.atrial_bw_coupling,
             s.lv_kick_amp_frac, s.lv_kick_center, s.lv_kick_width,
             s.rv_kick_amp_frac, s.rv_kick_center, s.rv_kick_width,
             s.la_contr_amp_frac, s.la_contr_center, s.la_contr_width,

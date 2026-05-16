@@ -3,20 +3,19 @@
 %
 % CLASSES
 %   GeometricMedicalPhantoms - MATLAB interface to GeometricMedicalPhantoms
-%                              via Julia (Mex.jl)
+%                              via the geomphantoms CLI
 %
 % INSTALLATION
-%   1. Install Julia and add to PATH.
-%   2. Run lib/matlab/setup.jl to install Julia dependencies.
-%   3. Add this toolbox directory to the MATLAB path:
+%   1. Install or build the geomphantoms CLI executable.
+%   2. Add this toolbox directory to the MATLAB path:
 %
 %       addpath('/path/to/toolbox')
 %
 %   Then in MATLAB:
-%       lib = GeometricMedicalPhantoms();
+%       lib = GeometricMedicalPhantoms('/path/to/geomphantoms');
 %
 % USAGE
-%   lib = GeometricMedicalPhantoms();   % toolbox install (recommended)
+%   lib = GeometricMedicalPhantoms();   % auto-detects app/build/bin or PATH
 %
 %   Create phantoms:
 %       phantom = lib.createSheppLoganPhantom3D(128, 128, 128);

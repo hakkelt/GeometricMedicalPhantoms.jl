@@ -17,19 +17,16 @@ Pre-built bundles are attached to every
 | macOS arm64   | `geomphantoms-lib-macos-aarch64.tar.xz` |
 | Windows x86-64| `geomphantoms-lib-windows-x86_64.zip` |
 
-Extract the archive; the top-level layout is:
+Extract the archive; the bundle contains only the shared-library build output
+and the public C header:
 
 ```
 build/
-  lib/
-    libgeomphantoms.so   # (or .dylib / .dll)
-    julia/               # bundled Julia stdlibs
+    lib/                   # Unix: libgeomphantoms.so / .dylib and julia/
+    bin/                   # Windows: geomphantoms.dll and julia/
+    lib/geomphantoms.lib   # Windows import library
 include/
   geometric_medical_phantoms.h
-python/
-  geometric_medical_phantoms.py
-matlab/
-  GeometricMedicalPhantoms.m
 ```
 
 ## Building from source
@@ -80,7 +77,7 @@ cl my_program.c /I path\to\include ^
    /link /LIBPATH:path\to\build\lib geomphantoms.lib
 ```
 
-Make sure `path\to\build\lib` is on `PATH` at runtime.
+Make sure `path\to\build\bin` is on `PATH` at runtime.
 
 ## Data layout
 
@@ -262,8 +259,8 @@ test (`lib/test/smoke_test.c`) as a reference.
 
 ```c
 typedef struct {
-    double min_l;        // Minimum lung volume (L)          default: 2.4
-    double max_l;        // Maximum lung volume (L)          default: 3.0
+    double minL;         // Minimum lung volume (L)          default: 2.4
+    double maxL;         // Maximum lung volume (L)          default: 3.0
     double asym_amp;     // Asymmetry harmonic amplitude     default: 0.2
     double amp_mod_amp;  // Amplitude modulation amplitude   default: 0.15
     double amp_mod_freq; // Amplitude modulation freq (Hz)   default: 0.05
@@ -286,7 +283,7 @@ typedef struct {
     double la_max;          // LA maximum volume (mL)        default: 60
     double ra_min;          // RA minimum volume (mL)        default: 30
     double ra_max;          // RA maximum volume (mL)        default: 60
-    double hr_var_amp;      // HR variability amplitude      default: 0.0
+    double hr_var_amp;      // HR variability amplitude      default: 0.03
     double hr_var_freq;     // HR variability freq (Hz)      default: 0.1
     double v_amp_amp;       // Ventr. amp-mod amplitude      default: 0.0
     double v_amp_freq;      // Ventr. amp-mod freq (Hz)      default: 0.08
@@ -295,6 +292,15 @@ typedef struct {
     double bw_amp;          // Baseline wander amplitude     default: 0.0
     double bw_freq;         // Baseline wander freq (Hz)     default: 0.03
     double s_frac_base;     // Systole fraction base (0–1)   default: 0.35
+    double s_frac_mod_amp;  // Systole-frac modulation amp   default: 0.08
+    double s_frac_mod_freq; // Systole-frac modulation freq  default: 0.1
+    double ventricular_ejection_power; // Ventricular emptying exponent default: 3.0
+    double lv_filling_power; // LV filling exponent          default: 2.2
+    double rv_filling_power; // RV filling exponent          default: 2.0
+    double atrial_fill_power; // Atrial filling exponent     default: 1.5
+    double atrial_emptying_power; // Atrial emptying exponent default: 3.0
+    double atrial_phase_shift; // Atrial modulation phase    default: 0.7
+    double atrial_bw_coupling; // Atrial baseline coupling   default: 0.8
     double lv_kick_amp_frac;// LV atrial kick amplitude      default: 0.07
     double lv_kick_center;  // LV atrial kick centre (0–1)   default: 0.92
     double lv_kick_width;   // LV atrial kick width (0–1)    default: 0.04

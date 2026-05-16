@@ -200,14 +200,14 @@ jobs:
         if: runner.os != 'Windows'
         working-directory: lib
         run: |
-          tar -cJf ../${{ matrix.artifact-name }} build include python matlab
+          tar -cJf ../${{ matrix.artifact-name }} build include
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
         working-directory: lib
         shell: pwsh
         run: |
-          Compress-Archive -Path build, include, python, matlab `
+          Compress-Archive -Path build, include `
                            -DestinationPath ..\${{ matrix.artifact-name }}
 
       - name: Upload artifact
@@ -221,89 +221,6 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: ${{ matrix.artifact-name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ======================================================================
-  # Build MATLAB wrapper / toolbox
-  # ======================================================================
-  matlab-wrapper:
-    name: Build MATLAB Wrapper
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set version string
-        id: version
-        shell: bash
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=dev" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup Julia
-        uses: julia-actions/setup-julia@v3
-        with:
-          version: '1.12'
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v3
-
-      - name: Prepare MATLAB wrapper Julia environment
-        id: matlab-env
-        shell: bash
-        run: |
-          echo "path=${RUNNER_TEMP}/gmp-matlab-env" >> "$GITHUB_OUTPUT"
-          julia --project="${RUNNER_TEMP}/gmp-matlab-env" -e 'using Pkg; Pkg.develop(Pkg.PackageSpec(path=pwd())); Pkg.add("MATLAB"); Pkg.add("Mex"); Pkg.build("Mex")'
-
-      - name: Get Mex.jl build script path
-        id: mex-build
-        shell: bash
-        run: |
-          project='${{ steps.matlab-env.outputs.path }}'
-          script=$(julia --project="$project" -e 'using Pkg; d=Pkg.dependencies(); mex=only(v for (_,v) in d if v.name=="Mex"); print(joinpath(mex.source,"deps","build.m"))')
-          echo "script=$script" >> "$GITHUB_OUTPUT"
-
-      - name: Get Mex.jl mexjulia path
-        id: mex-path
-        shell: bash
-        run: |
-          project='${{ steps.matlab-env.outputs.path }}'
-          path=$(julia --project="$project" -e 'using Pkg; d=Pkg.dependencies(); mex=only(v for (_,v) in d if v.name=="Mex"); print(joinpath(mex.source,"mexjulia"))')
-          echo "path=$path" >> "$GITHUB_OUTPUT"
-
-      - name: Run MATLAB smoke test
-        uses: matlab-actions/run-command@v3
-        with:
-          command: >
-            run('${{ steps.mex-build.outputs.script }}');
-            addpath('${{ steps.mex-path.outputs.path }}');
-            addpath('lib/test');
-            smoke_test_matlab('${{ steps.matlab-env.outputs.path }}');
-
-      - name: Build MATLAB toolbox
-        uses: matlab-actions/run-command@v3
-        with:
-          command: >
-            addpath('lib/matlab');
-            build_toolbox('${{ steps.version.outputs.version }}', '.');
-
-      - name: Upload MATLAB toolbox as artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: matlab-toolbox
-          path: GeometricMedicalPhantoms-matlab.mltbx
-
-      - name: Upload MATLAB toolbox to release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v3
-        with:
-          files: GeometricMedicalPhantoms-matlab.mltbx
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

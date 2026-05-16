@@ -102,7 +102,7 @@ typedef struct {
     double la_max;            /**< LA maximum volume (mL, 60)          */
     double ra_min;            /**< RA minimum volume (mL, 30)          */
     double ra_max;            /**< RA maximum volume (mL, 60)          */
-    double hr_var_amp;        /**< HR variability amplitude (frac)     */
+    double hr_var_amp;        /**< HR variability amplitude (frac, .03)*/
     double hr_var_freq;       /**< HR variability frequency (Hz)       */
     double v_amp_amp;         /**< Ventricular amp-mod amplitude       */
     double v_amp_freq;        /**< Ventricular amp-mod frequency (Hz)  */
@@ -111,6 +111,15 @@ typedef struct {
     double bw_amp;            /**< Baseline wander amplitude (mL)      */
     double bw_freq;           /**< Baseline wander frequency (Hz)      */
     double s_frac_base;       /**< Base systole fraction (0..1, 0.35)  */
+    double s_frac_mod_amp;    /**< Systole-fraction modulation amp     */
+    double s_frac_mod_freq;   /**< Systole-fraction modulation freq    */
+    double ventricular_ejection_power; /**< Ventricular emptying exponent */
+    double lv_filling_power;  /**< LV filling exponent                 */
+    double rv_filling_power;  /**< RV filling exponent                 */
+    double atrial_fill_power; /**< Atrial filling exponent             */
+    double atrial_emptying_power; /**< Atrial emptying exponent        */
+    double atrial_phase_shift;/**< Atrial modulation phase shift       */
+    double atrial_bw_coupling;/**< Atrial baseline-wander coupling     */
     double lv_kick_amp_frac;  /**< LV atrial kick amplitude fraction   */
     double lv_kick_center;    /**< LV atrial kick center (phase, 0..1) */
     double lv_kick_width;     /**< LV atrial kick width  (phase, 0..1) */

@@ -16,7 +16,7 @@ end
 #   2. --trim=on    — removes dead code without the strict verifier; smaller than
 #      untrimmed but skips the safety check.
 #   3. no trim      — full Julia runtime + all precompiled methods bundled.
-function do_build(; trim_mode::Union{String,Nothing})
+function do_build(; trim_mode::Union{String, Nothing})
     img = ImageRecipe(
         output_type = "--output-lib",
         file = "src/GeometricMedicalPhantomsLib.jl",
@@ -42,12 +42,14 @@ function do_build(; trim_mode::Union{String,Nothing})
     compile_products(img)
     link_products(link)
     bundle_products(bun)
+    return
 end
 
 function clean_build()
     if isdir("build")
         rm("build"; recursive = true, force = true)
     end
+    return
 end
 
 # --trim=safe and --trim=on both fail for this library because Polyester's

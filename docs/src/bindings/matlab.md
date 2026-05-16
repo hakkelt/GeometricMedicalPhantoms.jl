@@ -1,19 +1,13 @@
 # MATLAB
 
 GeometricMedicalPhantoms provides a MATLAB toolbox at
-`lib/matlab/toolbox/GeometricMedicalPhantoms.m`. The wrapper no longer talks to
-a C-callable shared library. Instead it uses Mex.jl to start Julia inside
-MATLAB and calls the Julia package directly.
+`lib/matlab/toolbox/GeometricMedicalPhantoms.m`. The wrapper requires the [Command-Line Interface (CLI)](@ref) to be available on the system.
 
 ## Requirements
 
 - MATLAB R2019b or newer
-- Julia installed on the system and available on `PATH`
-- The `GeometricMedicalPhantoms` Julia package installed in the active Julia environment
-- Mex.jl installed once so MATLAB can call Julia through `jl.mex`
-
-The one-time setup may require MATLAB's MEX toolchain because Mex.jl builds the
-`mexjulia` bridge during installation.
+- The `geomphantoms` CLI executable installed on `PATH`, available under a local
+  `app/build/bin/` build, or passed explicitly to the constructor
 
 ## Installation
 
@@ -26,28 +20,27 @@ Download and install the single platform-independent `.mltbx` from the
 GeometricMedicalPhantoms-matlab.mltbx
 ```
 
-The toolbox contains only `.m` and `.jl` files — no compiled binaries are
-bundled.  The Julia runtime and packages are installed once on your machine
-(see [Installation](#installation) below).
+The toolbox does not bundle the CLI executable. Install a release binary or
+build the CLI locally first.
 
 ### From source
 
-Run the Julia setup script once to install the Julia-side dependencies:
+Build the CLI locally, then add the toolbox directory to MATLAB's path and
+create the wrapper:
 
 ```bash
-julia lib/matlab/setup.jl
+julia --project=app -e 'using Pkg; Pkg.instantiate()'
+julia --project=app app/build.jl
 ```
-
-Then add the toolbox directory to MATLAB's path and create the wrapper:
 
 ```matlab
 addpath('/path/to/GeometricMedicalPhantoms/lib/matlab/toolbox')
-lib = GeometricMedicalPhantoms();
+lib = GeometricMedicalPhantoms('/path/to/geomphantoms');
 disp(lib.version())   % e.g. "1.0.2"
 ```
 
-If you are working from a local Julia checkout of the package, you can also
-activate that project explicitly:
+If you are working from a local checkout of the repository, the constructor can
+also auto-detect `app/build/bin/geomphantoms`:
 
 ```matlab
 lib = GeometricMedicalPhantoms('/path/to/GeometricMedicalPhantoms');
@@ -55,18 +48,15 @@ lib = GeometricMedicalPhantoms('/path/to/GeometricMedicalPhantoms');
 
 ## Loading and setup
 
-The constructor loads `GmpBridge.jl` once per MATLAB session and exposes the
-same high-level API as the old wrapper, but without any shared-library path
-arguments.
+The constructor resolves the CLI executable once per MATLAB session.
 
 ```matlab
 lib = GeometricMedicalPhantoms();
 disp(lib.version())
 ```
 
-The wrapper stores MATLAB structs as flat numeric vectors when passing them to
-Julia. This keeps the interface stable and avoids MATLAB struct marshaling
-issues.
+The wrapper writes temporary JSON and MAT files and invokes the CLI to generate
+signals and phantoms.
 
 ## Basic usage
 
@@ -134,16 +124,9 @@ needed.
 
 | Issue | Solution |
 |---|---|
-| `jl` is undefined in MATLAB | Install Mex.jl and rerun `lib/matlab/setup.jl` |
-| `GeometricMedicalPhantoms` cannot be constructed | Ensure Julia is installed and the package is available in the active Julia environment |
-| `Pkg.add("Mex")` fails during setup | Check that MATLAB's MEX toolchain is configured and Julia can invoke it |
+| `GeometricMedicalPhantoms` cannot be constructed | Ensure the `geomphantoms` executable is on `PATH`, in `app/build/bin`, or passed to the constructor |
+| CLI launches fail inside MATLAB on Linux | Use the bundled CLI executable rather than a partial manual install so the wrapper can supply the correct runtime library paths |
 | Toolbox installed but the class is not found | Add `lib/matlab/toolbox` to the MATLAB path or reinstall the toolbox |
-
-## Notes
-
-- The MATLAB wrapper is a thin adapter around the Julia package and keeps the
-  public API close to the previous version for compatibility.
-- The old `loadlibrary` / `calllib` workflow is no longer used.
 
 ## API reference
 
@@ -152,7 +135,7 @@ instance first:
 
 ```matlab
 lib = GeometricMedicalPhantoms();
-% or, to activate a specific Julia project:
+% or, to point at a specific CLI executable or bundle root:
 lib = GeometricMedicalPhantoms('/path/to/GeometricMedicalPhantoms');
 ```
 
@@ -204,7 +187,7 @@ Returns a struct with the following fields (all `double`):
 | `la_max` | 60 | LA maximum volume (mL) |
 | `ra_min` | 30 | RA minimum volume (mL) |
 | `ra_max` | 60 | RA maximum volume (mL) |
-| `hr_var_amp` | 0.0 | HR variability amplitude (fraction) |
+| `hr_var_amp` | 0.03 | HR variability amplitude (fraction) |
 | `hr_var_freq` | 0.1 | HR variability frequency (Hz) |
 | `v_amp_amp` | 0.0 | Ventricular amplitude-modulation amplitude |
 | `v_amp_freq` | 0.08 | Ventricular amplitude-modulation frequency (Hz) |
@@ -213,6 +196,15 @@ Returns a struct with the following fields (all `double`):
 | `bw_amp` | 0.0 | Baseline wander amplitude (mL) |
 | `bw_freq` | 0.03 | Baseline wander frequency (Hz) |
 | `s_frac_base` | 0.35 | Base systole fraction (0–1) |
+| `s_frac_mod_amp` | 0.08 | Systole-fraction modulation amplitude |
+| `s_frac_mod_freq` | 0.1 | Systole-fraction modulation frequency (Hz) |
+| `ventricular_ejection_power` | 3.0 | Ventricular emptying sharpness |
+| `lv_filling_power` | 2.2 | LV filling sharpness |
+| `rv_filling_power` | 2.0 | RV filling sharpness |
+| `atrial_fill_power` | 1.5 | Atrial filling sharpness |
+| `atrial_emptying_power` | 3.0 | Atrial emptying sharpness |
+| `atrial_phase_shift` | 0.7 | Atrial phase shift relative to ventricles |
+| `atrial_bw_coupling` | 0.8 | Atrial baseline-wander coupling |
 | `lv_kick_amp_frac` | 0.07 | LV atrial kick amplitude fraction |
 | `lv_kick_center` | 0.92 | LV atrial kick centre (phase, 0–1) |
 | `lv_kick_width` | 0.04 | LV atrial kick width (phase, 0–1) |

@@ -38,6 +38,15 @@ struct GmpCardiacPhysiology
     bw_amp::Cdouble
     bw_freq::Cdouble
     s_frac_base::Cdouble
+    s_frac_mod_amp::Cdouble
+    s_frac_mod_freq::Cdouble
+    ventricular_ejection_power::Cdouble
+    lv_filling_power::Cdouble
+    rv_filling_power::Cdouble
+    atrial_fill_power::Cdouble
+    atrial_emptying_power::Cdouble
+    atrial_phase_shift::Cdouble
+    atrial_bw_coupling::Cdouble
     lv_kick_amp_frac::Cdouble
     lv_kick_center::Cdouble
     lv_kick_width::Cdouble
@@ -103,7 +112,7 @@ end
 # ---------------------------------------------------------------------------
 
 function to_julia(g::GmpRespiratoryPhysiology)
-    RespiratoryPhysiology(
+    return RespiratoryPhysiology(
         minL = g.minL,
         maxL = g.maxL,
         asym_amp = g.asym_amp,
@@ -115,7 +124,7 @@ function to_julia(g::GmpRespiratoryPhysiology)
 end
 
 function to_julia(g::GmpCardiacPhysiology)
-    CardiacPhysiology(
+    return CardiacPhysiology(
         lv_edv = g.lv_edv,
         lv_esv = g.lv_esv,
         rv_edv = g.rv_edv,
@@ -133,6 +142,15 @@ function to_julia(g::GmpCardiacPhysiology)
         bw_amp = g.bw_amp,
         bw_freq = g.bw_freq,
         s_frac_base = g.s_frac_base,
+        s_frac_mod_amp = g.s_frac_mod_amp,
+        s_frac_mod_freq = g.s_frac_mod_freq,
+        ventricular_ejection_power = g.ventricular_ejection_power,
+        lv_filling_power = g.lv_filling_power,
+        rv_filling_power = g.rv_filling_power,
+        atrial_fill_power = g.atrial_fill_power,
+        atrial_emptying_power = g.atrial_emptying_power,
+        atrial_phase_shift = g.atrial_phase_shift,
+        atrial_bw_coupling = g.atrial_bw_coupling,
         lv_kick_amp_frac = g.lv_kick_amp_frac,
         lv_kick_center = g.lv_kick_center,
         lv_kick_width = g.lv_kick_width,
@@ -149,7 +167,7 @@ function to_julia(g::GmpCardiacPhysiology)
 end
 
 function to_julia(g::GmpTissueIntensities)
-    TissueIntensities(
+    return TissueIntensities(
         lung = g.lung,
         heart = g.heart,
         vessels_blood = g.vessels_blood,
@@ -165,7 +183,7 @@ function to_julia(g::GmpTissueIntensities)
 end
 
 function to_julia(g::GmpSheppLoganIntensities)
-    SheppLoganIntensities{Float64}(
+    return SheppLoganIntensities{Float64}(
         skull = g.skull,
         brain = g.brain,
         right_big = g.right_big,
@@ -182,7 +200,7 @@ function to_julia(g::GmpSheppLoganIntensities)
 end
 
 function to_julia(g::GmpTubesGeometry)
-    TubesGeometry(
+    return TubesGeometry(
         outer_radius = g.outer_radius,
         outer_height = g.outer_height,
         tubes_height_fraction = g.tubes_height_fraction,
@@ -197,7 +215,7 @@ function to_julia(g::GmpTubesIntensities)
     for i in 1:n
         fillings[i] = unsafe_load(g.tube_fillings, i)
     end
-    TubesIntensities{Float64}(
+    return TubesIntensities{Float64}(
         outer_cylinder = g.outer_cylinder,
         tube_wall = g.tube_wall,
         tube_fillings = fillings,
@@ -224,8 +242,7 @@ end
 const _VERSION_CSTR = string(pkgversion(GeometricMedicalPhantoms))
 
 # gmp_init / gmp_cleanup — explicit Julia runtime lifecycle for embedders
-# (e.g. MATLAB loadlibrary) that cannot rely on the automatic thread-adoption
-# prologue injected by JuliaC.
+# that cannot rely on the automatic thread-adoption prologue injected by JuliaC.
 #
 # Perform a real GC allocation so that the calling thread's Julia GC state
 # (jl_get_ptls_states / jl_current_task) is fully initialised before any
@@ -237,7 +254,7 @@ Base.@ccallable function gmp_init()::Cint
     # thread (thread adoption + ptls setup + safepoint registration).
     v = Vector{Float32}(undef, 4)
     GC.@preserve v begin
-        v[1] = 0f0
+        v[1] = 0.0f0
     end
     return Cint(0)
 end
@@ -256,8 +273,8 @@ end
 # ---------------------------------------------------------------------------
 
 Base.@ccallable function gmp_respiratory_physiology_default(
-    out::Ptr{GmpRespiratoryPhysiology},
-)::Cvoid
+        out::Ptr{GmpRespiratoryPhysiology},
+    )::Cvoid
     d = RespiratoryPhysiology()
     unsafe_store!(
         out,
@@ -267,8 +284,8 @@ Base.@ccallable function gmp_respiratory_physiology_default(
 end
 
 Base.@ccallable function gmp_cardiac_physiology_default(
-    out::Ptr{GmpCardiacPhysiology},
-)::Cvoid
+        out::Ptr{GmpCardiacPhysiology},
+    )::Cvoid
     d = CardiacPhysiology()
     unsafe_store!(
         out,
@@ -280,6 +297,11 @@ Base.@ccallable function gmp_cardiac_physiology_default(
             d.a_amp_amp, d.a_amp_freq,
             d.bw_amp, d.bw_freq,
             d.s_frac_base,
+            d.s_frac_mod_amp, d.s_frac_mod_freq,
+            d.ventricular_ejection_power,
+            d.lv_filling_power, d.rv_filling_power,
+            d.atrial_fill_power, d.atrial_emptying_power,
+            d.atrial_phase_shift, d.atrial_bw_coupling,
             d.lv_kick_amp_frac, d.lv_kick_center, d.lv_kick_width,
             d.rv_kick_amp_frac, d.rv_kick_center, d.rv_kick_width,
             d.la_contr_amp_frac, d.la_contr_center, d.la_contr_width,
@@ -290,8 +312,8 @@ Base.@ccallable function gmp_cardiac_physiology_default(
 end
 
 Base.@ccallable function gmp_tissue_intensities_default(
-    out::Ptr{GmpTissueIntensities},
-)::Cvoid
+        out::Ptr{GmpTissueIntensities},
+    )::Cvoid
     d = TissueIntensities()
     unsafe_store!(
         out,
@@ -304,8 +326,8 @@ Base.@ccallable function gmp_tissue_intensities_default(
 end
 
 Base.@ccallable function gmp_tubes_geometry_default(
-    out::Ptr{GmpTubesGeometry},
-)::Cvoid
+        out::Ptr{GmpTubesGeometry},
+    )::Cvoid
     d = TubesGeometry()
     unsafe_store!(
         out,
@@ -319,10 +341,10 @@ end
 # out:          receives the GmpTubesIntensities struct with tube_fillings
 #               pointing to fillings_out.
 Base.@ccallable function gmp_tubes_intensities_default(
-    out::Ptr{GmpTubesIntensities},
-    fillings_out::Ptr{Cdouble},
-    n_tubes::Cint,
-)::Cvoid
+        out::Ptr{GmpTubesIntensities},
+        fillings_out::Ptr{Cdouble},
+        n_tubes::Cint,
+    )::Cvoid
     defaults = (0.1, 0.3, 0.5, 0.7, 0.9, 1.0)
     n = Int(n_tubes)
     for i in 1:min(n, length(defaults))
@@ -336,8 +358,8 @@ Base.@ccallable function gmp_tubes_intensities_default(
 end
 
 Base.@ccallable function gmp_shepp_logan_ct_default(
-    out::Ptr{GmpSheppLoganIntensities},
-)::Cvoid
+        out::Ptr{GmpSheppLoganIntensities},
+    )::Cvoid
     d = CTSheppLoganIntensities()
     unsafe_store!(
         out,
@@ -350,8 +372,8 @@ Base.@ccallable function gmp_shepp_logan_ct_default(
 end
 
 Base.@ccallable function gmp_shepp_logan_mri_default(
-    out::Ptr{GmpSheppLoganIntensities},
-)::Cvoid
+        out::Ptr{GmpSheppLoganIntensities},
+    )::Cvoid
     d = MRISheppLoganIntensities()
     unsafe_store!(
         out,
@@ -382,14 +404,14 @@ end
 # ---------------------------------------------------------------------------
 
 Base.@ccallable function gmp_generate_respiratory_signal(
-    duration::Cdouble,
-    fs::Cdouble,
-    rr::Cdouble,
-    phys_ptr::Ptr{GmpRespiratoryPhysiology},
-    t_out::Ptr{Cdouble},
-    sig_out::Ptr{Cdouble},
-    n::Cint,
-)::Cint
+        duration::Cdouble,
+        fs::Cdouble,
+        rr::Cdouble,
+        phys_ptr::Ptr{GmpRespiratoryPhysiology},
+        t_out::Ptr{Cdouble},
+        sig_out::Ptr{Cdouble},
+        n::Cint,
+    )::Cint
     try
         phys = to_julia(unsafe_load(phys_ptr))
         t, sig = generate_respiratory_signal(Float64(duration), Float64(fs), Float64(rr); physiology = phys)
@@ -405,17 +427,17 @@ Base.@ccallable function gmp_generate_respiratory_signal(
 end
 
 Base.@ccallable function gmp_generate_cardiac_signals(
-    duration::Cdouble,
-    fs::Cdouble,
-    hr::Cdouble,
-    phys_ptr::Ptr{GmpCardiacPhysiology},
-    t_out::Ptr{Cdouble},
-    lv_out::Ptr{Cdouble},
-    rv_out::Ptr{Cdouble},
-    la_out::Ptr{Cdouble},
-    ra_out::Ptr{Cdouble},
-    n::Cint,
-)::Cint
+        duration::Cdouble,
+        fs::Cdouble,
+        hr::Cdouble,
+        phys_ptr::Ptr{GmpCardiacPhysiology},
+        t_out::Ptr{Cdouble},
+        lv_out::Ptr{Cdouble},
+        rv_out::Ptr{Cdouble},
+        la_out::Ptr{Cdouble},
+        ra_out::Ptr{Cdouble},
+        n::Cint,
+    )::Cint
     try
         phys = to_julia(unsafe_load(phys_ptr))
         t, vols = generate_cardiac_signals(Float64(duration), Float64(fs), Float64(hr); physiology = phys)
@@ -438,12 +460,12 @@ end
 # ---------------------------------------------------------------------------
 
 Base.@ccallable function gmp_create_shepp_logan_phantom_3d(
-    nx::Cint,
-    ny::Cint,
-    nz::Cint,
-    ti_ptr::Ptr{GmpSheppLoganIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        nz::Cint,
+        ti_ptr::Ptr{GmpSheppLoganIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         ti = to_julia(unsafe_load(ti_ptr))
         phantom = create_shepp_logan_phantom(Int(nx), Int(ny), Int(nz); ti = ti, eltype = Float32)
@@ -457,13 +479,13 @@ end
 
 # axis: 0=axial, 1=coronal, 2=sagittal
 Base.@ccallable function gmp_create_shepp_logan_phantom_2d(
-    nx::Cint,
-    ny::Cint,
-    axis::Cint,
-    slice_pos::Cdouble,
-    ti_ptr::Ptr{GmpSheppLoganIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        axis::Cint,
+        slice_pos::Cdouble,
+        ti_ptr::Ptr{GmpSheppLoganIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         ax = axis_from_cint(axis)
         ax === nothing && return Cint(-2)
@@ -482,13 +504,13 @@ end
 # ---------------------------------------------------------------------------
 
 Base.@ccallable function gmp_create_tubes_phantom_3d(
-    nx::Cint,
-    ny::Cint,
-    nz::Cint,
-    tg_ptr::Ptr{GmpTubesGeometry},
-    ti_ptr::Ptr{GmpTubesIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        nz::Cint,
+        tg_ptr::Ptr{GmpTubesGeometry},
+        ti_ptr::Ptr{GmpTubesIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         tg = to_julia(unsafe_load(tg_ptr))
         ti = to_julia(unsafe_load(ti_ptr))
@@ -502,14 +524,14 @@ Base.@ccallable function gmp_create_tubes_phantom_3d(
 end
 
 Base.@ccallable function gmp_create_tubes_phantom_2d(
-    nx::Cint,
-    ny::Cint,
-    axis::Cint,
-    slice_pos::Cdouble,
-    tg_ptr::Ptr{GmpTubesGeometry},
-    ti_ptr::Ptr{GmpTubesIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        axis::Cint,
+        slice_pos::Cdouble,
+        tg_ptr::Ptr{GmpTubesGeometry},
+        ti_ptr::Ptr{GmpTubesIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         ax = axis_from_cint(axis)
         ax === nothing && return Cint(-2)
@@ -538,18 +560,18 @@ end
 #                 Data layout: Fortran (column-major) order, time as last dimension.
 
 Base.@ccallable function gmp_create_torso_phantom_3d(
-    nx::Cint,
-    ny::Cint,
-    nz::Cint,
-    n_frames::Cint,
-    resp::Ptr{Cdouble},
-    cardiac_lv::Ptr{Cdouble},
-    cardiac_rv::Ptr{Cdouble},
-    cardiac_la::Ptr{Cdouble},
-    cardiac_ra::Ptr{Cdouble},
-    ti_ptr::Ptr{GmpTissueIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        nz::Cint,
+        n_frames::Cint,
+        resp::Ptr{Cdouble},
+        cardiac_lv::Ptr{Cdouble},
+        cardiac_rv::Ptr{Cdouble},
+        cardiac_la::Ptr{Cdouble},
+        cardiac_ra::Ptr{Cdouble},
+        ti_ptr::Ptr{GmpTissueIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         ti = to_julia(unsafe_load(ti_ptr))
         nf = max(Int(n_frames), 1)
@@ -587,19 +609,19 @@ Base.@ccallable function gmp_create_torso_phantom_3d(
 end
 
 Base.@ccallable function gmp_create_torso_phantom_2d(
-    nx::Cint,
-    ny::Cint,
-    axis::Cint,
-    slice_pos::Cdouble,
-    n_frames::Cint,
-    resp::Ptr{Cdouble},
-    cardiac_lv::Ptr{Cdouble},
-    cardiac_rv::Ptr{Cdouble},
-    cardiac_la::Ptr{Cdouble},
-    cardiac_ra::Ptr{Cdouble},
-    ti_ptr::Ptr{GmpTissueIntensities},
-    out::Ptr{Cfloat},
-)::Cint
+        nx::Cint,
+        ny::Cint,
+        axis::Cint,
+        slice_pos::Cdouble,
+        n_frames::Cint,
+        resp::Ptr{Cdouble},
+        cardiac_lv::Ptr{Cdouble},
+        cardiac_rv::Ptr{Cdouble},
+        cardiac_la::Ptr{Cdouble},
+        cardiac_ra::Ptr{Cdouble},
+        ti_ptr::Ptr{GmpTissueIntensities},
+        out::Ptr{Cfloat},
+    )::Cint
     try
         ax = axis_from_cint(axis)
         ax === nothing && return Cint(-2)
@@ -653,13 +675,13 @@ let
     gmp_cleanup()
 
     # --- default-struct functions ---
-    _ct_ref  = Ref(GmpSheppLoganIntensities(ntuple(_ -> 0.0, 12)...))
+    _ct_ref = Ref(GmpSheppLoganIntensities(ntuple(_ -> 0.0, 12)...))
     _mri_ref = Ref(GmpSheppLoganIntensities(ntuple(_ -> 0.0, 12)...))
-    _rp_ref  = Ref(GmpRespiratoryPhysiology(ntuple(_ -> 0.0, 7)...))
-    _cp_ref  = Ref(GmpCardiacPhysiology(ntuple(_ -> 0.0, 29)...))
-    _ti_ref  = Ref(GmpTissueIntensities(ntuple(_ -> 0.0, 11)...))
-    _tg_ref  = Ref(GmpTubesGeometry(ntuple(_ -> 0.0, 5)...))
-    _tfi     = zeros(Cdouble, 4)
+    _rp_ref = Ref(GmpRespiratoryPhysiology(ntuple(_ -> 0.0, 7)...))
+    _cp_ref = Ref(GmpCardiacPhysiology(ntuple(_ -> 0.0, 38)...))
+    _ti_ref = Ref(GmpTissueIntensities(ntuple(_ -> 0.0, 11)...))
+    _tg_ref = Ref(GmpTubesGeometry(ntuple(_ -> 0.0, 5)...))
+    _tfi = zeros(Cdouble, 4)
     _tui_ref = Ref(GmpTubesIntensities(0.0, 0.0, pointer(_tfi), Cint(4)))
 
     GC.@preserve _ct_ref _mri_ref _rp_ref _cp_ref _ti_ref _tg_ref _tfi _tui_ref begin
@@ -672,50 +694,58 @@ let
         # signature: (out::Ptr{GmpTubesIntensities}, fillings_out::Ptr{Cdouble}, n_tubes::Cint)
         gmp_tubes_intensities_default(
             Base.unsafe_convert(Ptr{GmpTubesIntensities}, _tui_ref),
-            pointer(_tfi), Cint(4))
+            pointer(_tfi), Cint(4)
+        )
     end
 
     # --- phantom functions (small grids) ---
-    _p3  = zeros(Float32, 4 * 4 * 4)
-    _p2  = zeros(Float32, 4 * 4)
-    _p4  = zeros(Float32, 4 * 4 * 4 * 1)
+    _p3 = zeros(Float32, 4 * 4 * 4)
+    _p2 = zeros(Float32, 4 * 4)
+    _p4 = zeros(Float32, 4 * 4 * 4 * 1)
 
     GC.@preserve _ct_ref _mri_ref _tg_ref _tui_ref _ti_ref _p3 _p2 _p4 begin
         gmp_create_shepp_logan_phantom_3d(
             Cint(4), Cint(4), Cint(4),
-            Base.unsafe_convert(Ptr{GmpSheppLoganIntensities}, _ct_ref), pointer(_p3))
+            Base.unsafe_convert(Ptr{GmpSheppLoganIntensities}, _ct_ref), pointer(_p3)
+        )
         gmp_create_shepp_logan_phantom_2d(
             Cint(4), Cint(4), Cint(0), 0.0,
-            Base.unsafe_convert(Ptr{GmpSheppLoganIntensities}, _ct_ref), pointer(_p2))
+            Base.unsafe_convert(Ptr{GmpSheppLoganIntensities}, _ct_ref), pointer(_p2)
+        )
         gmp_create_tubes_phantom_3d(
             Cint(4), Cint(4), Cint(4),
             Base.unsafe_convert(Ptr{GmpTubesGeometry}, _tg_ref),
-            Base.unsafe_convert(Ptr{GmpTubesIntensities}, _tui_ref), pointer(_p3))
+            Base.unsafe_convert(Ptr{GmpTubesIntensities}, _tui_ref), pointer(_p3)
+        )
         gmp_create_tubes_phantom_2d(
             Cint(4), Cint(4), Cint(0), 0.0,
             Base.unsafe_convert(Ptr{GmpTubesGeometry}, _tg_ref),
-            Base.unsafe_convert(Ptr{GmpTubesIntensities}, _tui_ref), pointer(_p2))
+            Base.unsafe_convert(Ptr{GmpTubesIntensities}, _tui_ref), pointer(_p2)
+        )
         _null_f64 = Ptr{Cdouble}(0)
         gmp_create_torso_phantom_3d(
             Cint(4), Cint(4), Cint(4), Cint(1),
             _null_f64, _null_f64, _null_f64, _null_f64, _null_f64,
-            Base.unsafe_convert(Ptr{GmpTissueIntensities}, _ti_ref), pointer(_p4))
+            Base.unsafe_convert(Ptr{GmpTissueIntensities}, _ti_ref), pointer(_p4)
+        )
         gmp_create_torso_phantom_2d(
             Cint(4), Cint(4), Cint(0), 0.0, Cint(1),
             _null_f64, _null_f64, _null_f64, _null_f64, _null_f64,
-            Base.unsafe_convert(Ptr{GmpTissueIntensities}, _ti_ref), pointer(_p4))
+            Base.unsafe_convert(Ptr{GmpTissueIntensities}, _ti_ref), pointer(_p4)
+        )
     end
 
     # --- signal functions ---
     # signature: (duration, fs, rr, phys_ptr, t_out, sig_out, n)
-    _n     = gmp_signal_length(1.0, 10.0)
+    _n = gmp_signal_length(1.0, 10.0)
     _t_buf = zeros(Cdouble, _n)
     _s_buf = zeros(Cdouble, _n)
     GC.@preserve _rp_ref _t_buf _s_buf begin
         gmp_generate_respiratory_signal(
             1.0, 10.0, 15.0,
             Base.unsafe_convert(Ptr{GmpRespiratoryPhysiology}, _rp_ref),
-            pointer(_t_buf), pointer(_s_buf), Cint(_n))
+            pointer(_t_buf), pointer(_s_buf), Cint(_n)
+        )
     end
     # signature: (duration, fs, hr, phys_ptr, t_out, lv, rv, la, ra, n)
     _lv = zeros(Cdouble, _n); _rv = zeros(Cdouble, _n)
@@ -725,7 +755,8 @@ let
             1.0, 10.0, 70.0,
             Base.unsafe_convert(Ptr{GmpCardiacPhysiology}, _cp_ref),
             pointer(_t_buf), pointer(_lv), pointer(_rv), pointer(_la), pointer(_ra),
-            Cint(_n))
+            Cint(_n)
+        )
     end
 end
 

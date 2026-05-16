@@ -203,8 +203,8 @@ written as regular Python attributes.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `min_l` | `float` | 2.4 | Minimum lung volume (L) |
-| `max_l` | `float` | 3.0 | Maximum lung volume (L) |
+| `minL` | `float` | 2.4 | Minimum lung volume (L) |
+| `maxL` | `float` | 3.0 | Maximum lung volume (L) |
 | `asym_amp` | `float` | 0.2 | Asymmetry harmonic amplitude |
 | `amp_mod_amp` | `float` | 0.15 | Amplitude modulation amplitude |
 | `amp_mod_freq` | `float` | 0.05 | Amplitude modulation frequency (Hz) |
@@ -225,7 +225,7 @@ written as regular Python attributes.
 | `la_max` | `float` | 60 | LA maximum volume (mL) |
 | `ra_min` | `float` | 30 | RA minimum volume (mL) |
 | `ra_max` | `float` | 60 | RA maximum volume (mL) |
-| `hr_var_amp` | `float` | 0.0 | HR variability amplitude |
+| `hr_var_amp` | `float` | 0.03 | HR variability amplitude |
 | `hr_var_freq` | `float` | 0.1 | HR variability frequency (Hz) |
 | `v_amp_amp` | `float` | 0.0 | Ventricular amplitude-modulation amplitude |
 | `v_amp_freq` | `float` | 0.08 | Ventricular amplitude-modulation frequency (Hz) |
@@ -234,6 +234,15 @@ written as regular Python attributes.
 | `bw_amp` | `float` | 0.0 | Baseline wander amplitude (mL) |
 | `bw_freq` | `float` | 0.03 | Baseline wander frequency (Hz) |
 | `s_frac_base` | `float` | 0.35 | Base systole fraction (0–1) |
+| `s_frac_mod_amp` | `float` | 0.08 | Systole-fraction modulation amplitude |
+| `s_frac_mod_freq` | `float` | 0.1 | Systole-fraction modulation frequency (Hz) |
+| `ventricular_ejection_power` | `float` | 3.0 | Ventricular emptying sharpness |
+| `lv_filling_power` | `float` | 2.2 | LV filling sharpness |
+| `rv_filling_power` | `float` | 2.0 | RV filling sharpness |
+| `atrial_fill_power` | `float` | 1.5 | Atrial filling sharpness |
+| `atrial_emptying_power` | `float` | 3.0 | Atrial emptying sharpness |
+| `atrial_phase_shift` | `float` | 0.7 | Atrial phase shift relative to ventricles |
+| `atrial_bw_coupling` | `float` | 0.8 | Atrial baseline-wander coupling |
 | `lv_kick_amp_frac` | `float` | 0.07 | LV atrial kick amplitude fraction |
 | `lv_kick_center` | `float` | 0.92 | LV atrial kick centre (phase, 0–1) |
 | `lv_kick_width` | `float` | 0.04 | LV atrial kick width |

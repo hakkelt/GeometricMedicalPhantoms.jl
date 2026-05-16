@@ -124,12 +124,8 @@ for the exact filenames.  A pure-Python stub is also on
 
 ### MATLAB toolbox
 
-The MATLAB toolbox uses Julia via Mex.jl and requires Julia to be installed on
-the system. It does not depend on the shared library above.
+The MATLAB toolbox shells out to the standalone `geomphantoms` CLI executable.
+It does not depend on the shared library above, but it does require the CLI
+bundle to be installed or built locally.
 
-| Platform | Download |
-|---|---|
-| Linux x86-64 | [GeometricMedicalPhantoms-matlab-glnxa64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-glnxa64.mltbx) |
-| macOS Intel | [GeometricMedicalPhantoms-matlab-maci64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-maci64.mltbx) |
-| macOS Apple Silicon | [GeometricMedicalPhantoms-matlab-maca64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-maca64.mltbx) |
-| Windows x86-64 | [GeometricMedicalPhantoms-matlab-win64.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab-win64.mltbx) |
+[GeometricMedicalPhantoms-matlab.mltbx](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/releases/latest/download/GeometricMedicalPhantoms-matlab.mltbx)

@@ -6,10 +6,8 @@ function build_toolbox(varargin)
 %   build_toolbox('1.2.3')            – override version string
 %   build_toolbox('1.2.3', out_dir)  – write .mltbx to out_dir
 %
-% The toolbox is packaged from lib/matlab/toolbox/.  The toolbox contains
-% only platform-independent MATLAB (.m) and Julia (.jl) files; no compiled
-% binary is bundled.  Mex.jl and the GeometricMedicalPhantoms Julia package
-% must be installed separately on the user's machine (see lib/matlab/setup.jl).
+% The toolbox is packaged from lib/matlab/toolbox/.  No CLI binary is bundled.
+% Users must install or build the standalone `geomphantoms` CLI separately.
 %
 % This script is designed to be called from CI:
 %   matlab -batch "build_toolbox('1.0.2')"
@@ -27,7 +25,7 @@ function build_toolbox(varargin)
     project_root   = fileparts(mfilename('fullpath'));
     toolbox_folder = fullfile(project_root, 'lib', 'matlab', 'toolbox');
 
-    % The toolbox is platform-independent (pure .m and .jl files only).
+    % The toolbox is platform-independent (pure .m files only).
     out_name = 'GeometricMedicalPhantoms-matlab.mltbx';
 
     if nargin >= 2
@@ -45,15 +43,15 @@ function build_toolbox(varargin)
 
     opts.ToolboxName    = 'GeometricMedicalPhantoms';
     opts.ToolboxVersion = version_str;
-    opts.AuthorName     = 'hakkelt';
+    opts.AuthorName     = 'Tamás Hakkel';
     opts.AuthorEmail    = '';
     opts.Summary        = 'Geometric medical phantoms for MRI/CT simulation';
     opts.Description    = [ ...
-        'MATLAB interface to GeometricMedicalPhantoms.jl via Mex.jl. ' ...
+        'MATLAB interface to the GeometricMedicalPhantoms CLI. ' ...
         'Provides Shepp-Logan, Tubes, and Torso phantoms (2-D and 3-D) ' ...
         'with realistic respiratory and cardiac motion signals. ' ...
-        'Requires Julia, GeometricMedicalPhantoms.jl, and Mex.jl to be ' ...
-        'installed (run lib/matlab/setup.jl once).'];
+        'Requires the standalone geomphantoms CLI executable to be ' ...
+        'installed or built locally.'];
     opts.OutputFile     = output_file;
 
     matlab.addons.toolbox.packageToolbox(opts);
