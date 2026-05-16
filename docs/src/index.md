@@ -19,7 +19,7 @@ The package provides three distinct phantom types suited to different needs:
 | Phantom | Purpose | Dimensions | Features |
 |---------|---------|-----------|----------|
 | **Shepp-Logan** | Classic test phantom | 2D slices or 3D volume | Multiple intensity options, tissue masking |
-| **Torso** | Anatomical realism | 2D slices of 3D anatomy | Heart, lungs, liver, vessels, physiological motion |
+| **Torso** | Validation for dynamic imaging | 2D slices of 3D anatomy | Heart, lungs, liver, vessels, physiological motion |
 | **Tubes** | Validation & QC | 2D or 3D | Geometric precision, customizable configuration |
 
 ## Quick Start

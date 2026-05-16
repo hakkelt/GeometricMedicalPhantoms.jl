@@ -4,7 +4,6 @@
 Struct to store the parameters of a superellipsoid.
 
 The points (x, y, z) inside the superellipsoid satisfy the equation:
-
     ``(\frac{|x - cx|}{rx})^{ex[1]} + (\frac{|y - cy|}{ry})^{ex[2]} + (\frac{|z - cz|}{rz})^{ex[3]} \leq 1``
 
 Fields:
