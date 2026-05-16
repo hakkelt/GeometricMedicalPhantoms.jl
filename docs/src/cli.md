@@ -20,11 +20,16 @@ Download the latest release for your platform from the
     You need x86_64 binaries for Intel/AMD CPUs and aarch64 binaries for Apple Silicon or ARM-based Linux systems. ARM-based Windows is not currently supported.
 
 !!! tip "Quarantined binary on MacOS"
-    Antivirus softwares may quarantine the downloaded binary on macOS. If you encounter a "damaged" error when running the CLI (e.g. `“libgifextra.dylib” is damaged and can’t be opened. You should move it to the Bin.`), you can unquarantine it with:
+    Antivirus softwares may quarantine and/or block the downloaded binary on macOS.
+    
+    If you encounter a "damaged" error when running the CLI (e.g. `“libgifextra.dylib” is damaged and can’t be opened. You should move it to the Bin.`), you can unquarantine it with:
     ```bash
     chmod -R u+w <some-path>/geomphantoms-macos-aarch64 && xattr -dr com.apple.quarantine <some-path>/geomphantoms-macos-aarch64
     ```
-    For more info, see [this issue](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/issues/30)
+
+    You also might need to allow the app in _System Preferences → Security & Privacy → Security → Allow Anyway_. After that, you should be able to run the CLI without issues.
+
+    For more info, see [this issue](https://github.com/hakkelt/GeometricMedicalPhantoms.jl/issues/30) that includes more context and screenshots.
 
 Extract and run directly:
 
