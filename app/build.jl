@@ -20,7 +20,7 @@ link = LinkRecipe(
     image_recipe = img,
     outname = "build/bin/geomphantoms",
     rpath = "@bundle",
-    ld_flags = ["-lm"]
+    ld_flags = Sys.islinux() ? ["-Wl,--no-as-needed", "-lm"] : ["-lm"]
 )
 
 bun = BundleRecipe(
