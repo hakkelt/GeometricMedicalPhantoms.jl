@@ -22,8 +22,8 @@ function build_toolbox(varargin)
         version_str = char(varargin{1});
     end
 
-    project_root   = fileparts(mfilename('fullpath'));
-    toolbox_folder = fullfile(project_root, 'lib', 'matlab', 'toolbox');
+    toolbox_root   = fileparts(mfilename('fullpath'));
+    toolbox_folder = fullfile(toolbox_root, 'toolbox');
 
     % The toolbox is platform-independent (pure .m files only).
     out_name = 'GeometricMedicalPhantoms-matlab.mltbx';
@@ -31,7 +31,7 @@ function build_toolbox(varargin)
     if nargin >= 2
         out_dir = char(varargin{2});
     else
-        out_dir = project_root;
+        out_dir = toolbox_root;
     end
     output_file = fullfile(out_dir, out_name);
 
