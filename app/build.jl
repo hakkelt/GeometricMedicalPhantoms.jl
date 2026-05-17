@@ -13,7 +13,7 @@ img = ImageRecipe(
     file = "main.jl",
     #trim_mode = "safe",
     add_ccallables = false,
-    verbose = false,
+    verbose = "CI" in keys(ENV) && ENV["CI"] == "true",
 )
 
 link = LinkRecipe(

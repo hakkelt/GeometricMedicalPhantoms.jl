@@ -59,19 +59,7 @@ jobs:
         with:
           version: '1.12'
 
-      - name: Install JuliaC (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        env:
-          JULIA_NUM_THREADS: '1'
-          JULIA_IMAGE_THREADS: '1'
-          JULIA_NUM_PRECOMPILE_TASKS: '1'
-          OPENBLAS_NUM_THREADS: '1'
-          OMP_NUM_THREADS: '1'
-        run: |
-          julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", version="0.3.1"))'
-
-      - name: Install JuliaC (non-Ubuntu)
-        if: matrix.os != 'ubuntu-latest'
+      - name: Install JuliaC
         run: |
           julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="JuliaC", version="0.3.1"))'
 
@@ -108,20 +96,8 @@ jobs:
           swapon --show
           free -h
 
-      - name: Prepare CLI app dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: app
-        env:
-          JULIA_NUM_THREADS: '1'
-          JULIA_IMAGE_THREADS: '1'
-          JULIA_NUM_PRECOMPILE_TASKS: '1'
-          OPENBLAS_NUM_THREADS: '1'
-          OMP_NUM_THREADS: '1'
-        run: |
-          julia --project=. -e 'using Pkg; Pkg.instantiate()'
-
-      - name: Prepare CLI app dependencies (non-Ubuntu, non-Windows)
-        if: runner.os != 'Windows' && matrix.os != 'ubuntu-latest'
+      - name: Prepare CLI app dependencies (non-Windows)
+        if: runner.os != 'Windows'
         working-directory: app
         run: |
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
@@ -132,32 +108,7 @@ jobs:
         run: |
           julia --project=. -e 'using Pkg; Pkg.rm("GIFImages"); Pkg.instantiate()'
 
-      - name: Build CLI executable (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: app
-        shell: bash
-        env:
-          JULIA_NUM_THREADS: '1'
-          JULIA_IMAGE_THREADS: '1'
-          JULIA_NUM_PRECOMPILE_TASKS: '1'
-          OPENBLAS_NUM_THREADS: '1'
-          OMP_NUM_THREADS: '1'
-        run: |
-          set -euo pipefail
-          (
-            while true; do
-              echo "=== Resource snapshot $(date -u +"%Y-%m-%dT%H:%M:%SZ") ==="
-              free -h
-              swapon --show
-              sleep 30
-            done
-          ) &
-          monitor_pid=$!
-          trap 'kill "$monitor_pid" || true' EXIT
-          julia --project=. build.jl
-
-      - name: Build CLI executable (non-Ubuntu)
-        if: matrix.os != 'ubuntu-latest'
+      - name: Build CLI executable
         working-directory: app
         run: |
           julia --project=. build.jl
