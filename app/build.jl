@@ -13,14 +13,14 @@ img = ImageRecipe(
     file = "main.jl",
     #trim_mode = "safe",
     add_ccallables = false,
-    verbose = false,
+    verbose = "CI" in keys(ENV) && ENV["CI"] == "true",
 )
 
 link = LinkRecipe(
     image_recipe = img,
     outname = "build/bin/geomphantoms",
     rpath = "@bundle",
-    ld_flags = ["-lm"]
+    ld_flags = Sys.islinux() ? ["-Wl,--no-as-needed", "-lm"] : ["-lm"]
 )
 
 bun = BundleRecipe(
