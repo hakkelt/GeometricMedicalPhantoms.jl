@@ -24,46 +24,75 @@
 ```julia
 using Pkg
 Pkg.add("GeometricMedicalPhantoms")
+
+# Optionally, for visualization:
+Pkg.add(["MIRTjim", "Plots"])
 ```
 
 ## Quick Start
 
-### Shepp-Logan Phantom
+Here's a typical workflow:
 
 ```julia
 using GeometricMedicalPhantoms
 using MIRTjim: jim
-
-# Create a 2D Shepp-Logan phantom
-phantom = create_shepp_logan_phantom(256, 256, :axial)
-jim(phantom; title="Shepp-Logan Phantom")
+using Plots
 ```
 
-### Torso Phantom with Motion
+### Shepp-Logan Phantom
 
 ```julia
-# Generate respiratory signal (10 seconds at 24 Hz)
-fs = 24.0
-duration = 10.0
-resp_signal = range(1.2, 6.0, length=Int(fs*duration))
+# Create a Shepp-Logan phantom (2D axial slice)
+phantom_2d = create_shepp_logan_phantom(256, 256, :axial) # Shape: (256, 256)
 
-# Create 4D phantom with respiratory motion
-phantom_4d = create_torso_phantom(128, 128, 128; 
-    respiratory_signal=resp_signal)
-
-# Shape: (128, 128, 128, 240) - spatial + temporal
+# Visualize it
+jim(phantom_2d; title="Shepp-Logan Phantom", clim=(0.95, 1.05), yflip=false)
 ```
+
+![Shepp-Logan phantom axial slice](https://hakkelt.github.io/GeometricMedicalPhantoms.jl/v1.0.3/index_shepp_logan.png)
+
+### Dynamic Torso Phantom
+
+```julia
+# Create a Torso phantom animation with respiratory and cardiac motion
+using FileIO
+
+duration = 2.0           # seconds
+fs = 12.0                # frames per second
+respiration_rate = 12.0  # breaths per minute
+heart_rate = 72.0        # beats per minute
+
+_, resp_liters = generate_respiratory_signal(duration, fs, respiration_rate)
+_, cardiac_liters = generate_cardiac_signals(duration, fs, heart_rate)
+
+torso_4d = create_torso_phantom(350, 350, :coronal; # Shape: (128, 128, 128, 240) - spatial + temporal
+    respiratory_signal=resp_liters,
+    cardiac_volumes=cardiac_liters)
+
+nt = length(resp_liters)
+max_val = maximum(abs.(torso_4d))
+
+frames_coronal_temporal = zeros(UInt8, 350, 350, nt)
+for i in 1:nt
+    slice = reverse(abs.(torso_4d[:, :, i])', dims=1)
+    frames_coronal_temporal[:, :, i] = map(x -> UInt8(round(clamp(x / max_val, 0, 1) * 255)), slice)
+end
+
+save("index_torso.gif", frames_coronal_temporal, fps=fs)
+```
+
+![Torso phantom animation coronal slice](https://hakkelt.github.io/GeometricMedicalPhantoms.jl/v1.0.3/index_torso.gif)
 
 ### Tubes Phantom
 
 ```julia
-# Create validation phantom with custom intensities
-phantom = create_tubes_phantom(256, 256, 256;
-    ti=TubesIntensities(
-        outer_cylinder=0.3,
-        tube_fillings=[0.2, 0.4, 0.6, 0.8, 1.0]
-    ))
+# Create a validation phantom
+tubes = create_tubes_phantom(256, 256, 256) # Shape: (256, 256, 256) - 3D volume with multiple tubes of varying intensities
+
+jim(tubes[:, :, div(end, 2)]; title="Tubes Phantom (Middle Slice)")
 ```
+
+![Tubes phantom middle slice](https://hakkelt.github.io/GeometricMedicalPhantoms.jl/v1.0.3/index_tubes.png)
 
 ## Documentation
 
