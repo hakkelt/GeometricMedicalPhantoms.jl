@@ -46,7 +46,7 @@ jobs:
       JULIA_CPU_TARGET: ${{ matrix.julia-cpu-target }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Extract semver from the tag (v1.2.3 → 1.2.3) for use in artifact names.
       - name: Set version string
@@ -239,7 +239,7 @@ jobs:
       id-token: write   # required for OIDC trusted publishing
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
