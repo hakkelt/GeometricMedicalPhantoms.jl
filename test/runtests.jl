@@ -13,6 +13,7 @@ using Test
     include("test_generate_cardiac_signals.jl")
     include("test_create_torso_phantom_2D.jl")
     include("test_create_torso_phantom_3D.jl")
+    include("test_supersample.jl")
 
     # Quality assurance tests
     include("test_aqua.jl")

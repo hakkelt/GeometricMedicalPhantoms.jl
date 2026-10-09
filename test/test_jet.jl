@@ -29,6 +29,7 @@ const GMP = GeometricMedicalPhantoms
 
         # Shepp-Logan — 2D
         @test_opt target_modules = (GMP,) create_shepp_logan_phantom(n, n, :axial)
+        @test_opt target_modules = (GMP,) create_shepp_logan_phantom(n, n, :axial; supersample = 2)
 
         # Tubes — 3D
         @test_opt target_modules = (GMP,) create_tubes_phantom(n, n, n)
