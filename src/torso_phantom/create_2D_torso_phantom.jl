@@ -1,4 +1,4 @@
-function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov = (30, 30), slice_position::Real = 0.0, respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
+function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov = (30, 30), slice_position::Real = 0.0, respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32, supersample::Integer = 1) where {T}
     # 1) Validate inputs
     if nx <= 0 || ny <= 0
         throw(ArgumentError("nx, ny must be positive integers"))
@@ -9,19 +9,26 @@ function create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov = (30, 30), sl
     # keyword arguments are bundled into a NamedTuple at the call site, which widens
     # Type{Float32} → DataType and breaks the ::Type{T} dispatch in preallocate_phantom_array.
     if axis === :axial
-        return _create_torso_phantom_2d(nx, ny, Val(:axial), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:axial), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti, supersample = supersample)
     elseif axis === :coronal
-        return _create_torso_phantom_2d(nx, ny, Val(:coronal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:coronal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti, supersample = supersample)
     elseif axis === :sagittal
-        return _create_torso_phantom_2d(nx, ny, Val(:sagittal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti)
+        return _create_torso_phantom_2d(nx, ny, Val(:sagittal), eltype; fov = fov, slice_position = slice_position, respiratory_signal = respiratory_signal, cardiac_volumes = cardiac_volumes, ti = ti, supersample = supersample)
     else
         throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
     end
 end
 
-function _create_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}; fov, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters) where {A, T}
+function _create_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}; fov, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters, supersample::Integer) where {A, T}
+    check_supersample_eltype(supersample, ti isa TissueMask)
+    return render_supersampled(supersample, Val(2)) do offset
+        _render_torso_phantom_2d(nx, ny, Val(A), T, offset; fov, slice_position, respiratory_signal, cardiac_volumes, ti)
+    end
+end
+
+function _render_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}, offset; fov, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters) where {A, T}
     # 2) Setup motion signals and parameters
-    ax_1n, ax_2n, ax_3_val = define_phantom_axes_2d(nx, ny, fov, slice_position)
+    ax_1n, ax_2n, ax_3_val = define_phantom_axes_2d(nx, ny, fov, slice_position, offset)
     respiratory_signal, cardiac_volumes, nt = setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
@@ -63,11 +70,11 @@ end
 Helper function to define 2D coordinate axes for phantom slice generation.
 Returns (ax_1n, ax_2n, ax_3_val) based on slice orientation.
 """
-function define_phantom_axes_2d(nx::Int, ny::Int, fov::Tuple, slice_position::Real)
-    # Create axes for the two in-plane dimensions
+function define_phantom_axes_2d(nx::Int, ny::Int, fov::Tuple, slice_position::Real, offset = (0.0, 0.0))
+    # Create axes for the two in-plane dimensions, voxel centres moved by `offset` voxels
     Δ1, Δ2 = fov[1] / nx, fov[2] / ny
-    ax_1 = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δ1
-    ax_2 = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δ2
+    ax_1 = (range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .+ offset[1]) .* Δ1
+    ax_2 = (range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .+ offset[2]) .* Δ2
 
     # Normalize to [-1, 1] range
     ax_1n = @. 2 * ax_1 / TORSO_REFERENCE_FOV_CM

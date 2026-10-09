@@ -1,6 +1,6 @@
 """
-    create_torso_phantom(nx::Int, ny::Int, nz::Int; fov=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32) -> Array{eltype, 4}
-    create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov=(30, 30), slice_position=0.0, eltype=Float32) -> Array{eltype, 3}
+    create_torso_phantom(nx::Int, ny::Int, nz::Int; fov=(30, 30, 30), respiratory_signal=nothing, cardiac_volumes=nothing, ti::AbstractTissueParameters=TissueIntensities(), eltype=Float32, supersample=1) -> Array{eltype, 4}
+    create_torso_phantom(nx::Int, ny::Int, axis::Symbol; fov=(30, 30), slice_position=0.0, eltype=Float32, supersample=1) -> Array{eltype, 3}
 
 Generate a 3D torso phantom with anatomical structures including torso outline, lungs, heart, and vessels.
 
@@ -17,6 +17,7 @@ Generate a 3D torso phantom with anatomical structures including torso outline, 
 - `cardiac_volumes::Union{Nothing,NamedTuple}=nothing`: Cardiac volumes in mL for 4D phantom generation; must have fields :lv, :rv, :la, :ra
 - `ti::AbstractTissueParameters=TissueIntensities()`: Tissue parameters (TissueIntensities or TissueMask) for different structures
 - `eltype=Float32`: Element type for the generated phantom array (Float32, Float64, ComplexF32, ComplexF64, etc.). When TissueMask is passed, returns BitArray regardless of eltype.
+- `supersample=1`: Sample points per voxel along each spatial (3D) or in-plane (2D) dimension. Each voxel holds the mean of `supersample^D` point samples spread evenly over the voxel (area sampling), which reduces the aliasing of the rasterized phantom in k-space. Rendering takes `supersample^D` times as long. Not available with `TissueMask`.
 
 # Returns
 - Array{eltype, 4}: 4D phantom array with size (nx, ny, nz, nt) where nt is the number of time frames. Returns BitArray when TissueMask is passed.
@@ -43,7 +44,7 @@ lung_mask = TissueMask(lung=true)
 phantom_mask = create_torso_phantom(128, 128, 128; ti=lung_mask)  # BitArray
 ```
 """
-function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fov = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32) where {T}
+function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fov = (30, 30, 30), respiratory_signal = nothing, cardiac_volumes = nothing, ti::AbstractTissueParameters = TissueIntensities(), eltype::Type{T} = Float32, supersample::Integer = 1) where {T}
     # 1) Validate inputs
     if nx <= 0 || ny <= 0 || nz <= 0
         throw(ArgumentError("nx, ny, nz must be positive integers"))
@@ -54,10 +55,13 @@ function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fov =
     resp_length = isnothing(respiratory_signal) ? 1 : length(respiratory_signal)
     cardiac_length = isnothing(cardiac_volumes) ? 1 : length(cardiac_volumes.lv)
     nt = max(resp_length, cardiac_length)
-    phantom4d, static_image = preallocate_phantom_array(nx, ny, nz, nt, eltype, ti)
-    static_bones_mask = fill(false, nx, ny, nz)
-
-    draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes)
+    check_supersample_eltype(supersample, ti isa TissueMask)
+    phantom4d = render_supersampled(supersample, Val(3)) do offset
+        frames, static_image = preallocate_phantom_array(nx, ny, nz, nt, T, ti)
+        static_bones_mask = fill(false, nx, ny, nz)
+        draw_3D_torso_phantom!(frames, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes, offset)
+        frames
+    end
     return to_bitarray_if_mask(phantom4d, ti)
 end
 
@@ -77,10 +81,10 @@ function to_bitarray_if_mask(phantom, ::AbstractTissueParameters)
     return phantom
 end
 
-function draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes)
+function draw_3D_torso_phantom!(phantom4d, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes, offset = (0.0, 0.0, 0.0))
     # 3) Setup motion signals and parameters
     nx, ny, nz, nt = size(phantom4d)
-    ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fov)
+    ax_xn, ax_yn, ax_zn = define_phantom_axes(nx, ny, nz, fov, offset)
     respiratory_signal, cardiac_volumes, nt = setup_and_validate_motion_signals(respiratory_signal, cardiac_volumes)
     lv_scales, rv_scales, la_scales, ra_scales, cardiac_scales_max = precompute_cardiac_scales(cardiac_volumes, nt)
 
@@ -116,11 +120,12 @@ end
 Helper function to define coordinate axes for phantom generation.
 Returns normalized axes in the range [-1, 1].
 """
-function define_phantom_axes(nx::Int, ny::Int, nz::Int, fov::Tuple)
+function define_phantom_axes(nx::Int, ny::Int, nz::Int, fov::Tuple, offset = (0.0, 0.0, 0.0))
+    # Voxel centres moved by `offset` voxels
     Δx, Δy, Δz = fov[1] / nx, fov[2] / ny, fov[3] / nz
-    ax_x = range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .* Δx
-    ax_y = range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .* Δy
-    ax_z = range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .* Δz
+    ax_x = (range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .+ offset[1]) .* Δx
+    ax_y = (range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .+ offset[2]) .* Δy
+    ax_z = (range(-(nz - 1) / 2, (nz - 1) / 2, length = nz) .+ offset[3]) .* Δz
 
     # Normalize to [-1, 1] range for easier ellipsoid definitions
     ax_xn = @. 2 * ax_x / TORSO_REFERENCE_FOV_CM

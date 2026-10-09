@@ -83,3 +83,26 @@ end
     draw!(ctx.image, ctx.ax_1, ctx.ax_2, ctx.ax_3_val, rotated)
     return nothing
 end
+
+# Area sampling: the mean of `supersample^D` point-sampled renderings, each on the voxel grid
+# shifted by a sub-voxel offset. `render(offset)` returns the phantom with every voxel centre
+# moved by `offset[d]` voxels along dimension `d`; the offsets are the centres of a regular
+# `supersample^D` grid inside the voxel.
+function render_supersampled(render, supersample::Integer, ::Val{D}) where {D}
+    supersample >= 1 || throw(ArgumentError("supersample must be a positive integer, got $supersample"))
+    supersample == 1 && return render(ntuple(_ -> 0.0, Val(D)))
+    shifts = ((k - (supersample + 1) / 2) / supersample for k in 1:supersample)
+    offsets = Iterators.product(ntuple(_ -> shifts, Val(D))...)
+    acc = render(first(offsets))
+    for offset in Iterators.drop(offsets, 1)
+        acc .+= render(offset)
+    end
+    acc ./= supersample^D
+    return acc
+end
+
+function check_supersample_eltype(supersample::Integer, is_mask::Bool)
+    supersample == 1 || !is_mask ||
+        throw(ArgumentError("supersample > 1 averages intensities and does not apply to a mask phantom"))
+    return nothing
+end
