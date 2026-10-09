@@ -20,11 +20,11 @@ The intensities `ti` can be specified using `CTSheppLoganIntensities()` (default
   for simulated k-space. A 2D slice is averaged in-plane only. Rendering takes `supersample^D`
   times as long; memory is that of two phantoms. Not available for mask phantoms.
 """
-function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fov::Tuple{<:Real, <:Real, <:Real} = (20.0, 20.0, 20.0), ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32, supersample::Integer = 1)
-    is_mask = ti isa SheppLoganIntensities{Bool}
-    check_supersample_eltype(supersample, is_mask)
+function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fov::Tuple{<:Real, <:Real, <:Real} = (20.0, 20.0, 20.0), ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type{T} = Float32, supersample::Integer = 1) where {T}
+    check_supersample_eltype(supersample, ti isa SheppLoganIntensities{Bool})
 
     Δx, Δy, Δz = fov[1] / nx, fov[2] / ny, fov[3] / nz
+    # The closure reads the element type and the mask flag from types, so they stay constants.
     return render_supersampled(supersample, Val(3)) do offset
         ax_x = (range(-(nx - 1) / 2, (nx - 1) / 2, length = nx) .+ offset[1]) .* Δx
         ax_y = (range(-(ny - 1) / 2, (ny - 1) / 2, length = ny) .+ offset[2]) .* Δy
@@ -34,10 +34,10 @@ function create_shepp_logan_phantom(nx::Int, ny::Int, nz::Int; fov::Tuple{<:Real
         ax_yn = ax_y ./ 8
         ax_zn = ax_z ./ 8
 
-        phantom = if is_mask
+        phantom = if ti isa SheppLoganIntensities{Bool}
             falses(nx, ny, nz)
         else
-            zeros(eltype, nx, ny, nz)
+            zeros(T, nx, ny, nz)
         end
 
         ctx = DrawContext3D(phantom, ax_xn, ax_yn, ax_zn)
@@ -50,21 +50,21 @@ end
 
 function create_shepp_logan_phantom(nx::Int, ny::Int, axis::Symbol; fov::Tuple{<:Real, <:Real} = (20.0, 20.0), slice_position::Real = 0.0, ti::SheppLoganIntensities = CTSheppLoganIntensities(), eltype::Type = Float32, supersample::Integer = 1)
     # Use explicit if/elseif with literal Val symbols so JET can infer Val{:axial} etc.
-    kw = (; fov, slice_position, ti, eltype, supersample)
+    # The element type is passed positionally: as a keyword it would widen to `DataType`.
+    kw = (; fov, slice_position, ti, supersample)
     if axis === :axial
-        return _create_shepp_logan_2d(nx, ny, Val(:axial); kw...)
+        return _create_shepp_logan_2d(nx, ny, Val(:axial), eltype; kw...)
     elseif axis === :coronal
-        return _create_shepp_logan_2d(nx, ny, Val(:coronal); kw...)
+        return _create_shepp_logan_2d(nx, ny, Val(:coronal), eltype; kw...)
     elseif axis === :sagittal
-        return _create_shepp_logan_2d(nx, ny, Val(:sagittal); kw...)
+        return _create_shepp_logan_2d(nx, ny, Val(:sagittal), eltype; kw...)
     else
         throw(ArgumentError("axis must be :axial, :coronal, or :sagittal"))
     end
 end
 
-function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}; fov, slice_position, ti::SheppLoganIntensities, eltype::Type, supersample::Integer) where {A}
-    is_mask = ti isa SheppLoganIntensities{Bool}
-    check_supersample_eltype(supersample, is_mask)
+function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}, ::Type{T}; fov, slice_position, ti::SheppLoganIntensities, supersample::Integer) where {A, T}
+    check_supersample_eltype(supersample, ti isa SheppLoganIntensities{Bool})
 
     Δ1, Δ2 = fov[1] / nx, fov[2] / ny
     ax_3_val = slice_position ./ 8
@@ -75,10 +75,10 @@ function _create_shepp_logan_2d(nx::Int, ny::Int, ::Val{A}; fov, slice_position,
         ax_1n = ax_1 ./ 8
         ax_2n = ax_2 ./ 8
 
-        phantom = if is_mask
+        phantom = if ti isa SheppLoganIntensities{Bool}
             falses(nx, ny)
         else
-            zeros(eltype, nx, ny)
+            zeros(T, nx, ny)
         end
 
         # A is a compile-time constant here — DrawContext2D{A} is fully typed.

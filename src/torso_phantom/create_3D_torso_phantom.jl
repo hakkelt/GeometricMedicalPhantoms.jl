@@ -57,7 +57,7 @@ function create_torso_phantom(nx::Int = 128, ny::Int = 128, nz::Int = 128; fov =
     nt = max(resp_length, cardiac_length)
     check_supersample_eltype(supersample, ti isa TissueMask)
     phantom4d = render_supersampled(supersample, Val(3)) do offset
-        frames, static_image = preallocate_phantom_array(nx, ny, nz, nt, eltype, ti)
+        frames, static_image = preallocate_phantom_array(nx, ny, nz, nt, T, ti)
         static_bones_mask = fill(false, nx, ny, nz)
         draw_3D_torso_phantom!(frames, static_image, static_bones_mask, fov, ti, respiratory_signal, cardiac_volumes, offset)
         frames

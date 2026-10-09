@@ -22,7 +22,7 @@ end
 function _create_torso_phantom_2d(nx::Int, ny::Int, ::Val{A}, eltype::Type{T}; fov, slice_position, respiratory_signal, cardiac_volumes, ti::AbstractTissueParameters, supersample::Integer) where {A, T}
     check_supersample_eltype(supersample, ti isa TissueMask)
     return render_supersampled(supersample, Val(2)) do offset
-        _render_torso_phantom_2d(nx, ny, Val(A), eltype, offset; fov, slice_position, respiratory_signal, cardiac_volumes, ti)
+        _render_torso_phantom_2d(nx, ny, Val(A), T, offset; fov, slice_position, respiratory_signal, cardiac_volumes, ti)
     end
 end
 
